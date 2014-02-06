@@ -12,15 +12,13 @@ namespace Kalculator {
 		// Selecting functions and getting info
 		private Function selectedFunction = null;
 		private string functionDescription = "";
-		private Vector2 functionDescriptionSize = new Vector2(0, 0);
+		private float functionDescriptionHeight = 0;
 
 		// Editing functions
 		private Function editFunction = null;
 		private string editFunctionContent = "";
 		private string editFunctionName = "maneuver";
 		private string functionFile = "maneuver.math";
-		//private string oldFunctionName = "maneuver";
-		//private string oldFunctionFile = "maneuver.math";
 		private string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
 		// Running functions
@@ -41,19 +39,28 @@ namespace Kalculator {
 		private Rect mainButtonPos = new Rect(200, 5, 100, 20);
 
 		// Window positions
-		private Rect mainWindowPos = new Rect(0, 40, 300, 0);
+		private Rect mainWindowPos = new Rect(0, 60, 275, 0);
 		private bool mainWindowEnabled = false;
-		private Rect editWindowPos = new Rect(260, 40, 350, 0);
+		private Rect editWindowPos = new Rect(280, 60, 350, 0);
 		private bool editWindowEnabled = false;
-		private Rect runWindowPos = new Rect(0, 310, 200, 0);
+		private Rect runWindowPos = new Rect(0, 370, 200, 0);
 		private bool runWindowEnabled = false;
 
 		// Dictionary containing all available functions
 		Dictionary<string, Function> functions;
 		string functionDir = "";
 
+		// Math symbols
+		string[] greekLetters = new[] {"α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ","υ","φ","χ","ψ","ω"};
+		string[] greekUCLetters = new[] {"Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π","Ρ","Σ","Τ","Υ","Φ","Χ","Ψ","Ω"};
+		string[] symbols = new[] {"=","+","-","*","×","·","/","÷","√","^","(",")","[","]","{","}","⌊","⌋","⌈","⌉"};
+
+		// GUI styles in use
+		private bool stylesInitiated = false;
+		GUIStyle keyboard;
+
 		/// <summary>Called by Unity when the Plugin is started</summary>
-		void Start () {
+		void Start() {
 			functionDir = Application.persistentDataPath + "/Kalculator";
 			editFunctionContent = maneuverTemplate;
 
@@ -70,36 +77,42 @@ namespace Kalculator {
 
 		/// <summary>Called by Unity to draw the GUI</summary>
 		public void OnGUI() {
+			// Initiate styles
+			if(!stylesInitiated) {
+				keyboard = new GUIStyle(GUI.skin.GetStyle("button"));
+				keyboard.padding = new RectOffset(0,0,2,2);
+			}
+
 			// Draw the main button
 			if(GUI.Button(mainButtonPos, "Kalculator"))
 				mainWindowEnabled = !mainWindowEnabled;
 
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
-				mainWindowPos = GUILayout.Window(93841, mainWindowPos, drawMainWindow, "Kalculator", GUILayout.ExpandHeight(true));
+				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kalculator", GUILayout.ExpandHeight(true));
 				mainWindowPos.height = 0;
 			}
 
 			if(editWindowEnabled) {
-				editWindowPos = GUILayout.Window(93842, editWindowPos, drawEditWindow, "Function Editor", GUILayout.ExpandHeight(true));
+				editWindowPos = GUILayout.Window(93842, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(true));
 				editWindowPos.height = 0;
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUILayout.Window(93843, runWindowPos, drawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(true));
+				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(true));
 				runWindowPos.height = 0;
 			}
 		}
 
 		/// <summary>Draws the main window that displays a list of available functions</summary>
 		/// <param name="id">An unique number indentifying the window</param>
-		public void drawMainWindow(int id) {
+		public void DrawMainWindow(int id) {
 			// Close button at the top right corner
 			mainWindowEnabled = !GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, "");
 
-			GUILayout.Label ("Available functions:");
+			GUILayout.Label("Available functions:");
 
-			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, GUILayout.Height(200));
+			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(200));
 
 			foreach(KeyValuePair<string, Function> f in functions) {
 				GUILayout.BeginHorizontal();
@@ -107,16 +120,14 @@ namespace Kalculator {
 				if(GUILayout.Button(f.Key)) { 
 					selectedFunction = f.Value;
 					functionDescription = FunctionDescription(f.Value);
-					functionDescriptionSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(functionDescription));
+					functionDescriptionHeight = GUI.skin.GetStyle("label").CalcHeight(new GUIContent(functionDescription), 225);
 				}
 
 				if(GUILayout.Button("Edit", GUILayout.Width(40))) {
 					// Load the function to be edited
 					editFunction = f.Value;
 					functionFile = functionDir +"/"+ f.Key +".math";
-					//oldFunctionFile = functionFile;
 					editFunctionName = f.Key;
-					//oldFunctionName = editFunctionName;
 					editFunctionContent = System.IO.File.ReadAllText(functionFile);
 					editWindowEnabled = true;
 				}
@@ -126,8 +137,10 @@ namespace Kalculator {
 					functionOutput = "";
 					runFunction = f.Value;
 					runWindowEnabled = true;
-					functionDescription = FunctionDescription(f.Value);
-					functionDescriptionSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(functionDescription));
+
+					// Run it
+					List<Variable> output = Run(runFunction);
+					functionOutput = FormatOutput(runFunction, output);
 				}
 
 				GUILayout.EndHorizontal();
@@ -135,7 +148,7 @@ namespace Kalculator {
 				// When a function is selected, display some info
 				if(selectedFunction == f.Value) {
 					GUILayout.Label("Function info:");
-					GUILayout.Label(functionDescription, GUILayout.Width(functionDescriptionSize.x), GUILayout.Height(functionDescriptionSize.y)); 
+					GUILayout.Label(functionDescription, GUILayout.Width(225), GUILayout.Height(functionDescriptionHeight)); 
 				}
 			}
 
@@ -143,43 +156,41 @@ namespace Kalculator {
 
 			GUILayout.Space(20);	
 
-			GUILayout.BeginHorizontal ();
+			GUILayout.BeginHorizontal();
 			if(GUILayout.Button("New function")) {
 				editFunction = null;
+
 				// Load template for an empty function
 				functionFile = functionDir +"/unnamed.math";
-				//oldFunctionFile = functionFile;
 				editFunctionName = "unnamed";
-				//oldFunctionName = editFunctionName;
 				editFunctionContent = "";
 				editWindowEnabled = true;
 			}
 
 			if(GUILayout.Button("New maneuver")) {
 				editFunction = null;
+
 				// Load template for a function controlling a maneuver node
 				functionFile = functionDir +"/maneuver.math";
-				//oldFunctionFile = functionFile;
 				editFunctionName = "maneuver";
-				//oldFunctionName = editFunctionName;
 				editFunctionContent = maneuverTemplate;
 				editWindowEnabled = true;
 			}
 
-			GUILayout.EndHorizontal ();
+			GUILayout.EndHorizontal();
 
 			GUI.DragWindow(titleBarRect);
 		}
 		
 		/// <summary>Draws the edit window that allows basic text editing.</summary>
 		/// <param name="id">An unique number indentifying the window</param>
-		public void drawEditWindow(int id) {
+		public void DrawEditWindow(int id) {
 			// Close button
 			editWindowEnabled = !GUI.Toggle(new Rect(editWindowPos.width - 25, 0, 20, 20), !editWindowEnabled, "");
 
-			GUILayout.BeginHorizontal ();
+			GUILayout.BeginHorizontal();
 			
-			if (GUILayout.Button ("Delete", GUILayout.MaxWidth(70))) {
+			if(GUILayout.Button("Delete", GUILayout.MaxWidth(70))) {
 				Delete();
 			}
 
@@ -192,18 +203,49 @@ namespace Kalculator {
 					editFunction = functions[editFunctionName];
 			}
 
-			GUILayout.EndHorizontal ();
+			GUILayout.EndHorizontal();
 
-			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, GUILayout.Height(200), GUILayout.Width(400));
+			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(200), GUILayout.Width(460));
 			editFunctionContent = GUILayout.TextArea(editFunctionContent, GUILayout.ExpandWidth(true));
+			TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			GUILayout.EndScrollView();
+
+			GUILayout.BeginHorizontal();
+			foreach(string s in greekLetters) {
+				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
+					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
+					editor.pos ++;
+					editor.selectPos ++;
+				}
+			}
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			foreach(string s in greekUCLetters) {
+				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
+					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
+					editor.pos ++;
+					editor.selectPos ++;
+				}
+			}
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			foreach(string s in symbols) {
+				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
+					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
+					editor.pos ++;
+					editor.selectPos ++;
+				}
+			}
+			GUILayout.EndHorizontal();
 
 			GUI.DragWindow(titleBarRect);
 		}
 
 		/// <summary>Draws the run window that allows execution of a function.</summary>
 		/// <param name="id">An unique number indentifying the window</param>
-		public void drawRunWindow(int id) {
+		public void DrawRunWindow(int id) {
 			// Close button
 			runWindowEnabled = !GUI.Toggle(new Rect(runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
 
@@ -257,7 +299,7 @@ namespace Kalculator {
 					functionOutput = FormatOutput(runFunction, output);
 				}
 
-				GUILayout.EndHorizontal ();
+				GUILayout.EndHorizontal();
 
 				GUILayout.Label(functionOutput);
 			}
@@ -302,15 +344,15 @@ namespace Kalculator {
 
 			//placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
 			//and log an exception if we get a bad dV vector:
-			for (int i = 0; i < 3; i++)
+			for(int i = 0; i < 3; i++)
 			{
-				if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
+				if(double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
 				{
 					throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad dV: " + dV);
 				}
 			}
 
-			if (double.IsNaN(UT) || double.IsInfinity(UT))
+			if(double.IsNaN(UT) || double.IsInfinity(UT))
 			{
 				throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad UT: " + UT);
 			}
@@ -337,24 +379,8 @@ namespace Kalculator {
 
 			functionFile = functionDir +"/"+ editFunctionName +".math";
 			System.IO.File.WriteAllText(functionFile, editFunctionContent);
-			//oldFunctionFile = functionFile;
 
 			Scan();
-			/*
-			functions = Function.Scan(functionDir);
-			editFunction = functions[editFunctionName];
-
-			if(runFunction != null && runFunction.Id == oldFunctionName) {
-				runFunction = editFunction;
-				functionOutput = "";
-			}
-
-			if(selectedFunction != null)
-				selectedFunction = functions[selectedFunction.Id];
-
-			functionDescription = FunctionDescription(editFunction);
-			functionDescriptionSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(functionDescription));
-			*/
 		}
 
 		/// <summary>Delete the current function being edited.</summary>
@@ -367,21 +393,6 @@ namespace Kalculator {
 
 			Scan();
 			editWindowEnabled = false;
-
-			/*
-			functions = Function.Scan(functionDir);
-
-			if(runFunction != null && runFunction.Id == oldFunctionName) {
-				runFunction = null;
-				functionOutput = "";
-			}
-
-			if(selectedFunction != null && selectedFunction.Id == oldFunctionName) {
-				selectedFunction = null;
-				functionDescription = "";
-				functionDescriptionSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(functionDescription));
-			}
-			*/
 		}
 
 		/// <summary>Obtain some info of a function.</summary>
@@ -389,7 +400,9 @@ namespace Kalculator {
 		public string FunctionDescription(Function f) {
 			string desc = "";
 
-			if(f.Ins.Count > 0) {
+			if(f.Ins.Count == 0) {
+				desc += "Inputs: none.";
+			} else {
 				desc += "Inputs:\n";
 				for(int i=0; i<f.Ins.Count; i++) {
 					desc += f.Ins[i];
@@ -397,14 +410,12 @@ namespace Kalculator {
 						desc += ": "+ f.InDescriptions[i];
 					desc += "\n";
 				}
-
 			}
 
-			if(f.Outs.Count > 0) {
-				if(f.Ins.Count > 0)
-					desc += "\n";
-
-				desc += "Outputs:\n";
+			if(f.Outs.Count == 0) {
+				desc += "\nOutputs: none.";
+			} else {
+				desc += "\nOutputs:\n";
 				for(int i=0; i<f.Outs.Count; i++) {
 					desc += f.Outs[i];
 					if(i < f.OutDescriptions.Count)
@@ -424,15 +435,11 @@ namespace Kalculator {
 		/// <param name="output">The variables resuting from the execution</param>
 		public string FormatOutput(Function f, List<Variable> output) {
 			string desc = "Outputs:\n";
-			if(f.Outs.Count == 0) {
+			if(output.Count == 0) {
 				desc += "None.";
 			} else {
-				for(int i=0; i<f.Outs.Count; i++) {
-					desc += f.Outs[i];
-					if(i < output.Count)
-						desc += ": "+ output[i].ToString();
-					desc += "\n";
-				}
+				foreach(Variable v in output)
+					desc += v.id +" = "+ v.ToString() +"\n";
 			}
 
 			if(f.InError)
@@ -467,7 +474,7 @@ namespace Kalculator {
 					functionDescription = "";
 				}
 
-				functionDescriptionSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(functionDescription));
+				functionDescriptionHeight = GUI.skin.GetStyle("label").CalcHeight(new GUIContent(functionDescription), 225);
 			}
 
 			if(editFunction != null) {
