@@ -68,6 +68,9 @@ namespace Kalculator {
 			globals.Add("pi", new Variable("pi", VarType.NUMBER, Math.PI));
 			globals.Add("π", new Variable("π", VarType.NUMBER, Math.PI));
 			globals.Add("e", new Variable("e", VarType.NUMBER, Math.E));
+
+			// Add KSP globals
+			Globals.Add(this);
 		}
 
 		public void AddGlobal(Variable v) {

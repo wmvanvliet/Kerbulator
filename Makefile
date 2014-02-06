@@ -54,11 +54,11 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kalculator/Plugins
 
 test: info
-	${GMCS} Kalculator.cs Function.cs Variable.cs Tokenizer.cs
+	${GMCS} Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
 	${MONO} Kalculator.exe tests
 
 unity: 
-	cp Kalculator.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
+	cp Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs ~/Calculator/Assets/Standard\ Assets/
 	cp KalculatorGUI.cs ~/Calculator/Assets/
 
 

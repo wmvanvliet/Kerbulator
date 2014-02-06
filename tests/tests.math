@@ -94,8 +94,8 @@ x = functions
 # Run test on constants
 x = constants
 
-out1 = a # Test simple output
-out2 = [a, [1,2,3]] # Test list output
+# Run test on globals
+x = globals
 
 # Get creative with identifiers
 a = 1 # single char
@@ -105,3 +105,7 @@ aa = 1 # multiple chars
 a_b = 1 # containing underscores
 a.b = .0 # containing a dot
 a.b = 1.0
+
+out1 = a # Test simple output
+out2 = [a, [1,2,3]] # Test list output
+

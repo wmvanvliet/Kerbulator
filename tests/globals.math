@@ -1,0 +1,5 @@
+out: x
+
+# Test globals
+x = Kerbin.µ
+x = Eve.AtmosHeight
