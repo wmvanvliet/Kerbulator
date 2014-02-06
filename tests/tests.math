@@ -64,25 +64,35 @@ k = somefunc2([1,2,3], [4,5,6]) # Test user function call with list
 l = somefunc3() # Test function generating a list
 l = abs(somefunc3())
 
+# Test calling function without any arguments
+m = somefunc4
+m = 1 + somefunc4
+m = somefunc4()
+m = somefunc4 + 1
+m = √(|-somefunc4| + 1)
+
 # Test functions operating on lists
-m = norm([1,2,3])
-m = cross(norm([1,2,3]), norm([1,2,1]))
+n = norm([1,2,3])
+n = cross(norm([1,2,3]), norm([1,2,1]))
 
 # Test operators on lists
-n = [1,2,3] + [1,2,3]
-n = 1 + [1,2,3]
-n = [1,2,3] + 1
-n = [[1,1,1], [2,2,2]] + [[1,1,1], [2,2,2]]
-n = [[1,1,1], [2,2,2]] + 1
-n = 1 + [[1,1,1], [2,2,2]]
-n = [1,2] + [[1,1,1], [2,2,2]]
-n = [[1,1,1], [2,2,2]] + [1,2]
+o = [1,2,3] + [1,2,3]
+o = 1 + [1,2,3]
+o = [1,2,3] + 1
+o = [[1,1,1], [2,2,2]] + [[1,1,1], [2,2,2]]
+o = [[1,1,1], [2,2,2]] + 1
+o = 1 + [[1,1,1], [2,2,2]]
+o = [1,2] + [[1,1,1], [2,2,2]]
+o = [[1,1,1], [2,2,2]] + [1,2]
 
 # Run test on all operators
-x = operators()
+x = operators
 
 # Run test on all functions
-x = functions()
+x = functions
+
+# Run test on constants
+x = constants
 
 out1 = a # Test simple output
 out2 = [a, [1,2,3]] # Test list output

@@ -199,7 +199,7 @@ namespace Kalculator {
 					break;
 
 				default:
-					Console.Write(" "+ t.ToString());
+					Kalculator.Debug(" "+ t.ToString());
 					tokens.Enqueue(t);
 					break;
 			}

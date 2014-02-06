@@ -88,7 +88,7 @@ namespace Kalculator {
 
 		public string ErrorString {
 			get { return errorString; }
-			set { errorString = (string)value; Console.WriteLine(value); inError = true; }
+			set { errorString = (string)value; Kalculator.DebugLine(value); inError = true; }
 		}
 
 		private Token Consume() {
@@ -134,7 +134,7 @@ namespace Kalculator {
 
 				Consume(TokenType.END);
 				ins.Add(id.val);
-				Console.WriteLine("Found IN statement for "+ id.val);
+				Kalculator.DebugLine("Found IN statement for "+ id.val);
 			}
 
 			while(tokens.Peek().type == TokenType.END)
@@ -150,10 +150,10 @@ namespace Kalculator {
 
 				Consume(TokenType.END);
 				outs.Add(id.val);
-				Console.WriteLine("Found OUT statement for "+ id.val);
+				Kalculator.DebugLine("Found OUT statement for "+ id.val);
 			}
 
-			Console.WriteLine("");
+			Kalculator.DebugLine("");
 		}
 
 		public List<Variable> Execute(List<Variable> arguments, Dictionary<string, Operator> operators, Dictionary<string, Variable> globals, Dictionary<string, Function> functions) {
@@ -223,7 +223,7 @@ namespace Kalculator {
 					locals[ids[0]] = copy;
 				else
 					locals.Add(ids[0], copy);
-				Console.WriteLine(ids[0] +" = "+ val.ToString());
+				Kalculator.DebugLine(ids[0] +" = "+ val.ToString());
 				return copy;
 			} else {
 				List<Variable> elements = new List<Variable>(ids.Count);
@@ -239,11 +239,11 @@ namespace Kalculator {
 					else
 						locals.Add(ids[i], copy);
 
-					Console.Write(ids[i] +" = "+ val.elements[i].ToString() +", ");
+					Kalculator.Debug(ids[i] +" = "+ val.elements[i].ToString() +", ");
 					elements.Add(copy);
 				}
 
-				Console.WriteLine("");
+				Kalculator.DebugLine("");
 				return new Variable(VarType.LIST, elements);
 			}
 		}
@@ -257,7 +257,7 @@ namespace Kalculator {
 			int supplied = expr.Count;
 
 			foreach(Operator op in ops) {
-				Console.WriteLine(op.id);
+				Kalculator.DebugLine(op.id);
 				supplied ++;
 				if(op.arity == Arity.BINARY)
 					required += 2;
@@ -265,7 +265,7 @@ namespace Kalculator {
 					required += 1;
 			}
 
-			Console.WriteLine("required: "+ required +", supplied: "+ supplied);
+			Kalculator.DebugLine("required: "+ required +", supplied: "+ supplied);
 			return supplied == required + 1;
 		}
 
@@ -275,7 +275,7 @@ namespace Kalculator {
 
 			while(tokens.Count > 0 && tokens.Peek().type != TokenType.END) {
 				Token t = tokens.Peek();
-				Console.WriteLine("Token: "+ Enum.GetName(typeof(TokenType), t.type) +": "+ t.val);
+				Kalculator.DebugLine("Token: "+ Enum.GetName(typeof(TokenType), t.type) +": "+ t.val);
 
 				if(t.type == TokenType.BRACE) {
 					// Determine whether it's a left or right brace
@@ -292,9 +292,9 @@ namespace Kalculator {
 							isLeft = !PossiblyValidExpression(expr, ops);
 
 							if(isLeft)
-								Console.WriteLine("| is left brace");
+								Kalculator.DebugLine("| is left brace");
 							else {
-								Console.WriteLine("| is right brace");
+								Kalculator.DebugLine("| is right brace");
 							}
 							break;
 					} 
@@ -304,9 +304,9 @@ namespace Kalculator {
 						Consume();
 
 						// Execute sub-expression
-						Console.WriteLine("Starting subexpression");
+						Kalculator.DebugLine("Starting subexpression");
 						Variable subexpr = ExecuteExpression();
-						Console.WriteLine("Answer of subexpression: "+ subexpr.ToString());
+						Kalculator.DebugLine("Answer of subexpression: "+ subexpr.ToString());
 						expr.Push(subexpr);
 
 						// Consume right brace. Execute operation if any
@@ -354,10 +354,10 @@ namespace Kalculator {
 					if(op.arity == Arity.BOTH) {	
 						if(PossiblyValidExpression(expr, ops) ) {
 							op = new Operator(op.id, op.precidence, Arity.BINARY);
-							Console.WriteLine(op.id +" is binary.");
+							Kalculator.DebugLine(op.id +" is binary.");
 						} else {
 							op = new Operator(op.id, 3, Arity.UNARY);
-							Console.WriteLine(op.id +" is unary.");
+							Kalculator.DebugLine(op.id +" is unary.");
 						}
 					} 
 
@@ -387,11 +387,11 @@ namespace Kalculator {
 						// Check for argument list
 						if(tokens.Peek().val == "(") {
 							Consume();
-							Console.WriteLine("Arguments specified");
+							Kalculator.DebugLine("Arguments specified");
 							while(tokens.Peek().val != ")") {
-								Console.WriteLine("Starting subexpression");
+								Kalculator.DebugLine("Starting subexpression");
 								Variable subexpr = ExecuteExpression();
-								Console.WriteLine("Answer of subexpression: "+ subexpr.ToString());
+								Kalculator.DebugLine("Answer of subexpression: "+ subexpr.ToString());
 								arguments.Add(subexpr);
 								
 								if(tokens.Peek().val != ")")
@@ -399,15 +399,28 @@ namespace Kalculator {
 							}
 							Consume(")");
 
-							// Execute function right now
+							// Execute function right now with the given argument list
 							Variable result = ExecuteFunction(var, arguments);
-							Console.WriteLine("Result of function: "+ result.ToString());
+							Kalculator.DebugLine("Result of function: "+ result.ToString());
 							expr.Push(result);
 						} else {
-							// Push the execution of the function onto the stack
-							Console.WriteLine("No arguments specified");
-							expr.Push(var);
-							ops.Push(operators["func"]);
+							int numArgs = 0;
+							if(var.type == VarType.FUNCTION)
+								numArgs = globals[t.val].numArgs;
+							else
+								numArgs = functions[t.val].Ins.Count;
+
+							if(numArgs == 0) {
+								// Function doesn't take arguments, execute right now with empty argument list
+								Variable result = ExecuteFunction(var, new List<Variable>());
+								Kalculator.DebugLine("Result of function: "+ result.ToString());
+								expr.Push(result);
+							} else {
+								// Push the execution of the function onto the stack
+								Kalculator.DebugLine("No arguments specified");
+								expr.Push(var);
+								ops.Push(operators["func"]);
+							}
 						}
 					} else {	
 						expr.Push(var);
@@ -420,9 +433,9 @@ namespace Kalculator {
 					List<Variable> elements = new List<Variable>();
 					Consume();
 					while(tokens.Peek().val != "]") {
-						Console.WriteLine("Starting subexpression");
+						Kalculator.DebugLine("Starting subexpression");
 						Variable subexpr = ExecuteExpression();
-						Console.WriteLine("Answer of subexpression: "+ subexpr.ToString());
+						Kalculator.DebugLine("Answer of subexpression: "+ subexpr.ToString());
 						elements.Add(subexpr);
 						
 						if(tokens.Peek().val != "]")
@@ -447,7 +460,7 @@ namespace Kalculator {
 		}
 
 		private Variable ExecuteOperator(Operator op, Stack<Variable> expr, Stack<Operator> ops) {
-			Console.WriteLine("Executing: "+ op.id);
+			Kalculator.DebugLine("Executing: "+ op.id);
 			if(op.arity == Arity.BINARY && expr.Count < 2)
 				throw new Exception("Malformed expression");
 			else if(op.arity == Arity.UNARY && expr.Count < 1)
@@ -523,7 +536,7 @@ namespace Kalculator {
 		}
 
 		private Variable ExecuteFunction(Variable func, List<Variable> arguments) {
-			Console.WriteLine("Executing function: "+ func.id);
+			Kalculator.DebugLine("Executing function: "+ func.id);
 
 			if(func.type == VarType.FUNCTION) {
 				if(arguments.Count != func.numArgs)
@@ -662,7 +675,7 @@ namespace Kalculator {
 				}
 			} else {
 				// User function
-				Console.WriteLine("Executing "+ func.id);
+				Kalculator.DebugLine("Executing "+ func.id);
 				List<Variable> result = functions[func.id].Execute(arguments, operators, globals, functions);
 
 				if(result.Count == 1)

@@ -6,6 +6,16 @@ using System.Collections.Generic;
 
 namespace Kalculator {
 	public class Kalculator {
+		public static bool DEBUG = false;
+		public static void Debug(string s) {
+			if(DEBUG)
+				Console.Write(s);
+		}
+		public static void DebugLine(string s) {
+			if(DEBUG)
+				Console.WriteLine(s);
+		}
+
 		private Dictionary<string, Operator>operators;
 		private Dictionary<string, Variable> globals;
 		private string functionDir;
@@ -54,6 +64,10 @@ namespace Kalculator {
 			globals.Add("norm", new Variable("norm", VarType.FUNCTION, 1));
 			globals.Add("dot", new Variable("dot", VarType.FUNCTION, 2));
 			globals.Add("cross", new Variable("cross", VarType.FUNCTION, 2));
+
+			globals.Add("pi", new Variable("pi", VarType.NUMBER, Math.PI));
+			globals.Add("π", new Variable("π", VarType.NUMBER, Math.PI));
+			globals.Add("e", new Variable("e", VarType.NUMBER, Math.E));
 		}
 
 		public void AddGlobal(Variable v) {
@@ -74,11 +88,12 @@ namespace Kalculator {
 		}
 
 		public static void Main(string[] args) {
-			Kalculator c = new Kalculator("./tests");
-			List<Variable> result = c.Run(args[0]);
+			Kalculator k = new Kalculator("./tests");
+			Kalculator.DEBUG = true;
+			List<Variable> result = k.Run(args[0]);
 			foreach(Variable v in result)
-				Console.Write(v.id +" = "+ v.ToString() +", ");
-			Console.Write("\n");
+				Debug(v.id +" = "+ v.ToString() +", ");
+			Debug("\n");
 		}
 	}
 }
