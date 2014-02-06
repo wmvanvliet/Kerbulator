@@ -1,0 +1,4 @@
+in: x "Some input"
+out: y "Result of x + 2"
+
+y = x + 2

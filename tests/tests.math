@@ -1,0 +1,88 @@
+out: out1 "The first output"
+out: out2 # No output description given
+
+a = 1 + 1 # Test a simple expression
+a = 1 + 1 # Test overwriting existing variable
+b = 1 + 1 * 2 + 2 # Test operator precidence
+b = a + a # Test using existing variables
+b = 2 * b # Test overriding a variable based on itself
+
+c = 10.234 # Test floating point number
+c = .234 # Test floating point number without leading 0
+c = -2 # Test negative number
+c = -10.234 # Test negative floating point number
+c = -.234 # Test negative floating point number without leading 0
+c = -.234E-06 # Test scientific notation
+
+d = √2 # Test unary operators
+d = -2
+d = -√2 # Test chaining of unary operators
+d = --√2 # Test chaining of unary operators
+d = -√2 * -√2
+
+e = (1+1) * (2+2) # Test simple brackets
+e = {1+1} * {2+2} # Test other brackets
+e = {(1+1) * (2+2)} / {(1+1) * (2+2)} # Test mixing brackets
+e = ⌊1.5+1.5⌋ * ⌊2.5+2.5⌋ # Test brackets with meaning
+e = ⌈0.5+0.5⌉ * ⌈1.5+1.5⌉ 
+
+f = |-1| # Test absolute brackets
+f = |-4.0|
+f = |1-3|
+f = ||-1||
+f = |-√2|
+f = -|√2|
+f = √--|2|
+f = |1-3| * |-4.0|
+
+g = [1,2,3] # Test list
+g = [1+1,(2-3),-|√3|] # Test list with expressions
+g = [[1,2,3],2,[3,4,5]] # Test nested lists
+g,h,i = [[1,2,3],2,[3,4,5]] # Test list unwrapping
+
+j = sin(a) # Test function call
+j = max(a, b) # Test function call with multiple argument
+j = sin a # Test function call without argument list
+j = sin(a) + cos(a) # Test nested function call
+j = sin a  + cos a  # Test nested function call without argument list
+j = sin(a+b) # Test function call with expression
+j = max(sin(a+b), cos(a+b)) # Test function call with argument list that contains expressions
+j = sin([1,2,3]) # Test function call with list
+j = sin [1,2,3] # Test function call with list
+
+k = somefunc(a) # Test user function call
+k = somefunc (a)
+k = somefunc2(a, b) # Test user function call with multiple arguments
+k = somefunc a # Test user function call without argument list
+k = somefunc(a) + somefunc(a) # Test nested user function call
+k = somefunc a  + somefunc a  # Test nested user function call without argument list
+k = somefunc(a+b) # Test user function call with expression
+k = somefunc2(somefunc(a+b), somefunc(a+b)) # Test user function call with argument list that contains expressions
+k = somefunc [1,2,3] # Test user function call with list
+k = somefunc2([1,2,3], [4,5,6]) # Test user function call with list
+
+l = somefunc3() # Test function generating a list
+l = abs(somefunc3())
+
+# Test functions operating on lists
+m = norm([1,2,3])
+m = cross(norm([1,2,3]), norm([1,2,1]))
+
+# Test operators on lists
+n = [1,2,3] + [1,2,3]
+n = 1 + [1,2,3]
+n = [1,2,3] + 1
+n = [[1,1,1], [2,2,2]] + [[1,1,1], [2,2,2]]
+n = [[1,1,1], [2,2,2]] + 1
+n = 1 + [[1,1,1], [2,2,2]]
+n = [1,2] + [[1,1,1], [2,2,2]]
+n = [[1,1,1], [2,2,2]] + [1,2]
+
+# Run test on all operators
+x = operators()
+
+# Run test on all functions
+x = functions()
+
+out1 = a # Test simple output
+out2 = [a, [1,2,3]] # Test list output

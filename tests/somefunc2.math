@@ -1,0 +1,5 @@
+in: a "Left hand value"
+in: b "Right hand value"
+out: c "Summation of a + b"
+
+c = a + b
