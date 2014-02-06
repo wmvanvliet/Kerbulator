@@ -96,3 +96,12 @@ x = constants
 
 out1 = a # Test simple output
 out2 = [a, [1,2,3]] # Test list output
+
+# Get creative with identifiers
+a = 1 # single char
+aa = 1 # multiple chars
+ß = 1 # unicode
+ßß = 1 # unicode, multiple chars
+a_b = 1 # containing underscores
+a.b = .0 # containing a dot
+a.b = 1.0

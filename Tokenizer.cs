@@ -121,7 +121,6 @@ namespace Kalculator {
 								throw new Exception("invalid char");
 							tok.val += c;
 						} else if(tok.type == TokenType.IDENTIFIER) {
-							HandleToken(tok);
 							tok.val += c;
 						} else 
 							throw new Exception("invalid char");
