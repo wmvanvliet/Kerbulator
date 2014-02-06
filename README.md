@@ -7,6 +7,8 @@ Kalculator comes without any preprogrammed formulae. While it can be fun to use 
 
 What you get is access to all the numbers you can read off the various displays in vanilla KSP and a simple expression language to write functions operating on them. This enables you to use them to calculate useful stuff like Hohmann transfers, gravitational slingshots, launch windows, etc. Kalculator can also create maneuver nodes for you based on your calculations.
 
-[[Tutorial]] <br/>
-[[Language reference]] <br/>
-[[Start learning KSP math]] <br/>
+[Tutorial](https://github.com/wmvanvliet/Kalculator/wiki/Tutorial) <br/>
+[Language reference] (https://github.com/wmvanvliet/Kalculator/wiki/Language-reference) <br/>
+[Start learning KSP math] (https://github.com/wmvanvliet/Kalculator/wiki/Start-learning-KSP-math)
+
+
