@@ -162,11 +162,11 @@ To access the individual elements of a list, you must use the list unpacking fea
 
 An expression can call a function and use the output of this function for further computation. A function call is performed by simply denoting the name of the function:
 
-   1 + someFunction # Executes someFunction and adds 1
+    1 + someFunction # Executes someFunction and adds 1
 
 To call a function with one input argument, the argument simply follows the function name:
 
-   someFunction 2  # Execute someFunction with 2 as input
+    someFunction 2  # Execute someFunction with 2 as input
 
 More than one input can be specified by using the form `(expression, ..., expression)`. For example:
 
@@ -186,7 +186,7 @@ And so are these:
     someFunction (1)
 
 #### Build-in functions
-Apart from the functions you write yourself, Kalculator supplied the following build-in functions:
+Apart from the functions you write yourself, Kalculator supplies the following build-in functions:
 
     abs(x)     # Absolute value
     acos(x)    # Arccosine, or cos^(-1)
