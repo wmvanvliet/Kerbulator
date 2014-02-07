@@ -318,9 +318,8 @@ namespace Kalculator {
 			kalc.AddGlobal(new Variable(prefix +".v", VarType.NUMBER, (double)orbit.vel.magnitude));
 			kalc.AddGlobal(new Variable(prefix +".TrueAnomaly", VarType.NUMBER, (double)orbit.trueAnomaly));
 			kalc.AddGlobal(new Variable(prefix +".θ", VarType.NUMBER, (double)orbit.trueAnomaly));
-			kalc.AddGlobal(new Variable(prefix +".UTsoi", VarType.NUMBER, (double)orbit.UTsoi));
-			kalc.AddGlobal(new Variable(prefix +".UTappr", VarType.NUMBER, (double)orbit.UTappr));
-			//kalc.AddGlobal(new Variable(prefix +".P", VarType.NUMBER, (double)orbit.orbitalPercent));
+			kalc.AddGlobal(new Variable(prefix +".TimeToSOI", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
+			kalc.AddGlobal(new Variable(prefix +".TimeToAppr", VarType.NUMBER, (double)orbit.UTappr-Planetarium.GetUniversalTime()));
 		}
 
 		public static void AddCelestialBody(Kalculator kalc, CelestialBody body) {
