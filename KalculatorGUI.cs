@@ -314,18 +314,18 @@ namespace Kalculator {
 			// UNITY
 			Vessel v = FlightGlobals.ActiveVessel;
 			if(v != null) {
-				Orbit o = v.orbit;
-				kalc.AddGlobal(new Variable("Altitude", VarType.NUMBER, o.altitude));
-				kalc.AddGlobal(new Variable("Apoapsis", VarType.NUMBER, o.ApA));
-				kalc.AddGlobal(new Variable("Inclination", VarType.NUMBER, o.inclination));
-				kalc.AddGlobal(new Variable("OrbitalSpeed", VarType.NUMBER, o.orbitalSpeed));
-				kalc.AddGlobal(new Variable("Periapsis", VarType.NUMBER, o.PeA));
-				kalc.AddGlobal(new Variable("TimeToAp", VarType.NUMBER, o.timeToAp));
-				kalc.AddGlobal(new Variable("TimeToPe", VarType.NUMBER, o.timeToPe));
-				kalc.AddGlobal(new Variable("VelocityX", VarType.NUMBER, o.vel[0]));
-				kalc.AddGlobal(new Variable("VelocityY", VarType.NUMBER, o.vel[2]));
-				kalc.AddGlobal(new Variable("VelocityZ", VarType.NUMBER, o.vel[1]));
-				kalc.AddGlobal(new Variable("UT", VarType.NUMBER, Planetarium.GetUniversalTime()));
+				// Current orbit
+				Globals.AddOrbit(kalc, v.orbit, "Craft");
+
+				// Current time
+				kalc.AddGlobal(new Variable("UT", VarType.NUMBER, (double)Planetarium.GetUniversalTime()));
+
+				// Reference body
+				Globals.AddCelestialBody(kalc, v.orbit.referenceBody, "Ref");
+
+				// Target orbit
+				if(FlightGlobals.fetch.VesselTarget != null)
+					Globals.AddOrbit(kalc, FlightGlobals.fetch.VesselTarget.GetOrbit(), "Target");
 			}
 			// /UNITY
 

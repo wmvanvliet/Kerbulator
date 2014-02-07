@@ -1,4 +1,7 @@
-﻿namespace Kalculator {
+﻿using KSP.IO; // UNITY
+using System;
+
+namespace Kalculator {
 	public static class Globals {
 		/// <summary>Add a variaty of KSP globals to a Kalculator, such as information about the planets.</summary>
 		/// <param name="kalc">The Kalculator to add the globals to.</param>
@@ -301,5 +304,40 @@
 			kalc.AddGlobal(new Variable("Eeloo.AtmosHeight", VarType.NUMBER, 0.0));
 			kalc.AddGlobal(new Variable("Eeloo.AtmosPress", VarType.NUMBER, 0.0));
 		}
+
+		// UNITY
+		public static void AddOrbit(Kalculator kalc, Orbit orbit, string prefix) {
+			kalc.AddGlobal(new Variable(prefix +".Ap", VarType.NUMBER, (double)orbit.ApA));
+			kalc.AddGlobal(new Variable(prefix +".Pe", VarType.NUMBER, (double)orbit.PeA));
+			kalc.AddGlobal(new Variable(prefix +".Inc", VarType.NUMBER, (double)orbit.inclination));
+			kalc.AddGlobal(new Variable(prefix +".Alt", VarType.NUMBER, (double)orbit.altitude));
+			kalc.AddGlobal(new Variable(prefix +".ArgPe", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
+			kalc.AddGlobal(new Variable(prefix +".ω", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
+			kalc.AddGlobal(new Variable(prefix +".TimeToAp", VarType.NUMBER, (double)orbit.timeToAp));
+			kalc.AddGlobal(new Variable(prefix +".TimeToPe", VarType.NUMBER, (double)orbit.timeToPe));
+			kalc.AddGlobal(new Variable(prefix +".v", VarType.NUMBER, (double)orbit.vel.magnitude));
+			kalc.AddGlobal(new Variable(prefix +".TrueAnomaly", VarType.NUMBER, (double)orbit.trueAnomaly));
+			kalc.AddGlobal(new Variable(prefix +".θ", VarType.NUMBER, (double)orbit.trueAnomaly));
+			kalc.AddGlobal(new Variable(prefix +".UTsoi", VarType.NUMBER, (double)orbit.UTsoi));
+			kalc.AddGlobal(new Variable(prefix +".UTappr", VarType.NUMBER, (double)orbit.UTappr));
+			//kalc.AddGlobal(new Variable(prefix +".P", VarType.NUMBER, (double)orbit.orbitalPercent));
+		}
+
+		public static void AddCelestialBody(Kalculator kalc, CelestialBody body) {
+			AddCelestialBody(kalc, body, body.name);
+		}
+
+		public static void AddCelestialBody(Kalculator kalc, CelestialBody body, string prefix) {
+			AddOrbit(kalc, body.orbit, prefix);
+			kalc.AddGlobal(new Variable(prefix +".R", VarType.NUMBER, (double)body.Radius));
+			kalc.AddGlobal(new Variable(prefix +".M", VarType.NUMBER, (double)body.Mass));
+			kalc.AddGlobal(new Variable(prefix +".mu", VarType.NUMBER, (double)body.gravParameter));
+			kalc.AddGlobal(new Variable(prefix +".µ", VarType.NUMBER, (double)body.gravParameter));
+			kalc.AddGlobal(new Variable(prefix +".day", VarType.NUMBER, (double)body.rotationPeriod));
+			kalc.AddGlobal(new Variable(prefix +".SOI", VarType.NUMBER, (double)body.sphereOfInfluence));
+			kalc.AddGlobal(new Variable(prefix +".AtmosHeight", VarType.NUMBER, (double)body.maxAtmosphereAltitude));
+			//kalc.AddGlobal(new Variable(prefix +".AtmosPress", VarType.NUMBER, 0.0));
+		}
+		// /UNITY
 	}
 }
