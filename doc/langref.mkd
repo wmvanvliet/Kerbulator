@@ -171,7 +171,6 @@ To call a function with one input argument, the argument simply follows the func
 More than one input can be specified by using the form `(expression, ..., expression)`. For example:
 
     someFunction(1,2,3) # Execute someFunction with 1,2 and 3 as inputs
-
     someFunction(1+1,2+2,3+3) # Execute someFunction with 2,4 and 6 as inputs
 
 The following function calls are identical:
