@@ -39,13 +39,13 @@ When the expression yields a list, the elements of the list can be assigned to s
     a, b = [1, 2]
 
 #### Identifiers
-An identifier is used to denote a variable or function name. It can be any unicode string that does not contain an operator (+ - / ÷ * × · ^ √ %), colon (:), equals sign (=), or bracket (( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |). Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
+An identifier is used to denote a variable or function name. It can be any unicode string that does not contain an operator `+ - / ÷ * × · ^ √ %`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
 
     a
     aaaa
     some_value
     someValue
-    Δv
+    één
     Kerbal.M
 
 ### Expressions
@@ -122,11 +122,14 @@ There are several types of brackets:
     |...| # use the absolute value of the sub-expression
  
 #### Lists
-A list is an ordered set of one or more numbers. It is denoted by an opening square bracket ([), one or more sub-expressions, separated by komma's (,) and finally a closing square bracket (]). For example:
+A list is an ordered set of one or more numbers. It takes the form of `[expression, ..., expression]`. For example:
 
     [1,2,3]         # A list of three elements 1,2 and 3
     [1+1, 2+2, 3+3] # A list of three elements, 2, 4 and 6
-    [a,b]           # A list containg the values of 'a' and 'b'
+    [a,b]           # A list containing the values of 'a' and 'b'
+    [1]             # A list containing only one value
+
+A list may not be empty (contain zero elements).
 
 A list can be assigned to a variable by using a statement:
 
@@ -135,9 +138,11 @@ A list can be assigned to a variable by using a statement:
 A list can be operated on by operators, in which case they are applied element-wise. For example:
 
     [1,2,3] + [1,2,3] # = [2,4,6]
+    [1,2,3] * [1,2,3] # = [1,2,9]
     [a,b,c] - [d,e,f] # = [a-d, b-e, c-f]
     -[1,2,3]          # = [-1,-2,-3]
     ⌊[1.1, 2.1, 3.1⌋  # = [1,2,3]
+    5 * [1,2,3]       # = [5,10,15]
 
 An exception are the `|...|` brackets. They treat the list as a vector and calculate the length:
 
@@ -163,7 +168,7 @@ To call a function with one input argument, the argument simply follows the func
 
    someFunction 2  # Execute someFunction with 2 as input
 
-More than one input can be specified by using an opening round bracket '(', followed by sub-expressions separated by komma's (,), followed by a closing round bracket ')':
+More than one input can be specified by using the form `(expression, ..., expression)`. For example:
 
     someFunction(1,2,3) # Execute someFunction with 1,2 and 3 as inputs
 
@@ -180,3 +185,30 @@ And so are these:
     someFunction 1
     someFunction(1)
     someFunction (1)
+
+#### Build-in functions
+Apart from the functions you write yourself, Kalculator supplied the following build-in functions:
+
+    abs(x)     # Absolute value
+    acos(x)    # Arccosine, or cos^(-1)
+    asin(x)    # Arcsine, or sin^(-1)
+    atan(x)    # Arctangent, or tan^(-1)
+    ceil(x)    # Round up to the nearest integer
+    cos(x)     # Cosine
+    exp(x)     # e to the power of x
+    floor(x)   # Round down to the nearest integer
+    ln(x)      # Natural logarithm
+    log(x)     # Same as 'ln'
+    log10(x)   # Base 10 logarithm
+    max(a,b)   # 'a' if 'a >= b' otherwise 'b'
+    min(a,b)   # 'a' if 'a <= b' otherwise 'b'
+    pow(a,b)   # a to the power of b
+    round(a,b) # Round a to b decimal places
+    sign(x)    # '-1' if 'a < 0' otherwise 1
+    sin(x)     # Sine
+    sqrt(x)    # Square root
+    tan(x)     # Tangent
+    len(x)     # Number of elements in list x
+    norm(x)    # Magnitude of vector x
+    dot(a,b)   # Dot product between list a and b
+    cross(a,b) # Cross product between list a and b
