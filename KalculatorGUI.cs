@@ -307,25 +307,52 @@ namespace Kalculator {
 			GUI.DragWindow(titleBarRect);
 		}
 
-
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
 		public List<Variable> Run(Function f) {
 			// UNITY
 			Vessel v = FlightGlobals.ActiveVessel;
+			Orbit orbit1 = v.orbit;
 			if(v != null) {
 				// Current orbit
-				Globals.AddOrbit(kalc, v.orbit, "Craft");
+				Globals.AddOrbit(kalc, orbit1, "Craft");
 
 				// Current time
-				kalc.AddGlobal(new Variable("UT", VarType.NUMBER, (double)Planetarium.GetUniversalTime()));
+				double UT = (double)Planetarium.GetUniversalTime();
+				Globals.AddDouble(kalc, "UT", UT);
+
+				// SOI change
+				Globals.AddDouble(kalc, "Craft.TimeToSOI", orbit1.UTsoi-UT);
 
 				// Reference body
-				Globals.AddCelestialBody(kalc, v.orbit.referenceBody, "Ref");
+				Globals.AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
 
 				// Target orbit
-				if(FlightGlobals.fetch.VesselTarget != null)
-					Globals.AddOrbit(kalc, FlightGlobals.fetch.VesselTarget.GetOrbit(), "Target");
+				if(FlightGlobals.fetch.VesselTarget != null) {
+					ITargetable target = FlightGlobals.fetch.VesselTarget;
+					Orbit orbit2 = target.GetOrbit();
+
+					Globals.AddOrbit(kalc, orbit2, "Target");
+
+					double CD = 0.0;
+					double CCD = 0.0;
+					double FFp = 0.0;
+					double FFs = 0.0;
+					double SFp = 0.0;
+					double SFs = 0.0;
+					int iterationCount = 0;
+					Orbit.FindClosestPoints(orbit1, orbit2, ref CD, ref CCD, ref FFp, ref FFs, ref SFp, ref SFs, 0.0, 100, ref iterationCount);
+					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
+					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
+					Globals.AddDouble(kalc, "Craft.TimeToInter1", T1);
+					Globals.AddDouble(kalc, "Craft.Inter1Dist", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
+					Globals.AddDouble(kalc, "Craft.Inter1Anomaly", orbit1.getTrueAnomalyAtUT(T1+UT));
+					Globals.AddDouble(kalc, "Target.Inter1Anomaly", orbit2.getTrueAnomalyAtUT(T1+UT));
+					Globals.AddDouble(kalc, "Craft.TimeToInter2", T2);
+					Globals.AddDouble(kalc, "Craft.Inter2Dist", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
+					Globals.AddDouble(kalc, "Target.Inter2Anomaly", orbit2.getTrueAnomalyAtUT(T2+UT));
+				}
+			
 			}
 			// /UNITY
 

@@ -1,5 +1,7 @@
 ﻿using KSP.IO; // UNITY
+using UnityEngine; // UNITY
 using System;
+using System.Collections.Generic;
 
 namespace Kalculator {
 	public static class Globals {
@@ -319,7 +321,6 @@ namespace Kalculator {
 			kalc.AddGlobal(new Variable(prefix +".TrueAnomaly", VarType.NUMBER, (double)orbit.trueAnomaly));
 			kalc.AddGlobal(new Variable(prefix +".θ", VarType.NUMBER, (double)orbit.trueAnomaly));
 			kalc.AddGlobal(new Variable(prefix +".TimeToSOI", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
-			kalc.AddGlobal(new Variable(prefix +".TimeToAppr", VarType.NUMBER, (double)orbit.UTappr-Planetarium.GetUniversalTime()));
 		}
 
 		public static void AddCelestialBody(Kalculator kalc, CelestialBody body) {
@@ -337,6 +338,46 @@ namespace Kalculator {
 			kalc.AddGlobal(new Variable(prefix +".AtmosHeight", VarType.NUMBER, (double)body.maxAtmosphereAltitude));
 			//kalc.AddGlobal(new Variable(prefix +".AtmosPress", VarType.NUMBER, 0.0));
 		}
+
+		public static void AddDouble(Kalculator kalc, string id, double v) {
+			Variable g = new Variable(id, VarType.NUMBER, v);
+			kalc.AddGlobal(g);
+		}
+
+		public static void AddBool(Kalculator kalc, string id, bool v) {
+			double val = v ? 1.0 : 0.0;
+			Variable g = new Variable(id, VarType.NUMBER, val);
+			kalc.AddGlobal(g);
+		}
+
+		public static void AddVector3d(Kalculator kalc, string id, Vector3d v) {
+			Variable x = new Variable("x", VarType.NUMBER, v.x);
+			Variable y = new Variable("y", VarType.NUMBER, v.y);
+			Variable z = new Variable("z", VarType.NUMBER, v.z);
+
+			List<Variable> elements = new List<Variable>(3);
+			elements.Add(x);
+			elements.Add(y);
+			elements.Add(z);
+
+			Variable g = new Variable(id, VarType.LIST, elements);
+			kalc.AddGlobal(g);
+		}
+
+		public static void AddVector3(Kalculator kalc, string id, Vector3 v) {
+			Variable x = new Variable("x", VarType.NUMBER, (double)v.x);
+			Variable y = new Variable("y", VarType.NUMBER, (double)v.y);
+			Variable z = new Variable("z", VarType.NUMBER, (double)v.z);
+
+			List<Variable> elements = new List<Variable>(3);
+			elements.Add(x);
+			elements.Add(y);
+			elements.Add(z);
+
+			Variable g = new Variable(id, VarType.LIST, elements);
+			kalc.AddGlobal(g);
+		}
+
 		// /UNITY
 	}
 }
