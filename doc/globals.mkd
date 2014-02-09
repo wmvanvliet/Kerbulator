@@ -20,8 +20,7 @@ Kalculator provides the mass of the planet you are currently orbiting:
 	Parent.M = 10 # Overwrite the value with our own
 	y = Parent.M
 
-Information about various orbits
-================================
+## Information about various orbits
 
 Kalculator has globals that correspond to all the information KSP gives the
 player about orbits for the following bodies. In the table below, replace {body} with
@@ -72,8 +71,7 @@ Orbits are defined for the following bodies:
  Pol         | Moon Pol
  Eeloo       | Planet Eeloo
 
-Information about celestial bodies
-==================================
+## Information about celestial bodies
 Apart from the orbits of the celestial bodies, some other information is provided
 as well. Replace {body} with the name of the celesial body you wish to obtain
 information about.
