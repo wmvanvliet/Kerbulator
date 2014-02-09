@@ -89,8 +89,7 @@ information about.
  {body}.AtmosHeight | Height (in meters) of the atmosphere of the body (0 if it doesn't have one)
  {body}.AtmosPress | Pressure (in pascal) of the atmosphere of the body at sea level (0 if it doesn't have one)
 
-Information about a target
-==========================
+## Information about a target
 When a target is selected, some extra information about it is provided:
 
  Name             | Description
