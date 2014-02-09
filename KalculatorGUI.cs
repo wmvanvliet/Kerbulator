@@ -39,11 +39,11 @@ namespace Kalculator {
 		private Rect mainButtonPos = new Rect(200, 5, 100, 20);
 
 		// Window positions
-		private Rect mainWindowPos = new Rect(0, 60, 275, 0);
+		private Rect mainWindowPos = new Rect(0, 60, 280, 400);
 		private bool mainWindowEnabled = false;
-		private Rect editWindowPos = new Rect(280, 60, 350, 0);
+		private Rect editWindowPos = new Rect(280, 60, 350, 300);
 		private bool editWindowEnabled = false;
-		private Rect runWindowPos = new Rect(0, 370, 200, 0);
+		private Rect runWindowPos = new Rect(0, 470, 200, 200);
 		private bool runWindowEnabled = false;
 
 		// Dictionary containing all available functions
@@ -89,18 +89,18 @@ namespace Kalculator {
 
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
-				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kalculator", GUILayout.ExpandHeight(true));
-				mainWindowPos.height = 0;
+				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kalculator", GUILayout.ExpandHeight(false));
+				//mainWindowPos.height = 0;
 			}
 
 			if(editWindowEnabled) {
-				editWindowPos = GUILayout.Window(93842, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(true));
-				editWindowPos.height = 0;
+				editWindowPos = GUILayout.Window(93842, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(false));
+				//editWindowPos.height = 0;
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(true));
-				runWindowPos.height = 0;
+				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(false));
+				//runWindowPos.height = 0;
 			}
 		}
 
@@ -112,7 +112,7 @@ namespace Kalculator {
 
 			GUILayout.Label("Available functions:");
 
-			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(200));
+			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(300));
 
 			foreach(KeyValuePair<string, Function> f in functions) {
 				GUILayout.BeginHorizontal();
@@ -139,7 +139,7 @@ namespace Kalculator {
 					runWindowEnabled = true;
 
 					// Run it
-					List<Variable> output = Run(runFunction);
+					List<Variable> output = Run();
 					functionOutput = FormatOutput(runFunction, output);
 				}
 
@@ -201,6 +201,17 @@ namespace Kalculator {
 
 				if(editFunction == null)
 					editFunction = functions[editFunctionName];
+			}
+
+			if(GUILayout.Button("Run", GUILayout.Width(40))) {
+				// Load the function to be run
+				functionOutput = "";
+				runFunction = editFunction;
+				runWindowEnabled = true;
+
+				// Run it
+				List<Variable> output = Run();
+				functionOutput = FormatOutput(runFunction, output);
 			}
 
 			GUILayout.EndHorizontal();
@@ -273,7 +284,7 @@ namespace Kalculator {
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button("Run", GUILayout.MaxWidth(100))) {
-					List<Variable> output = Run(runFunction);
+					List<Variable> output = Run();
 					functionOutput = FormatOutput(runFunction, output);
 				}
 				
@@ -281,7 +292,7 @@ namespace Kalculator {
 					double dr = 0, dn = 0, dp = 0;
 					double dt = 0;
 
-					List<Variable> output = Run(runFunction);
+					List<Variable> output = Run();
 
 					// Look at the resulting variables and create a maneuver node with them
 					foreach(Variable var in output) {
@@ -309,54 +320,14 @@ namespace Kalculator {
 
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
-		public List<Variable> Run(Function f) {
-			// UNITY
-			Vessel v = FlightGlobals.ActiveVessel;
-			Orbit orbit1 = v.orbit;
-			if(v != null) {
-				// Current orbit
-				Globals.AddOrbit(kalc, orbit1, "Craft");
+		public List<Variable> Run() {
+			if(editFunction != null && runFunction == editFunction)
+				Save();
 
-				// Current time
-				double UT = (double)Planetarium.GetUniversalTime();
-				Globals.AddDouble(kalc, "UT", UT);
+			// Add/Update some useful globals
+			Globals.Add(kalc);
 
-				// SOI change
-				Globals.AddDouble(kalc, "Craft.TimeToSOI", orbit1.UTsoi-UT);
-
-				// Reference body
-				Globals.AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
-
-				// Target orbit
-				if(FlightGlobals.fetch.VesselTarget != null) {
-					ITargetable target = FlightGlobals.fetch.VesselTarget;
-					Orbit orbit2 = target.GetOrbit();
-
-					Globals.AddOrbit(kalc, orbit2, "Target");
-
-					double CD = 0.0;
-					double CCD = 0.0;
-					double FFp = 0.0;
-					double FFs = 0.0;
-					double SFp = 0.0;
-					double SFs = 0.0;
-					int iterationCount = 0;
-					Orbit.FindClosestPoints(orbit1, orbit2, ref CD, ref CCD, ref FFp, ref FFs, ref SFp, ref SFs, 0.0, 100, ref iterationCount);
-					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
-					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
-					Globals.AddDouble(kalc, "Craft.TimeToInter1", T1);
-					Globals.AddDouble(kalc, "Craft.Inter1Dist", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
-					Globals.AddDouble(kalc, "Craft.Inter1Anomaly", orbit1.getTrueAnomalyAtUT(T1+UT));
-					Globals.AddDouble(kalc, "Target.Inter1Anomaly", orbit2.getTrueAnomalyAtUT(T1+UT));
-					Globals.AddDouble(kalc, "Craft.TimeToInter2", T2);
-					Globals.AddDouble(kalc, "Craft.Inter2Dist", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
-					Globals.AddDouble(kalc, "Target.Inter2Anomaly", orbit2.getTrueAnomalyAtUT(T2+UT));
-				}
-			
-			}
-			// /UNITY
-
-			return kalc.Run(f);
+			return kalc.Run(runFunction);
 		}
 
 		// UNITY
@@ -485,6 +456,8 @@ namespace Kalculator {
 				// Reload the function being edited
 				if(editFunction != null)
 					editFunctionContent = System.IO.File.ReadAllText(functionFile);
+			} else {
+				Save();
 			}
 		}
 
