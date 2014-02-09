@@ -66,7 +66,7 @@ Bob is not pleased with his `pythagoras` function. Right now, it always produces
     out: c
     c = √(a^2 + b^2)
 
-First, all of the inputs are described: each on its own line in the form of `in: <name>`, then all of the outputs are described: again each on its own line and in the form of `out: <name>`. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
+First, all of the inputs are described: each on its own line in the form of `in: <identifier>`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier>`. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
 
     out: c
     in: a
@@ -74,6 +74,24 @@ First, all of the inputs are described: each on its own line in the form of `in:
     in: b
 
 When Bob presses the `Run` button now, he's greeted with an error: `a` and `b` are to be given as inputs. The `pythagoras` function can no longer be directly ran, but can only be called from inside another function.
+
+### Creating maneuver nodes
+
+Ofcourse Bob wants to calculate things in order to fly his ship. Creating maneuver nodes based on the result of his computations will be tremendously helpful with that. Bob has completed a rigorous astronaut training at the KSC and is aware that a maneuver node describes a burn; namely *when* the burn should be performed and how much Δv to burn for in the directions of 'radial', 'normal' and 'prograde'. Normally in KSP you would pull on the different handles of the maneuver node gizmo when creating one and see the result the burn would have on your orbit in real time. Kalculator allows Bob to compute exact values for these.
+
+Bob clicks the `New maneuver` button. A new function is created in the editor window, which has the following template code:
+
+    out: Δv_r
+    out: Δv_n
+    out: Δv_p
+    out: Δt
+    
+    Δv_r = 0
+    Δv_n = 0
+    Δv_p = 0
+    Δt = 0
+
+It is a function with 4 outputs which are currently all set to 0. By changing these values and clicking the `Make node` button, a node will be created based on these outputs.
 
 ### Calling functions with inputs
 
@@ -83,6 +101,30 @@ Bob creates a new function, names it `do_pythagoras` and writes:
     x = pythagoras(2, 4)
 
 This means the function has one output: the variable `x`. The function calls the `pythagoras` function with two inputs: 2 and 4. In the `pythagoras` function, 2 will be assigned to input `a` and 4 will be assigned to input `b`. The 'Function calls' section of the [language reference](langref.mkd#function-calls) describes all the different ways to call a function. The `do_pythagoras` function can be called and will faithfully produce the result `c=4.47213...`. 
+
+
+### Calling functions with multiple outputs
+
+Bob modifies the function `simple_sum` to the following:
+    
+    out: a
+    out: b
+    a = 1 + 1
+    b = 2 + 2
+
+Now this function has two outputs. When Bob wants to call this function in `do_pythagoras` he writes:
+
+    out: x
+    a, b = simple_sum
+    x = pythagoras(a, b)
+
+The second statement of the function (`a, b = somefunc`) assigns the two outputs of `simple_sum` to the variables `a` and `b` respectively. Not that the following is wrong:
+
+    out: x
+    x = pythagoras(simple_sum)
+
+The reason for this is that `simple_sum` outputs a 'list' of variables. We'll take a look at lists later on.
+
 
 ### Documenting functions
 
@@ -110,6 +152,8 @@ Whenever you type a `#` mark, this mark and anything following it is completely 
 
 When he saves the function now and clicks on the `pythagoras` button in the main window, some information about the function is displayed. Kalculator now knows what the different inputs and outputs mean and will display this information here. This makes it easy for Bob to later find out how to call his `pythagoras` function. Bob could have written anything between the `"` marks and it would have been shown as part of the function information.
 
-### Build-in functions
+### Build-in functions and constants
 
 Apart from the functions you write yourself, Kalculator supplies some functions of its own: the so called 'build-in functions'. These can be found in the proper section of the [language reference](langref.mkd#build-in-functions) and include functions such as `sin`, `cos` and `log`. Bob realizes he will need this functions a lot if he ever wants to write anything related to orbital mechanics.
+
+Kalculator also supplies two variables to use: `pi`, `π` and `e` which are set to the corresponding mathematical constants (`pi` and `π` both correspond to π).

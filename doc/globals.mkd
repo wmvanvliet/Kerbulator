@@ -95,10 +95,12 @@ When a target is selected, some extra information about it is provided:
  Name             | Description
  ---------------- | -------------------------------------------------------
  Craft.Inter1.dt  | Time (in seconds) until the first time we cross the target orbit
+ Craft.Inter1.Δt  | Same as Craft.Inter1.dt
  Craft.Inter1.sep | Distance (in meters) between our craft and the target at Craft.Inter1.dt
  Craft.Inter1.TrueAnomaly | True anomaly of the first time we cross the target orbit
  Craft.Inter1.θ   | Same as Craft.Inter1.TrueAnomaly
  Craft.Inter2.dt  | Time (in seconds) until the second time we cross the target orbit
+ Craft.Inter2.Δt  | Same as Craft.Inter1.dt
  Craft.Inter2.sep | Distance (in meters) between our craft and the target at Craft.Inter2.dt
  Craft.Inter2.TrueAnomaly | True anomaly of the second time we cross the target orbit
  Craft.Inter2.θ   | Same as Craft.Inter2.TrueAnomaly

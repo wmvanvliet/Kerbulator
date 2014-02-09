@@ -48,10 +48,12 @@ namespace Kalculator {
 					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
 					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
 					Globals.AddDouble(kalc, "Craft.Inter1.dt", T1);
+					Globals.AddDouble(kalc, "Craft.Inter1.Δt", T1);
 					Globals.AddDouble(kalc, "Craft.Inter1.sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
 					Globals.AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT));
 					Globals.AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT));
 					Globals.AddDouble(kalc, "Craft.Inter2.dt", T2);
+					Globals.AddDouble(kalc, "Craft.Inter2.Δt", T2);
 					Globals.AddDouble(kalc, "Craft.Inter2.sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
 					Globals.AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT));
 					Globals.AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT));
