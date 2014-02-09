@@ -1,0 +1,26 @@
+Manual
+======
+
+### Meet Bob
+
+Although Bob might not be such a superstar as Jebediah, he's a very good astronaut. While Jeb is trashing about with rockets willy nilly, Bob likes to plan things in advance; be prepared; know exactly when and where to burn to get things done efficiently. Bill suggested using the autopilot, but Bob is oldschool, Bob wants to figure stuff out for himself. Bob brought along his trusty Kalculator, which he will program himself! 
+
+### Starting Kalculator
+
+Bob notices, when he's flying, a button labeled `Kalculator` in the left hand corner of the screen. Therefore he knows his Kalculator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kalculator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
+
+### Writing functions
+
+Functions are the bread and butter of Kalculator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kalculator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to performs the calculation we want.
+
+Bob wants to start simple by calculating `1+1`. He clicks the `New function` button, which opens an editor window. There are some buttons there. `Delete` will delete the function. `Save` will save the function to disk, so you can access it later. `Run` will execute the function and actually do the computation. There is also a sort of keyboard at the bottom which helps Bob enter greek and mathematical symbols as his keyboard does not have keys for those. That leaves a textfield containing the name of the function (currently `unnamed`) and a big text area where Bob can write the actual programming code.
+
+Bob writes into the big text area:
+
+    x = 1 + 1
+
+and stares at its beautiful simplicity. He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd). He notes that functions can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `+ - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left.
+
+### Running functions
+
+Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the Run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the Run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever 'Run' button was pressed.
