@@ -19,8 +19,97 @@ Bob writes into the big text area:
 
     x = 1 + 1
 
-and stares at its beautiful simplicity. He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd). He notes that functions can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `+ - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left.
+and stares at its beautiful simplicity. 
+
+### Some nomenclature
+
+The letter `x` is a variable: a little piece of computer memory that can hold a number (or list as we'll see later). The `=` sign means that `x` is going to be assigned a new value. The rest is called an 'expression'. An expression is a mathematical statement that yields a result, in this case the sum of 1 and 1. The `+` sign is called an 'operator' and Kalculator has a lot of them to do perform lot of different mathematical operations. They are all listed in the 'Operators' section of the [language reference](langref.mkd#operators). The entire line together is called a 'statement'. 
+
+### Naming and saving functions
+
+He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left.
 
 ### Running functions
 
-Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the Run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the Run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever 'Run' button was pressed.
+Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the Run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the Run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever `Run` button was pressed.
+
+### Writing multiple statements
+
+Next, Bob tries for a more complicated formula, the famous theorem of Pythagoras. He presses the `New function` button, names it `pythagoras` and writes down (with help of the on-screen keyboard for the √ symbol):
+
+    c = √(a^2 + b^2)
+
+As he presses the `Run` button, Bob is greeted by an error. It seems `a` and `b` are not defined, so Kalculator has no idea what the actual result is of this function. The function can calculate `c`, but needs to be supplied with values for `a` and `b`. Bob modifies his function to the following:
+
+    a = 2
+    b = 4
+    c = √(a^2 + b^2)
+
+Now, `a` and `b` are assigned values and then `c` can be computed. When Bob presses the `Run` button now, Kalculator is pleased to inform him that the result is `c=4.47213...`. The function now has three statements, each one on a separate line. They are executed one after another and each statement always assigns the result of an expression to a variable. Statements always need to do this: the statement containing just the expression `1 + 1` by itself would be invalid.
+
+### Calling functions
+
+Bob wants to use the result of the `simple_sum` function he wrote earlier in a new computation. He can do so easily by using `simple_sum` as it were any old variable. He modiefied his `pythagoras` function to the following:
+
+    a = simple_sum
+    b = 2 * simple_sum
+    c = √(a^2 + b^2)
+
+This function produces the same result as before. The value computed by `simple_sum` (which was 2) is assigned to `a`, 2 times this value is assigned to `b` and finally `c` is computed. Bob realizes that by chaining together 'function calls' like this, he can create computations of enormous complexity.
+
+### Specifying inputs and outputs
+
+Bob is not pleased with his `pythagoras` function. Right now, it always produces `4.47213...` every time. He would like to modify the function so it can compute `c` given any `a` and any `b`. In programmers terms, they should be supplied as 'inputs' to the function, so it can compute `c` as 'output' of the function. Bob modifies the `pythagoras` function once again:
+
+    in: a
+    in: b
+    out: c
+    c = √(a^2 + b^2)
+
+First, all of the inputs are described: each on its own line in the form of `in: <name>`, then all of the outputs are described: again each on its own line and in the form of `out: <name>`. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
+
+    out: c
+    in: a
+    c = √(a^2 + b^2)
+    in: b
+
+When Bob presses the `Run` button now, he's greeted with an error: `a` and `b` are to be given as inputs. The `pythagoras` function can no longer be directly ran, but can only be called from inside another function.
+
+### Calling functions with inputs
+
+Bob creates a new function, names it `do_pythagoras` and writes:
+
+    out: x
+    x = pythagoras(2, 4)
+
+This means the function has one output: the variable `x`. The function calls the `pythagoras` function with two inputs: 2 and 4. In the `pythagoras` function, 2 will be assigned to input `a` and 4 will be assigned to input `b`. The 'Function calls' section of the [language reference](langref.mkd#function-calls) describes all the different ways to call a function. The `do_pythagoras` function can be called and will faithfully produce the result `c=4.47213...`. 
+
+### Documenting functions
+
+Bob is an ordely fellow and likes things to be neatly organied and well labeled. As his functions grow longer and more complex, Bob likes to add some notes here and there to describe what's going on. He goes back to the `pythagoras` function and adds some 'comments':
+
+    # Inputs of the function:
+    in: a
+    in: b
+
+    # Output of the function:
+    out: c
+
+    c = √(a^2 + b^2) # Pythagoras' theorem
+
+Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob is happy that his function is now easier to understand, but decides to put a cherry on top: he documents the inputs and outputs of the function:
+
+    # Inputs of the function:
+    in: a "Length of the first short-side of the triangle"
+    in: b "Length of the second short-side of the triangle"
+
+    # Output of the function:
+    out: c "Length of the long side of the triangle"
+
+    c = √(a^2 + b^2) # Pythagoras' theorem
+
+When he saves the function now and clicks on the `pythagoras` button in the main window, some information about the function is displayed. Kalculator now knows what the different inputs and outputs mean and will display this information here. This makes it easy for Bob to later find out how to call his `pythagoras` function. Bob could have written anything between the `"` marks and it would have been shown as part of the function information.
+
+### Build-in functions
+
+Apart from the functions you write yourself, Kalculator supplies some functions of its own: the so called 'build-in functions'. These can be found in the proper section of the [language reference](langref.mkd#build-in-functions) and include functions such as `sin`, `cos` and `log`. Bob realizes he will need this functions a lot if he ever wants to write anything related to orbital mechanics.
