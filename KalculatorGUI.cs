@@ -31,6 +31,7 @@ namespace Kalculator {
 		// Different scrollbars
 		private Vector2 mainScrollPos = new Vector2(0, 0);
 		private Vector2 editorScrollPos = new Vector2(0, 0);
+		private Vector2 runScrollPos = new Vector2(0, 0);
 
 		// Main Kalculator instance
 		private Kalculator kalc;
@@ -312,7 +313,9 @@ namespace Kalculator {
 
 				GUILayout.EndHorizontal();
 
+				runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(150));
 				GUILayout.Label(functionOutput);
+				GUILayout.EndScrollView();
 			}
 
 			GUI.DragWindow(titleBarRect);
