@@ -118,14 +118,12 @@ Brackets are used to denote a sub-expression. First, the expression within the b
 
 There are several types of brackets:
 
-Bracket | Description
---------|------------
-`(...)` | use the value of the sub-expression
-`{...}` | same as `(...)`
-`[...]` | denotes a list
-`⌊...⌋` | use the value of the sub-expression rounded down
-`⌈...⌉` | use the value of the sub-expression rounded up
-`|...|` | use the absolute value of the sub-expression
+    (...) # use the value of the sub-expression
+    {...} # same as (...)
+    [...] # denotes a list
+    ⌊...⌋ # use the value of the sub-expression rounded down
+    ⌈...⌉ # use the value of the sub-expression rounded up
+    |...| # use the absolute value of the sub-expression
  
 #### Lists
 A list is an ordered set of one or more numbers. It takes the form of `[expression, ..., expression]`. For example:
