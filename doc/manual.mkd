@@ -143,7 +143,7 @@ By calling the `orbital_velocity` function from inside another function, Bob can
     # Calculate our velocity when we reach apoapsis
     v1 = orbital_velocity(Craft.Pe, Craft.Ap, Craft.Ap)
 
-    # Calculate how fast we should be going where we in a circular orbit
+    # Calculate how fast we should be going were we in a circular orbit
     v2 = orbital_velocity(Craft.Ap, Craft.Ap, Craft.Ap)
 
     # Calculate Δv required to circularize our orbit
