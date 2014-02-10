@@ -104,7 +104,7 @@ Bob can now run his function and everytime he does, the function will give his c
 
 Although being able to calculate his current velocity greatly pleases Bob, he's not done yet. He makes another drawing on his piece of paper:
 
-[IMG]
+![plan for circularization of orbit](plan.png)
 
 This is Bob's plan: he's going to burn at apoapsis in order to circularize his orbit. This answers the question *when* he should burn: whenever he reaches apoapsis (a value given by the KSP map interface and therefore also accessable as a global in Kalculator). Now to answer how much Δv to burn for when he reaches apoapsis. The answer is: the difference between however fast Bob's going when he reaches apoapsis and how fast he *should* be going were he in a circular orbit. This involves calculating the speed of two different orbits. Of course, Bob could write two different functions for each of them, but he finds it much more pleasing to write a single function that can calculate the speed of an object in *any* orbit. For this, he's going to use two features called 'function inputs' and 'function outputs'. He clicks the `New function` button once more, names the function `orbital_velocity` and types:
 
