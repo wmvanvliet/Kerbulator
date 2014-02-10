@@ -118,12 +118,14 @@ Brackets are used to denote a sub-expression. First, the expression within the b
 
 There are several types of brackets:
 
-    (...) # use the value of the sub-expression
-    {...} # same as (...)
-    [...] # denotes a list
-    ⌊...⌋ # use the value of the sub-expression rounded down
-    ⌈...⌉ # use the value of the sub-expression rounded up
-    |...| # use the absolute value of the sub-expression
+Bracket | Description
+--------|------------
+`(...)` | use the value of the sub-expression
+`{...}` | same as `(...)`
+`[...]` | denotes a list
+`⌊...⌋` | use the value of the sub-expression rounded down
+`⌈...⌉` | use the value of the sub-expression rounded up
+`|...|` | use the absolute value of the sub-expression
  
 #### Lists
 A list is an ordered set of one or more numbers. It takes the form of `[expression, ..., expression]`. For example:
@@ -193,26 +195,28 @@ And so are these:
 #### Build-in functions
 Apart from the functions you write yourself, Kalculator supplies the following build-in functions:
 
-    abs(x)     # Absolute value
-    acos(x)    # Arccosine, or cos^(-1)
-    asin(x)    # Arcsine, or sin^(-1)
-    atan(x)    # Arctangent, or tan^(-1)
-    ceil(x)    # Round up to the nearest integer
-    cos(x)     # Cosine
-    exp(x)     # e to the power of x
-    floor(x)   # Round down to the nearest integer
-    ln(x)      # Natural logarithm
-    log(x)     # Same as 'ln'
-    log10(x)   # Base 10 logarithm
-    max(a,b)   # 'a' if 'a >= b' otherwise 'b'
-    min(a,b)   # 'a' if 'a <= b' otherwise 'b'
-    pow(a,b)   # a to the power of b
-    round(a,b) # Round a to b decimal places
-    sign(x)    # '-1' if 'a < 0' otherwise 1
-    sin(x)     # Sine
-    sqrt(x)    # Square root
-    tan(x)     # Tangent
-    len(x)     # Number of elements in list x
-    norm(x)    # Magnitude of vector x
-    dot(a,b)   # Dot product between list a and b
-    cross(a,b) # Cross product between list a and b
+Name         | Description
+-------------|------------
+`abs(x)`     | Absolute value
+`acos(x)`    | Arccosine, or cos^(-1)
+`asin(x)`    | Arcsine, or sin^(-1)
+`atan(x)`    | Arctangent, or tan^(-1)
+`ceil(x)`    | Round up to the nearest integer
+`cos(x)`     | Cosine
+`exp(x)`     | e to the power of x
+`floor(x)`   | Round down to the nearest integer
+`ln(x)`      | Natural logarithm
+`log(x)`     | Same as `ln`
+`log10(x)`   | Base 10 logarithm
+`max(a,b)`   | `a` if `a >= b` otherwise `b`
+`min(a,b)`   | `a` if `a <= b` otherwise `b`
+`pow(a,b)`   | a to the power of b
+`round(a,b)` | Round a to b decimal places
+`sign(x)`    | `-1` if `a < 0` otherwise 1
+`sin(x)`     | Sine
+`sqrt(x)`    | Square root
+`tan(x)`     | Tangent
+`len(x)`     | Number of elements in list x
+`norm(x)`    | Magnitude of vector x
+`dot(a,b)`   | Dot product between list a and b
+`cross(a,b)` | Cross product between list a and b
