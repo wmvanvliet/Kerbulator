@@ -45,7 +45,7 @@ Bob hits the `Run` button next to the `simple_sum` function in the main window. 
 
 ### A more complicated function
 
-Bob gets out a piece op paper en draws on it the following:
+Bob gets out a piece of paper en draws on it the following:
 
 ![`v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )`](Formula.png)
 
@@ -56,30 +56,30 @@ Variable | Meaning
 *M*      | Mass of the planet in kilograms
 *G*      | The gravitational constant: 6.67384 × 10^(-11)
 *r*      | Distance (in meters) from the object in orbit to the center of the planet
-Pe       | Distance (in meters) from the center of the planet to the periapsis of the orbit
-Ap       | Distance (in meters) from the center of the planet to the apoapsis of the orbit
+*r*_min  | Distance (in meters) from the center of the planet to the periapsis of the orbit
+*r*_max  | Distance (in meters) from the center of the planet to the apoapsis of the orbit
 
 Bob presses the `New function` button, names the function `current_velocity` and, after glancing at his instruments, types the following:
     M = 5.2915793E22
     G = 6.673834E-11
     R = 600E3
     r = R + 100E3
-    Pe = R + 80E3
-    Ap = R + 120E3
+    r_min = R + 80E3
+    r_max = R + 120E3
     
-    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
+    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
 
 This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the `Run` button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
-    M = 5.2915793E22 # Mass of Kerbin
-    G = 6.673834E-11 # Gravitational constant
-    R = 600E3        # Radius of Kerbin (distance from center of planet to sea level)
-    r = R + 100E3    # I'm flying at 100 km above Kerbin sea level
-    Pe = R + 80E3    # My periapsis is 80 km above Kerbin sea level
-    Ap = R + 120E3   # My apoapsis is 120 km above Kerbin sea level
+    M = 5.2915793E22  # Mass of Kerbin
+    G = 6.673834E-11  # Gravitational constant
+    R = 600E3         # Radius of Kerbin (distance from center of planet to sea level)
+    r = R + 100E3     # I'm flying at 100 km above Kerbin sea level
+    r_min = R + 80E3  # My periapsis is 80 km above Kerbin sea level
+    r_max = R + 120E3 # My apoapsis is 120 km above Kerbin sea level
     
     # Formula describing the speed of an object orbiting a planet
-    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
+    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
 
 It is starting to look pretty. By the way, every line of the function is a 'statement'. A statement always assigns the result of an expression to a variable. A statement containing just the expression `1 + 1` by itself would be invalid, for example, as would something like `= 1 + 1`.
 
@@ -91,11 +91,11 @@ Bob is annoyed that he has to look at his instruments and type in numbers every 
     # G is already defined by Kalculator, hooray!
     R = Parent.R      # Radius of the parent body we're orbiting
     r = R + Craft.Alt # My current altitude
-    Pe = R + Craft.Pe # My periapsis
-    Ap = R + Craft.Ap # My apoapsis
+    r_min = R + Craft.Pe # My periapsis
+    r_max = R + Craft.Ap # My apoapsis
     
     # Formula describing the speed of an object orbiting a planet
-    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
+    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
 
 Bob can now run his function and everytime he does, the function will give his current velocity with great precision.
 
