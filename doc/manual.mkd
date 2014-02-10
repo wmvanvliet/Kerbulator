@@ -213,8 +213,8 @@ Bob likes the little editor inside KSP, because it gives quick access to Greek a
 
 Platform | Location
 ---------|---------
-Windows  | `C:/Users/{username}/AppData/LocalLow/Squad/KSP/Kalculator`
-OSX      | `/Users/{username}/Library/cache/Squad/KSP/Kalculator`
-Linux    | `/home/{username}/.config/unity3d/Squad/KSP/Kalculator`
+Windows  | `C:/Users/{username}/AppData/LocalLow/unity.Squad/Kerbal Space Program/Kalculator`
+OSX      | `/Users/{username}/Library/Caches/unity.Squad.Kerbal Space Program/Kalculator`
+Linux    | `/home/{username}/.config/unity3d/unity.Squad/Kerbal Space Program/Kalculator`
 
 Everytime you switch from KSP to some other window, Kalculator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kalculator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kalculator. Functions are text files in UTF-8 encoding with the extention `.math`.
