@@ -82,8 +82,10 @@ An operator performs a calculation on one or more numbers.
 
 Operators that operate on one number are called unary operators. They operate on the number that follows them. The unary operators available to Kalculator are:
 
-    -a # Negate a
-    √a # Take the square root of a
+Operator | Description
+---------|------------
+`-a`     | Negate `a`
+`√a`     | Take the square root of `a`
 
 Operators that operate on two numbers are called binary operators. They operate on the number to the left and the number to the right of the operator. 
 The binary operators available to Kalculator are:
