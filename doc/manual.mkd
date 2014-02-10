@@ -131,10 +131,10 @@ Bob is excited about his multi-purpose `orbital_velocity` function and wants to 
 
 ### Calling functions from functions
 
-Bob can now complete his computation. He creates a new function called `circularize` and writes:
+By calling the `orbital_velocity` function from inside another function, Bob can complete his computation. He creates a new function called `circularize` and writes:
 
     out: Δv "Amount of Δv to burn for"
-    out: Δt "Time at which to initiate burn (where 0 means right now)"
+    out: Δt "Time at which to initiate burn (0 means right now)"
 
     # Calculate our velocity when we reach apoapsis
     v1 = orbital_velocity(Craft.Pe, Craft.Ap, Craft.Ap)
@@ -171,7 +171,7 @@ Bob's function is almost ready to be used to create a maneuver node, he just nee
 
 ### Calling functions with multiple outputs
 
-What is Bob ever wants to call his `circularize` function from inside another function? He could write:
+What if Bob ever wants to call his `circularize` function from inside another function? He could write:
 
     Δv, Δt = circularize()
     
