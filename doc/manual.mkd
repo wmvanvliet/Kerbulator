@@ -1,7 +1,7 @@
 ﻿﻿Manual
 ======
 
-### Meet Bob
+### Meet Bob Kerman
 
 Although Bob might not be such a superstar as Jebediah, he's a very good astronaut. While Jeb is trashing about with rockets willy nilly, Bob likes to plan things in advance; be prepared; know exactly when and where to burn to get things done efficiently. Bill suggested using the autopilot, but Bob is oldschool, Bob wants to figure stuff out for himself. Bob brought along his trusty Kalculator, which he will program himself! 
 
