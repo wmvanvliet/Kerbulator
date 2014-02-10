@@ -52,7 +52,7 @@ Bob gets out a piece op paper en draws on it the following:
 This is the formula that describes the speed of an object in orbit of a planet. The variables in the formula mean:
 
 Variable | Meaning
-------------------
+---------|--------
 *M*      | Mass of the planet in kilograms
 *G*      | The gravitational constant: 6.67384 × 10^(-11)
 *r*      | Distance (in meters) from the object in orbit to the center of the planet
@@ -154,7 +154,7 @@ He saves his function and presses the `Run` button. Behold! Kalculates faithfull
 Bob is just about to create a maneuver node manually when he realizes that Kalculator has the ability to create it for him. However, he needs to make a small change to his code. When Kalculator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
 
 Name   | Description
-------------------
+-------|----------
 `Δv_r` | Change in velocity in the radial direction (away from the planet)
 `dv_r` | Same as `Δv_r`
 `Δv_n` | Change in velocity in the normal direction (up)
