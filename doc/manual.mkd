@@ -33,7 +33,7 @@ and stares at its beautiful simplicity.
 
 ### Some nomenclature
 
-The letter `x` is a variable: a little piece of computer memory that can hold a number (or list as we'll see later). The `=` sign means that `x` is going to be assigned a new value. The rest is called an 'expression'. An expression is a mathematical statement that yields a result, in this case the sum of 1 and 1. The `+` sign is called an 'operator' and Kalculator has a lot of them to do perform lot of different mathematical operations. They are all listed in the 'Operators' section of the [language reference](langref.mkd#operators). The entire line together is called a 'statement'. 
+The letter `x` is a variable: a little piece of computer memory that can hold a number (or list as we'll see later). The `=` sign means that `x` is going to be assigned a new value. The rest is called an 'expression'. An expression is a piece of math that yields a result, in this case the sum of 1 and 1. The `+` sign is called an 'operator' and Kalculator has a lot of them to do perform lot of different mathematical operations. They are all listed in the 'Operators' section of the [language reference](langref.mkd#operators). The entire line together is called a 'statement'. 
 
 ### Naming and saving functions
 
