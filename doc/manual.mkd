@@ -11,7 +11,7 @@ This manual will follow Bob as he creates a function that will circularize his c
 
 Bob is inside a spacecraft orbiting his home planet Kerbin. He is in an elliptical orbit, as the map view shows:
 
-[IMG]
+![Bob's orbit](orbit.png)
 
 He would like to calculate at which time to turn on his engines and how much Δv he should burn to circularize his orbit.
 
@@ -64,20 +64,20 @@ Bob presses the `New function` button, names the function `current_velocity` and
     M = 5.2915793E22
     G = 6.673834E-11
     R = 600E3
-    r = R + 100E3
-    r_min = R + 80E3
-    r_max = R + 120E3
+    r = R + 2940E3
+    r_min = R + 309216
+    r_max = R + 4823113
     
     v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
 This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the `Run` button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
-    M = 5.2915793E22  # Mass of Kerbin
-    G = 6.673834E-11  # Gravitational constant
-    R = 600E3         # Radius of Kerbin (distance from center of planet to sea level)
-    r = R + 100E3     # I'm flying at 100 km above Kerbin sea level
-    r_min = R + 80E3  # My periapsis is 80 km above Kerbin sea level
-    r_max = R + 120E3 # My apoapsis is 120 km above Kerbin sea level
+    M = 5.2915793E22    # Mass of Kerbin
+    G = 6.673834E-11    # Gravitational constant
+    R = 600E3           # Radius of Kerbin (distance from center of planet to sea level)
+    r = R + 2940E3      # I'm flying at 2940 km above Kerbin sea level
+    r_min = R + 309216  # My periapsis is 309.216 km above Kerbin sea level
+    r_max = R + 4823113 # My apoapsis is 4823113 km above Kerbin sea level
     
     # Formula describing the speed of an object orbiting a planet
     v = √( M*G * (2/r - 2 / (r_min + r_max)) )
