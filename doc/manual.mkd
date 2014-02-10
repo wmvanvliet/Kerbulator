@@ -185,7 +185,7 @@ Notice that there are multiple variable names on the left side of the `=` symbol
 
 A list is a sequence of 'elements', where an element is usually a number, but can also be a list itself. Here are some examples of how to denote lists:
 
-    x = [1,2,3]         # A list of three elements 1,2 and 3 to a variable
+    x = [1,2,3]         # Assign a list of three elements 1,2 and 3 to a variable
     x = [1+1, 2+2, 3+3] # A list of three elements, 2, 4 and 6
     x = [a,b]           # A list containing the values of 'a' and 'b'
     x = [1]             # A list containing only one value
