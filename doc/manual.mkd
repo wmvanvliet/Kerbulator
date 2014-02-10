@@ -1,9 +1,19 @@
-Manual
+﻿﻿Manual
 ======
 
 ### Meet Bob
 
 Although Bob might not be such a superstar as Jebediah, he's a very good astronaut. While Jeb is trashing about with rockets willy nilly, Bob likes to plan things in advance; be prepared; know exactly when and where to burn to get things done efficiently. Bill suggested using the autopilot, but Bob is oldschool, Bob wants to figure stuff out for himself. Bob brought along his trusty Kalculator, which he will program himself! 
+
+This manual will follow Bob as he creates a function that will circularize his current orbit. Along the way we will go over all the different features of Kalculator.
+
+### Bob is flying... in space!
+
+Bob is inside a spacecraft orbiting his home planet Kerbin. He is in an elliptical orbit, as the map view shows:
+
+[IMG]
+
+He would like to calculate at which time to turn on his engines and how much Δv he should burn to circularize his orbit.
 
 ### Starting Kalculator
 
@@ -33,127 +43,161 @@ He feels that `unnamed` is not the proper name for such a beautiful formula and 
 
 Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the Run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the Run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever `Run` button was pressed.
 
-### Writing multiple statements
+### A more complicated function
 
-Next, Bob tries for a more complicated formula, the famous theorem of Pythagoras. He presses the `New function` button, names it `pythagoras` and writes down (with help of the on-screen keyboard for the √ symbol):
+Bob gets out a piece op paper en draws on it the following:
 
-    c = √(a^2 + b^2)
+[IMG]
 
-As he presses the `Run` button, Bob is greeted by an error. It seems `a` and `b` are not defined, so Kalculator has no idea what the actual result is of this function. The function can calculate `c`, but needs to be supplied with values for `a` and `b`. Bob modifies his function to the following:
+This is the formula that describes the speed of an object in orbit of a planet. The variables in the formula mean:
 
-    a = 2
-    b = 4
-    c = √(a^2 + b^2)
+ Variable | Meaning
+ ------------------
+ *M*      | Mass of the planet in kilograms
+ *G*      | The gravitational constant: 6.67384 × 10^(-11)
+ *r*      | Distance (in meters) from the object in orbit to the center of the planet
+ Pe       | Distance (in meters) from the center of the planet to the periapsis of the orbit
+ Ap       | Distance (in meters) from the center of the planet to the apoapsis of the orbit
 
-Now, `a` and `b` are assigned values and then `c` can be computed. When Bob presses the `Run` button now, Kalculator is pleased to inform him that the result is `c=4.47213...`. The function now has three statements, each one on a separate line. They are executed one after another and each statement always assigns the result of an expression to a variable. Statements always need to do this: the statement containing just the expression `1 + 1` by itself would be invalid.
+Bob presses the `New function` button, names the function `current_velocity` and, after glancing at his instruments, types the following:
+    M = 5.2915793E22
+    G = 6.673834E-11
+    R = 600E3
+    r = R + 100E3
+    Pe = R + 80E3
+    Ap = R + 120E3
+    
+    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
 
-### Calling functions
+This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the `Run` button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
-Bob wants to use the result of the `simple_sum` function he wrote earlier in a new computation. He can do so easily by using `simple_sum` as it were any old variable. He modiefied his `pythagoras` function to the following:
+    M = 5.2915793E22 # Mass of Kerbin
+    G = 6.673834E-11 # Gravitational constant
+    R = 600E3        # Radius of Kerbin (distance from center of planet to sea level)
+    r = R + 100E3    # I'm flying at 100 km above Kerbin sea level
+    Pe = R + 80E3    # My periapsis is 80 km above Kerbin sea level
+    Ap = R + 120E3   # My apoapsis is 120 km above Kerbin sea level
+    
+    # Formula describing the speed of an object orbiting a planet
+    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
 
-    a = simple_sum
-    b = 2 * simple_sum
-    c = √(a^2 + b^2)
+It is starting to look pretty. By the way, every line of the function is a 'statement'. A statement always assigns the result of an expression to a variable. A statement containing just the expression `1 + 1` by itself would be invalid, for example, as would something like `= 1 + 1`.
 
-This function produces the same result as before. The value computed by `simple_sum` (which was 2) is assigned to `a`, 2 times this value is assigned to `b` and finally `c` is computed. Bob realizes that by chaining together 'function calls' like this, he can create computations of enormous complexity.
+### Using globals
+
+Bob is annoyed that he has to look at his instruments and type in numbers every time he wishes to use the `current_velocity` function. Luckily, Kalculator strives to make all the numbers visible in KSP available to the programmer. It does so by defining a long list of 'globals': variables that are predefined by Kalculator and available in every function. After taking a look at the [complete list of globals](globals.mkd), Bob modifies his function:
+
+    M = Parent.M      # Mass of the parent body we're orbiting
+    # G is already defined by Kalculator, hooray!
+    R = Parent.R      # Radius of the parent body we're orbiting
+    r = R + Craft.Alt # My current altitude
+    Pe = R + Craft.Pe # My periapsis
+    Ap = R + Craft.Ap # My apoapsis
+    
+    # Formula describing the speed of an object orbiting a planet
+    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
+
+Bob can now run his function and everytime he does, the function will give his current velocity with great precision.
 
 ### Specifying inputs and outputs
 
-Bob is not pleased with his `pythagoras` function. Right now, it always produces `4.47213...` every time. He would like to modify the function so it can compute `c` given any `a` and any `b`. In programmers terms, they should be supplied as 'inputs' to the function, so it can compute `c` as 'output' of the function. Bob modifies the `pythagoras` function once again:
+Although being able to calculate his current velocity greatly pleases Bob, he's not done yet. He makes another drawing on his piece of paper:
 
-    in: a
-    in: b
+[IMG]
+
+This is Bob's plan: he's going to burn at apoapsis in order to circularize his orbit. This answers the question *when* he should burn: whenever he reaches apoapsis (a value given by the KSP map interface and therefore also accessable as a global in Kalculator). Now to answer how much Δv to burn for when he reaches apoapsis. The answer is: the difference between however fast Bob's going when he reaches apoapsis and how fast he *should* be going were he in a circular orbit. This involves calculating the speed of two different orbits. Of course, Bob could write two different functions for each of them, but he finds it much more pleasing to write a single function that can calculate the speed of an object in *any* orbit. For this, he's going to use two features called 'function inputs' and 'function outputs'. He clicks the `New function` button once more, names the function `orbital_velocity` and types:
+
+    in: Pe "Periapsis of the orbit"
+    in: Ap "Apoapsis of the orbit"
+    in: Alt "Current altitude"
+    out: v "Current velocity of object" 
+
+    M = Parent.M      # Mass of the parent body we're orbiting
+    # G is already defined by Kalculator, hooray!
+    R = Parent.R      # Radius of the parent body we're orbiting
+
+    # Formula describing the speed of an object orbiting a planet
+    v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )
+
+Inputs are values are are not defined in the function itself and are not globals given by Kalculator, but have to be supplied when running the function. Outputs are values the function produces. When you don't define any outputs, the last statement of the function will be taken as implicit output. Functions can have multiple inputs and outputs. First, all of the inputs are described: each on its own line in the form of `in: <identifier> "<description>"`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier> "<description>"`. The `"<description>"` parts are optional, although useful to document your functions. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
+
     out: c
-    c = √(a^2 + b^2)
-
-First, all of the inputs are described: each on its own line in the form of `in: <identifier>`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier>`. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
-
-    out: c
     in: a
     c = √(a^2 + b^2)
     in: b
 
-When Bob presses the `Run` button now, he's greeted with an error: `a` and `b` are to be given as inputs. The `pythagoras` function can no longer be directly ran, but can only be called from inside another function.
+Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the `Run` button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to speficy them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
+
+### Calling functions from functions
+
+Bob can now complete his computation. He creates a new function called `circularize` and writes:
+
+    out: Δv "Amount of Δv to burn for"
+    out: Δt "Time at which to initiate burn (where 0 means right now)"
+
+    # Calculate our velocity when we reach apoapsis
+    v1 = orbital_velocity(Craft.Pe, Craft.Ap, Craft.Ap)
+
+    # Calculate how fast we should be going where we in a circular orbit
+    v2 = orbital_velocity(Craft.Ap, Craft.Ap, Craft.Ap)
+
+    # Calculate Δv required to circularize our orbit
+    Δv = v2 - v1
+
+    # Burn at apoapsis. Kalculator has a global for this.
+    Δt = Craft.TimeToAp
+
+He saves his function and presses the `Run` button. Behold! Kalculates faithfully spits out a Δv and Δt value: the two outputs he had defined. Note that the other variables are discarded, never to be heard from again outside of their function. With these values Bob is able to circularize his orbit! Lets take a look at the 'function calls' that Bob has just made. He 'calls' the function `orbital_velocity` two times, each time with slightly different inputs. To call a function you usually write `<function name>(input1, input2, ...)`. This form will work every time, but take a look at the other ways to call a function in the [language reference](langref.mkd#function-calls). Also, take a look at the [build-in functions](langref.mkd#build-in-functions) that Kalculator provides for you. The ability to call functions that call functions that call functions, etc., gives Kalculator the ability to do very complex computations.
 
 ### Creating maneuver nodes
 
-Ofcourse Bob wants to calculate things in order to fly his ship. Creating maneuver nodes based on the result of his computations will be tremendously helpful with that. Bob has completed a rigorous astronaut training at the KSC and is aware that a maneuver node describes a burn; namely *when* the burn should be performed and how much Δv to burn for in the directions of 'radial', 'normal' and 'prograde'. Normally in KSP you would pull on the different handles of the maneuver node gizmo when creating one and see the result the burn would have on your orbit in real time. Kalculator allows Bob to compute exact values for these.
+Bob is just about to create a maneuver node manually when he realizes that Kalculator has the ability to create it for him. However, he needs to make a small change to his code. When Kalculator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
 
-Bob clicks the `New maneuver` button. A new function is created in the editor window, which has the following template code:
+ Name   | Description
+ ------------------
+ `Δv_r` | Change in velocity in the radial direction (away from the planet)
+ `dv_r` | Same as `Δv_r`
+ `Δv_n` | Change in velocity in the normal direction (up)
+ `dv_n` | Same as `Δv_n`
+ `Δv_p` | Change in velocity in the prograde direction (straight ahead)
+ `dv_p` | Same as `Δv_p`
+ `Δt`   | Time at which to perform the burn (where 0 means right now)
+ `dt`   | Same as `Δt`
 
-    out: Δv_r
-    out: Δv_n
-    out: Δv_p
-    out: Δt
-    
-    Δv_r = 0
-    Δv_n = 0
-    Δv_p = 0
-    Δt = 0
+All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be taken to be 0.
 
-It is a function with 4 outputs which are currently all set to 0. By changing these values and clicking the `Make node` button, a node will be created based on these outputs.
-
-### Calling functions with inputs
-
-Bob creates a new function, names it `do_pythagoras` and writes:
-
-    out: x
-    x = pythagoras(2, 4)
-
-This means the function has one output: the variable `x`. The function calls the `pythagoras` function with two inputs: 2 and 4. In the `pythagoras` function, 2 will be assigned to input `a` and 4 will be assigned to input `b`. The 'Function calls' section of the [language reference](langref.mkd#function-calls) describes all the different ways to call a function. The `do_pythagoras` function can be called and will faithfully produce the result `c=4.47213...`. 
-
+Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the `Make node` button in the run window in order to create the node. Happy flying Bob!
 
 ### Calling functions with multiple outputs
 
-Bob modifies the function `simple_sum` to the following:
+What is Bob ever wants to call his `circularize` function from inside another function? He could write:
+
+    Δv, Δt = circularize()
     
-    out: a
-    out: b
-    a = 1 + 1
-    b = 2 + 2
+Notice that there are multiple variable names on the left side of the `=` symbol. The outputs of the function are returned as a 'list'. This list is 'unpacked' into the variables you specify on the left hand side. Lets take a closer look at lists:
 
-Now this function has two outputs. When Bob wants to call this function in `do_pythagoras` he writes:
+### Lists
 
-    out: x
-    a, b = simple_sum
-    x = pythagoras(a, b)
+A list is a sequence of 'elements', where an element is usually a number, but can also be a list itself. Here are some examples of how to denote lists:
 
-The second statement of the function (`a, b = somefunc`) assigns the two outputs of `simple_sum` to the variables `a` and `b` respectively. Not that the following is wrong:
+    x = [1,2,3]         # A list of three elements 1,2 and 3 to a variable
+    x = [1+1, 2+2, 3+3] # A list of three elements, 2, 4 and 6
+    x = [a,b]           # A list containing the values of 'a' and 'b'
+    x = [1]             # A list containing only one value
 
-    out: x
-    x = pythagoras(simple_sum)
+    x = [[1,2,3], [4,5,6]]  # A list containing two lists
+    x = [1, [4,5,6]]        # A list containing a number and a list
 
-The reason for this is that `simple_sum` outputs a 'list' of variables. We'll take a look at lists later on.
+    a = [1,2,3]
+    vec1_num_elements = len(a) # Number of elements in a list (3 in this case)
+    x,y,z = a                  # Use value unpacking to access the individual members of a list
 
+For all the cool things you can do with lists, take a look at what the [language reference](langref.mkd#lists) has to say about them. For example, you can do vector math:
 
-### Documenting functions
+    vec1 = [1, 2, 1] # Some vector
+    vec2 = [2, 2, 2] # Some other vector
 
-Bob is an ordely fellow and likes things to be neatly organied and well labeled. As his functions grow longer and more complex, Bob likes to add some notes here and there to describe what's going on. He goes back to the `pythagoras` function and adds some 'comments':
-
-    # Inputs of the function:
-    in: a
-    in: b
-
-    # Output of the function:
-    out: c
-
-    c = √(a^2 + b^2) # Pythagoras' theorem
-
-Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob is happy that his function is now easier to understand, but decides to put a cherry on top: he documents the inputs and outputs of the function:
-
-    # Inputs of the function:
-    in: a "Length of the first short-side of the triangle"
-    in: b "Length of the second short-side of the triangle"
-
-    # Output of the function:
-    out: c "Length of the long side of the triangle"
-
-    c = √(a^2 + b^2) # Pythagoras' theorem
-
-When he saves the function now and clicks on the `pythagoras` button in the main window, some information about the function is displayed. Kalculator now knows what the different inputs and outputs mean and will display this information here. This makes it easy for Bob to later find out how to call his `pythagoras` function. Bob could have written anything between the `"` marks and it would have been shown as part of the function information.
-
-### Build-in functions and constants
-
-Apart from the functions you write yourself, Kalculator supplies some functions of its own: the so called 'build-in functions'. These can be found in the proper section of the [language reference](langref.mkd#build-in-functions) and include functions such as `sin`, `cos` and `log`. Bob realizes he will need this functions a lot if he ever wants to write anything related to orbital mechanics.
-
-Kalculator also supplies two variables to use: `pi`, `π` and `e` which are set to the corresponding mathematical constants (`pi` and `π` both correspond to π).
+    vec1_magnitude = |vec1|  # Magnitude of a vector
+   
+    vec3 = dot(vec1, vec2) # Dot product between two vectors 
+    vec3 = cross(vec1, vec2) # Cross product between two vectors 

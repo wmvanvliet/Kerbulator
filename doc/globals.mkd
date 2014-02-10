@@ -20,6 +20,15 @@ Kalculator provides the mass of the planet you are currently orbiting:
 	Parent.M = 10 # Overwrite the value with our own
 	y = Parent.M
 
+### Some useful constants
+
+ Name            | Description
+ --------------- | -------------------------------------------------------
+ pi              | Mathematical constant Pi: 3.14159265359
+ π               | Same as pi
+ e               | Mathematical constant e: 2.71828182846
+ G               | Graviational constant: 6.67384 × 10^(-11)
+
 ### Information about various orbits
 
 Kalculator has globals that correspond to all the information KSP gives the

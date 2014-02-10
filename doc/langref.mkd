@@ -148,7 +148,7 @@ An exception are the `|...|` brackets. They treat the list as a vector and calcu
 
     |[2,2]|   # = sqrt(2^2 + 2^2) = 2.828427...
 
-Elementss of a list can be numbers and/or lists:
+Elements of a list can be numbers and/or lists:
 
     [[1,2,3], [4,5,6]]  # A list containing two lists
     [1, [4,5,6]]        # A list containing a number and a list
