@@ -41,7 +41,7 @@ Bob feels that `unnamed` is not the proper name for such a beautiful formula and
 
 ### Running functions
 
-Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the Run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the Run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever `Run` button was pressed.
+Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever `Run` button was pressed.
 
 ### A more complicated function
 
