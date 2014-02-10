@@ -113,9 +113,13 @@ This is Bob's plan: he's going to burn at apoapsis in order to circularize his o
     in: Alt "Current altitude"
     out: v "Current velocity of object" 
 
-    M = Parent.M      # Mass of the parent body we're orbiting
+    M = Parent.M   # Mass of the parent body we're orbiting
     # G is already defined by Kalculator, hooray!
-    R = Parent.R      # Radius of the parent body we're orbiting
+    R = Parent.R   # Radius of the parent body we're orbiting
+
+    r_min = R + Pe # Height of periapsis measured from planet center
+    r_max = R + Ap # Height of apoapsis measured from planet center
+    r = R + Alt    # Current altitude measured from planet center
 
     # Formula describing the speed of an object orbiting a planet
     v = √( M*G * (2/r - 2 / (Pe + Ap + 2*R)) )
