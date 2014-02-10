@@ -51,13 +51,13 @@ Bob gets out a piece op paper en draws on it the following:
 
 This is the formula that describes the speed of an object in orbit of a planet. The variables in the formula mean:
 
- Variable | Meaning
- ------------------
- *M*      | Mass of the planet in kilograms
- *G*      | The gravitational constant: 6.67384 × 10^(-11)
- *r*      | Distance (in meters) from the object in orbit to the center of the planet
- Pe       | Distance (in meters) from the center of the planet to the periapsis of the orbit
- Ap       | Distance (in meters) from the center of the planet to the apoapsis of the orbit
+Variable | Meaning
+------------------
+*M*      | Mass of the planet in kilograms
+*G*      | The gravitational constant: 6.67384 × 10^(-11)
+*r*      | Distance (in meters) from the object in orbit to the center of the planet
+Pe       | Distance (in meters) from the center of the planet to the periapsis of the orbit
+Ap       | Distance (in meters) from the center of the planet to the apoapsis of the orbit
 
 Bob presses the `New function` button, names the function `current_velocity` and, after glancing at his instruments, types the following:
     M = 5.2915793E22
@@ -153,16 +153,16 @@ He saves his function and presses the `Run` button. Behold! Kalculates faithfull
 
 Bob is just about to create a maneuver node manually when he realizes that Kalculator has the ability to create it for him. However, he needs to make a small change to his code. When Kalculator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
 
- Name   | Description
- ------------------
- `Δv_r` | Change in velocity in the radial direction (away from the planet)
- `dv_r` | Same as `Δv_r`
- `Δv_n` | Change in velocity in the normal direction (up)
- `dv_n` | Same as `Δv_n`
- `Δv_p` | Change in velocity in the prograde direction (straight ahead)
- `dv_p` | Same as `Δv_p`
- `Δt`   | Time at which to perform the burn (where 0 means right now)
- `dt`   | Same as `Δt`
+Name   | Description
+------------------
+`Δv_r` | Change in velocity in the radial direction (away from the planet)
+`dv_r` | Same as `Δv_r`
+`Δv_n` | Change in velocity in the normal direction (up)
+`dv_n` | Same as `Δv_n`
+`Δv_p` | Change in velocity in the prograde direction (straight ahead)
+`dv_p` | Same as `Δv_p`
+`Δt`   | Time at which to perform the burn (where 0 means right now)
+`dt`   | Same as `Δt`
 
 All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be taken to be 0.
 
@@ -206,10 +206,10 @@ For all the cool things you can do with lists, take a look at what the [language
 
 Bob likes the little editor inside KSP, because it gives quick access to Greek and math symbols to make his formulae look pretty. However, when writing very long functions, you may want to use some other editor. Kalculator stores its functions in a folder on your disk. The location depends on your platform:
 
- Platform | Location
- -------------------
- Windows | `C:/Users/{username}/AppData/LocalLow/Squad/KSP/Kalculator`
- OSX     | `/Users/{username}/Library/cache/Squad/KSP/Kalculator`
- Linux   | `/home/{username}/.config/unity3d/Squad/KSP/Kalculator`
+Platform | Location
+-------------------
+Windows | `C:/Users/{username}/AppData/LocalLow/Squad/KSP/Kalculator`
+OSX     | `/Users/{username}/Library/cache/Squad/KSP/Kalculator`
+Linux   | `/home/{username}/.config/unity3d/Squad/KSP/Kalculator`
 
 Everytime you switch from KSP to some other window, Kalculator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kalculator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kalculator. Functions are text files in UTF-8 encoding with the extention `.math`.

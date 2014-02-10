@@ -88,16 +88,18 @@ Operators that operate on one number are called unary operators. They operate on
 Operators that operate on two numbers are called binary operators. They operate on the number to the left and the number to the right of the operator. 
 The binary operators available to Kalculator are:
 
-    a + b   # Add b to a
-    a - b   # Substract b from a
-    a / b   # Divide a by b
-    a ÷ b   # Divide a by b
-    a * b   # Multiply a by b
-    a × b   # Multiply a by b
-    a · b   # Multiply a by b
-    a ^ b   # Raise a to the power of b
-    a √ b   # Raise b to the power of 1/a
-    a % b   # Calculate the remainder of a divided by b
+Operator | Description
+----------------------
+`a + b`  | Add b to a
+`a - b`  | Substract b from a
+`a / b`  | Divide a by b
+`a ÷ b`  | Divide a by b
+`a * b`  | Multiply a by b
+`a × b`  | Multiply a by b
+`a · b`  | Multiply a by b
+`a ^ b`  | Raise a to the power of b
+`a √ b`  | Raise b to the power of 1/a
+`a % b`  | Calculate the remainder of a divided by b
 
 #### Variables
 A variable is a container that holds either a number or a list. A statement assigns the value yielded by an expression to a variable. Once this is done, future expressions can use this variable. Variables are denoted with an identifier (a name). For example:
