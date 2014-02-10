@@ -37,10 +37,10 @@ package: build
 	cp build/Kalculator.dll package/Kalculator/Plugins/
 
 tar.gz: package
-	${TAR} zcf Kalculator-$(shell ${GIT} describe --tags --long --always).tar.gz package/Kalculator
+	${TAR} zcf Kalculator-$(shell ${GIT} describe --tags).tar.gz package/Kalculator
 
 zip: package
-	${ZIP} -9 -r Kalculator-$(shell ${GIT} describe --tags --long --always).zip package/Kalculator
+	${ZIP} -9 -r Kalculator-$(shell ${GIT} describe --tags).zip package/Kalculator
 
 clean:
 	@echo "Cleaning up build and package directories..."
