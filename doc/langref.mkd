@@ -89,7 +89,7 @@ Operators that operate on two numbers are called binary operators. They operate 
 The binary operators available to Kalculator are:
 
 Operator | Description
-----------------------
+---------|------------
 `a + b`  | Add b to a
 `a - b`  | Substract b from a
 `a / b`  | Divide a by b
