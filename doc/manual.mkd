@@ -37,7 +37,7 @@ The letter `x` is a variable: a little piece of computer memory that can hold a 
 
 ### Naming and saving functions
 
-He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left. When he clicks the function name some info is given about the function.
+Bob feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left. When he clicks the function name some info is given about the function.
 
 ### Running functions
 
@@ -47,7 +47,7 @@ Bob hits the `Run` button next to the `simple_sum` function in the main window. 
 
 Bob gets out a piece op paper en draws on it the following:
 
-[IMG]
+![`v = sqrt( M*G * (2/r - 2 / (Pe+Ap)) )`](Formula.png)
 
 This is the formula that describes the speed of an object in orbit of a planet. The variables in the formula mean:
 
