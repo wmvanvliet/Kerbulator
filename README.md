@@ -8,7 +8,7 @@ Kalculator comes without any preprogrammed formulae. While it can be fun to use 
 What you get is access to all the numbers you can read off the various displays in vanilla KSP, an astronomical almanac and a simple expression language to write functions operating on them. This enables you to calculate useful stuff like Hohmann transfers, gravitational slingshots, launch windows, etc. Kalculator can also create maneuver nodes for you based on your calculations.
 
 ## Installation
-The installation of Kalculator is the same as for most other mods. Install Kalculator by downloading the [zip file]() from Kerbal Space Port and unzipping it into the `GameData` folder of your KSP installation. The `GameData` folder should now contain a subfolder called `Kalculator`. Start KSP and you're good to go!
+The installation of Kalculator is the same as for most other mods. Install Kalculator by downloading the [zip file](https://dl.dropboxusercontent.com/u/79303435/Kalculator/Kalculator-0.1-1-gcab968f.zip) from Kerbal Space Port and unzipping it into the `GameData` folder of your KSP installation. The `GameData` folder should now contain a subfolder called `Kalculator`. Start KSP and you're good to go!
 
 ## Download latest release
 [Kalculator-0.1-1-gcab968f.zip](https://dl.dropboxusercontent.com/u/79303435/Kalculator/Kalculator-0.1-1-gcab968f.zip) <br/>
