@@ -68,7 +68,7 @@ Bob presses the `New function` button, names the function `current_velocity` and
     r_min = R + 80E3
     r_max = R + 120E3
     
-    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
+    v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
 This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the `Run` button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
@@ -80,7 +80,7 @@ This function begins by initializing a whole bunch of variables to different val
     r_max = R + 120E3 # My apoapsis is 120 km above Kerbin sea level
     
     # Formula describing the speed of an object orbiting a planet
-    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
+    v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
 It is starting to look pretty. By the way, every line of the function is a 'statement'. A statement always assigns the result of an expression to a variable. A statement containing just the expression `1 + 1` by itself would be invalid, for example, as would something like `= 1 + 1`.
 
@@ -96,7 +96,7 @@ Bob is annoyed that he has to look at his instruments and type in numbers every 
     r_max = R + Craft.Ap # My apoapsis
     
     # Formula describing the speed of an object orbiting a planet
-    v = sqrt( M*G * (2/r - 2 / (r_min + r_max)) )
+    v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
 Bob can now run his function and everytime he does, the function will give his current velocity with great precision.
 
@@ -118,7 +118,7 @@ This is Bob's plan: he's going to burn at apoapsis in order to circularize his o
     R = Parent.R      # Radius of the parent body we're orbiting
 
     # Formula describing the speed of an object orbiting a planet
-    v = sqrt( M*G * (2/r - 2 / (Pe + Ap + 2*R)) )
+    v = √( M*G * (2/r - 2 / (Pe + Ap + 2*R)) )
 
 Inputs are values are are not defined in the function itself and are not globals given by Kalculator, but have to be supplied when running the function. Outputs are values the function produces. When you don't define any outputs, the last statement of the function will be taken as implicit output. Functions can have multiple inputs and outputs. First, all of the inputs are described: each on its own line in the form of `in: <identifier> "<description>"`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier> "<description>"`. The `"<description>"` parts are optional, although useful to document your functions. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
 
