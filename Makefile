@@ -61,5 +61,8 @@ unity:
 	cp Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs ~/Calculator/Assets/Standard\ Assets/
 	cp KalculatorGUI.cs ~/Calculator/Assets/
 
+release: zip tar.gz
+	cp Kalculator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kalculator
+	cp Kalculator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kalculator
 
 .PHONY : all info build package tar.gz zip clean install uninstall
