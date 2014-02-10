@@ -131,7 +131,7 @@ Inputs are values that are not defined in the function itself and are not global
     c = √(a^2 + b^2)
     in: b
 
-Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the `Run` button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to speficy them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
+Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the `Run` button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
 
 ### Calling functions from functions
 
