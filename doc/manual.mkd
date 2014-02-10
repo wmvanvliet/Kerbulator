@@ -169,7 +169,7 @@ Name   | Description
 `Δt`   | Time at which to perform the burn (where 0 means right now)
 `dt`   | Same as `Δt`
 
-All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be taken to be 0.
+All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
 
 Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the `Make node` button in the run window in order to create the node. Happy flying Bob!
 
