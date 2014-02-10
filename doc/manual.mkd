@@ -21,7 +21,7 @@ Bob notices, when he's flying, a button labeled `Kalculator` in the left hand co
 
 ### Writing functions
 
-Functions are the bread and butter of Kalculator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kalculator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to performs the calculation we want.
+Functions are the bread and butter of Kalculator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kalculator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to perform the calculation we want.
 
 Bob wants to start simple by calculating `1+1`. He clicks the `New function` button, which opens an editor window. There are some buttons there. `Delete` will delete the function. `Save` will save the function to disk, so you can access it later. `Run` will execute the function and actually do the computation. There is also a sort of keyboard at the bottom which helps Bob enter greek and mathematical symbols as his keyboard does not have keys for those. That leaves a textfield containing the name of the function (currently `unnamed`) and a big text area where Bob can write the actual programming code.
 
@@ -37,7 +37,7 @@ The letter `x` is a variable: a little piece of computer memory that can hold a 
 
 ### Naming and saving functions
 
-He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left.
+He feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left. When he clicks the function name some info is given about the function.
 
 ### Running functions
 
@@ -201,3 +201,15 @@ For all the cool things you can do with lists, take a look at what the [language
    
     vec3 = dot(vec1, vec2) # Dot product between two vectors 
     vec3 = cross(vec1, vec2) # Cross product between two vectors 
+
+### Writing functions in your own editor
+
+Bob likes the little editor inside KSP, because it gives quick access to Greek and math symbols to make his formulae look pretty. However, when writing very long functions, you may want to use some other editor. Kalculator stores its functions in a folder on your disk. The location depends on your platform:
+
+ Platform | Location
+ -------------------
+ Windows | `C:/Users/{username}/AppData/LocalLow/Squad/KSP/Kalculator`
+ OSX     | `/Users/{username}/Library/cache/Squad/KSP/Kalculator`
+ Linux   | `/home/{username}/.config/unity3d/Squad/KSP/Kalculator`
+
+Everytime you switch from KSP to some other window, Kalculator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kalculator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kalculator. Functions are text files in UTF-8 encoding with the extention `.math`.
