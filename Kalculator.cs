@@ -68,6 +68,7 @@ namespace Kalculator {
 			globals.Add("pi", new Variable("pi", VarType.NUMBER, Math.PI));
 			globals.Add("π", new Variable("π", VarType.NUMBER, Math.PI));
 			globals.Add("e", new Variable("e", VarType.NUMBER, Math.E));
+			globals.Add("G", new Variable("G", VarType.NUMBER, 6.67384E-11));
 		}
 
 		public void AddGlobal(Variable v) {
