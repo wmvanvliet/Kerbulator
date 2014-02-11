@@ -42,7 +42,9 @@ namespace Kalculator {
 	   
 		public static Function FromFile(string filename) {
 			StreamReader file = File.OpenText(filename);
-			return new Function(Path.GetFileNameWithoutExtension(filename), file.ReadToEnd());
+            string contents = file.ReadToEnd();
+            file.Close();
+			return new Function(Path.GetFileNameWithoutExtension(filename), contents);
 		}
 
 		public static Dictionary<string, Function> Scan(string dir) {
