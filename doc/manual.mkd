@@ -213,7 +213,7 @@ Bob likes the little editor inside KSP, because it gives quick access to Greek a
 
 Platform | Location
 ---------|---------
-Windows  | `C:/Users/{username}/AppData/LocalLow/unity.Squad/Kerbal Space Program/Kalculator`
+Windows  | `C:/Users/{username}/AppData/LocalLow/Squad/Kerbal Space Program/Kalculator`
 OSX      | `/Users/{username}/Library/Caches/unity.Squad.Kerbal Space Program/Kalculator`
 Linux    | `/home/{username}/.config/unity3d/unity.Squad/Kerbal Space Program/Kalculator`
 
