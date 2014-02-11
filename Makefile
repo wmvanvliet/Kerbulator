@@ -11,6 +11,7 @@ MONO    := /usr/bin/mono
 GIT     := /usr/bin/git
 TAR     := /usr/bin/tar
 ZIP     := /usr/bin/zip
+PDFLATEX   := /usr/local/texlive/2012/bin/x86_64-darwin/pdflatex
 
 all: build
 
@@ -32,26 +33,37 @@ build: info
 		-out:build/Kalculator.dll \
 		${SOURCEFILES}
 
-package: build
+doc: build
+	mkdir -p package/Kalculator/doc
+	cp doc/*.mkd doc/*.png package/Kalculator/doc
+	cd doc; ${PDFLATEX} space; ${PDFLATEX} space
+	cp doc/space.pdf package/Kalculator/doc/math_notes.pdf
+
+package: build doc
 	mkdir -p package/Kalculator/Plugins
+	mkdir -p package/Kalculator/Textures
 	cp build/Kalculator.dll package/Kalculator/Plugins/
+	cp icons/*.png package/Kalculator/Textures/
+	cp README.md package/Kalculator
+	cp LICENSE.md package/Kalculator
+
 
 tar.gz: package
-	${TAR} zcf Kalculator-$(shell ${GIT} describe --tags).tar.gz package/Kalculator
+	cd package; ${TAR} zcf Kalculator-$(shell ${GIT} describe --tags).tar.gz Kalculator
 
 zip: package
-	${ZIP} -9 -r Kalculator-$(shell ${GIT} describe --tags).zip package/Kalculator
+	cd package; ${ZIP} -9 -r Kalculator-$(shell ${GIT} describe --tags).zip Kalculator
 
 clean:
 	@echo "Cleaning up build and package directories..."
 	rm -rf build/ package/
 
-install: build
-	mkdir -p ${KSPDIR}/GameData/Kalculator/Plugins
-	cp build/Kalculator.dll ${KSPDIR}/GameData/Kalculator/Plugins/
+install: package
+	mkdir -p ${KSPDIR}/GameData/
+	cp -rv package/Kalculator ${KSPDIR}/GameData/
 
 uninstall: info
-	rm -rf ${KSPDIR}/GameData/Kalculator/Plugins
+	rm -rf ${KSPDIR}/GameData/Kalculator
 
 test: info
 	${GMCS} Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
@@ -65,4 +77,4 @@ release: zip tar.gz
 	cp Kalculator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kalculator
 	cp Kalculator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kalculator
 
-.PHONY : all info build package tar.gz zip clean install uninstall
+.PHONY : all info doc build package tar.gz zip clean install uninstall
