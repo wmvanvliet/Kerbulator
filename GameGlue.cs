@@ -36,6 +36,10 @@ namespace Kerbulator {
 				gui.OnGUI();
 		}
 
+        public void OnApplicationFocus(bool focused) {
+            gui.OnApplicationFocus(focused);
+        }
+
 		/// <summary>Add/Update some useful globals</summary>
 		public void AddGlobals(Kerbulator kalc) {
 			Globals.Add(kalc); // UNITY

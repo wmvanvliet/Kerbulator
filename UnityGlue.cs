@@ -17,6 +17,10 @@ namespace Kerbulator {
 			gui.OnGUI();
 		}
 
+        public void OnApplicationFocus(bool focused) {
+            gui.OnApplicationFocus(focused);
+        }
+
 		public void AddGlobals(Kerbulator kalc) {
 		}
 
