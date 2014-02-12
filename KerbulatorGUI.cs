@@ -42,7 +42,7 @@ namespace Kerbulator {
 
 		// Main button position
 		private bool drawMainButton = false;
-		private Rect mainButtonPos = new Rect(200, 5, 32, 32);
+		private Rect mainButtonPos = new Rect(190, 0, 32, 32);
 
 		// Window positions
 		private Rect mainWindowPos = new Rect(0, 60, 280, 400);
@@ -70,7 +70,7 @@ namespace Kerbulator {
 		private bool inEditor = false;
 
 		// Icons
-		Texture2D kalculatorIcon;
+		Texture2D kerbulatorIcon;
 		Texture2D editIcon;
 		Texture2D runIcon;
 		Texture2D saveIcon;
@@ -91,7 +91,7 @@ namespace Kerbulator {
 			}
 
 			// Load icons
-			kalculatorIcon = glue.GetTexture("kalculator");
+			kerbulatorIcon = glue.GetTexture("kerbulator");
 			editIcon = glue.GetTexture("edit");
 			runIcon = glue.GetTexture("run");
 			nodeIcon = glue.GetTexture("node");
@@ -115,7 +115,7 @@ namespace Kerbulator {
 
 			if(drawMainButton) {
 				// Draw the main button
-				if(GUI.Button(mainButtonPos, kalculatorIcon, defaultButton))
+				if(GUI.Button(mainButtonPos, kerbulatorIcon, defaultButton))
 					mainWindowEnabled = !mainWindowEnabled;
 			}
 

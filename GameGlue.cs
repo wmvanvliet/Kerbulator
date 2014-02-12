@@ -19,8 +19,9 @@ namespace Kerbulator {
 			if(ToolbarManager.ToolbarAvailable) {
 				guiEnabled = false;
 				mainButton = ToolbarManager.Instance.add("Kerbulator", "Kerbulator");
-				mainButton.TexturePath = "Kerbulator/Textures/kalculator";
+				mainButton.TexturePath = "Kerbulator/Textures/kerbulator";
 				mainButton.ToolTip = "Open a powerful calculator";
+                mainButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
 				mainButton.OnClick += (e) => {
 					guiEnabled = !guiEnabled;
 				};
