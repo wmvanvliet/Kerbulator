@@ -2,7 +2,7 @@ Language reference
 ==================
 
 ### Functions
-The basic building blocks of Kalculator are functions. 
+The basic building blocks of Kerbulator are functions. 
 A function is a calculation that produces some result when executed. Often, it operates on some input variables you specify when executing the function.
 
 An example of a function would be as follows:
@@ -80,7 +80,7 @@ And finally, numbers can be written in scientific notation using either an upper
 #### Operators
 An operator performs a calculation on one or more numbers.
 
-Operators that operate on one number are called unary operators. They operate on the number that follows them. The unary operators available to Kalculator are:
+Operators that operate on one number are called unary operators. They operate on the number that follows them. The unary operators available to Kerbulator are:
 
 Operator | Description
 ---------|------------
@@ -88,7 +88,7 @@ Operator | Description
 `√a`     | Take the square root of `a`
 
 Operators that operate on two numbers are called binary operators. They operate on the number to the left and the number to the right of the operator. 
-The binary operators available to Kalculator are:
+The binary operators available to Kerbulator are:
 
 Operator | Description
 ---------|------------
@@ -191,7 +191,7 @@ And so are these:
     someFunction (1)
 
 #### Build-in functions
-Apart from the functions you write yourself, Kalculator supplies the following build-in functions:
+Apart from the functions you write yourself, Kerbulator supplies the following build-in functions:
 
 Name         | Description
 -------------|------------

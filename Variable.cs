@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 
-namespace Kalculator {
+namespace Kerbulator {
 
 	public class VarException: Exception {
 		public VarException() {}

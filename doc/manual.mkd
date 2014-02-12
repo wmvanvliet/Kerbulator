@@ -3,9 +3,9 @@
 
 ### Meet Bob Kerman
 
-Although Bob might not be such a superstar as Jebediah, he's a very good astronaut. While Jeb is trashing about with rockets willy nilly, Bob likes to plan things in advance; be prepared; know exactly when and where to burn to get things done efficiently. Bill suggested using the autopilot, but Bob is oldschool, Bob wants to figure stuff out for himself. Bob brought along his trusty Kalculator, which he will program himself! 
+Although Bob might not be such a superstar as Jebediah, he's a very good astronaut. While Jeb is trashing about with rockets willy nilly, Bob likes to plan things in advance; be prepared; know exactly when and where to burn to get things done efficiently. Bill suggested using the autopilot, but Bob is oldschool, Bob wants to figure stuff out for himself. Bob brought along his trusty Kerbulator, which he will program himself! 
 
-This manual will follow Bob as he creates a function that will circularize his current orbit. Along the way we will go over all the different features of Kalculator.
+This manual will follow Bob as he creates a function that will circularize his current orbit. Along the way we will go over all the different features of Kerbulator.
 
 ### Bob is flying... in space!
 
@@ -15,13 +15,13 @@ Bob is inside a spacecraft orbiting his home planet Kerbin. He is in an elliptic
 
 He would like to calculate at which time to turn on his engines and how much Δv he should burn to circularize his orbit.
 
-### Starting Kalculator
+### Starting Kerbulator
 
-Bob notices, when he's flying, the Kalculator button (+ - × ÷ in a square) in the left hand corner of the screen. Therefore he knows his Kalculator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kalculator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
+Bob notices, when he's flying, the Kerbulator button (+ - × ÷ in a square) in the left hand corner of the screen. Therefore he knows his Kerbulator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kerbulator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
 k
 ### Writing functions
 
-Functions are the bread and butter of Kalculator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kalculator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to perform the calculation we want.
+Functions are the bread and butter of Kerbulator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kerbulator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to perform the calculation we want.
 
 Bob wants to start simple by calculating `1+1`. He clicks the `New function` button, which opens an editor window. There are some buttons there. The delete button (trashcan icon) will delete the function. The save button (disk icon) will save the function to disk, so you can access it later. The run button (triangle in circle icon) will execute the function and actually do the computation. There is also a sort of keyboard at the bottom which helps Bob enter greek and mathematical symbols as his keyboard does not have keys for those. That leaves a textfield containing the name of the function (currently `unnamed`) and a big text area where Bob can write the actual programming code.
 
@@ -33,11 +33,11 @@ and stares at its beautiful simplicity.
 
 ### Some nomenclature
 
-The letter `x` is a variable: a little piece of computer memory that can hold a number (or list as we'll see later). The `=` sign means that `x` is going to be assigned a new value. The rest is called an 'expression'. An expression is a piece of math that yields a result, in this case the sum of 1 and 1. The `+` sign is called an 'operator' and Kalculator has a lot of them to do perform lot of different mathematical operations. They are all listed in the 'Operators' section of the [language reference](langref.mkd#operators). The entire line together is called a 'statement'. 
+The letter `x` is a variable: a little piece of computer memory that can hold a number (or list as we'll see later). The `=` sign means that `x` is going to be assigned a new value. The rest is called an 'expression'. An expression is a piece of math that yields a result, in this case the sum of 1 and 1. The `+` sign is called an 'operator' and Kerbulator has a lot of them to do perform lot of different mathematical operations. They are all listed in the 'Operators' section of the [language reference](langref.mkd#operators). The entire line together is called a 'statement'. 
 
 ### Naming and saving functions
 
-Bob feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kalculator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left. When he clicks the function name some info is given about the function.
+Bob feels that `unnamed` is not the proper name for such a beautiful formula and flips to the section 'Identifiers' of the [language reference](langref.mkd#identifiers). He notes that functions (and variables for that matter) can have any name, as long as this name doesn't contain any forbitten characters, which are: spaces and any of `# + - / ÷ * × · ^ √ % : = ( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |` because they have a special meaning in the Kerbulator programming language. Also, they cannot start with a dot and also cannot start with a number. They may contain dots and numbers, just not as the first character of the name. Bob names his function `simple_sum` and saves it. He notices that the function `simple_sum` is now available in the function list on the left. When he clicks the function name some info is given about the function.
 
 ### Running functions
 
@@ -70,7 +70,7 @@ Bob presses the `New function` button, names the function `current_velocity` and
     
     v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
-This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the run button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
+This function begins by initializing a whole bunch of variables to different values. Note that Kerbulator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the run button and sees that the speed calculated by Kerbulator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kerbulator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
     M = 5.2915793E22    # Mass of Kerbin
     G = 6.673834E-11    # Gravitational constant
@@ -86,10 +86,10 @@ It is starting to look pretty. By the way, every line of the function is a 'stat
 
 ### Using globals
 
-Bob is annoyed that he has to look at his instruments and type in numbers every time he wishes to use the `current_velocity` function. Luckily, Kalculator strives to make all the numbers visible in KSP available to the programmer. It does so by defining a long list of 'globals': variables that are predefined by Kalculator and available in every function. After taking a look at the [complete list of globals](globals.mkd), Bob modifies his function:
+Bob is annoyed that he has to look at his instruments and type in numbers every time he wishes to use the `current_velocity` function. Luckily, Kerbulator strives to make all the numbers visible in KSP available to the programmer. It does so by defining a long list of 'globals': variables that are predefined by Kerbulator and available in every function. After taking a look at the [complete list of globals](globals.mkd), Bob modifies his function:
 
     M = Parent.M      # Mass of the parent body we're orbiting
-    # G is already defined by Kalculator, hooray!
+    # G is already defined by Kerbulator, hooray!
     R = Parent.R      # Radius of the parent body we're orbiting
     r = R + Craft.Alt # My current altitude
     r_min = R + Craft.Pe # My periapsis
@@ -106,7 +106,7 @@ Although being able to calculate his current velocity greatly pleases Bob, he's 
 
 ![plan for circularization of orbit](plan.png)
 
-This is Bob's plan: he's going to burn at apoapsis in order to circularize his orbit. This answers the question *when* he should burn: whenever he reaches apoapsis (a value given by the KSP map interface and therefore also accessable as a global in Kalculator). Now to answer how much Δv to burn for when he reaches apoapsis. The answer is: the difference between however fast Bob's going when he reaches apoapsis and how fast he *should* be going were he in a circular orbit. This involves calculating the speed of two different orbits. Of course, Bob could write two different functions for each of them, but he finds it much more pleasing to write a single function that can calculate the speed of an object in *any* orbit. For this, he's going to use two features called 'function inputs' and 'function outputs'. He clicks the `New function` button once more, names the function `orbital_velocity` and types:
+This is Bob's plan: he's going to burn at apoapsis in order to circularize his orbit. This answers the question *when* he should burn: whenever he reaches apoapsis (a value given by the KSP map interface and therefore also accessable as a global in Kerbulator). Now to answer how much Δv to burn for when he reaches apoapsis. The answer is: the difference between however fast Bob's going when he reaches apoapsis and how fast he *should* be going were he in a circular orbit. This involves calculating the speed of two different orbits. Of course, Bob could write two different functions for each of them, but he finds it much more pleasing to write a single function that can calculate the speed of an object in *any* orbit. For this, he's going to use two features called 'function inputs' and 'function outputs'. He clicks the `New function` button once more, names the function `orbital_velocity` and types:
 
     in: Pe "Periapsis of the orbit"
     in: Ap "Apoapsis of the orbit"
@@ -114,7 +114,7 @@ This is Bob's plan: he's going to burn at apoapsis in order to circularize his o
     out: v "Current velocity of object" 
 
     M = Parent.M   # Mass of the parent body we're orbiting
-    # G is already defined by Kalculator, hooray!
+    # G is already defined by Kerbulator, hooray!
     R = Parent.R   # Radius of the parent body we're orbiting
 
     r_min = R + Pe # Height of periapsis measured from planet center
@@ -124,14 +124,14 @@ This is Bob's plan: he's going to burn at apoapsis in order to circularize his o
     # Formula describing the speed of an object orbiting a planet
     v = √( M*G * (2/r - 2 / (Pe + Ap + 2*R)) )
 
-Inputs are values that are not defined in the function itself and are not globals given by Kalculator, but have to be supplied when running the function. Outputs are values the function produces. When you don't define any outputs, the last statement of the function will be taken as implicit output. Functions can have multiple inputs and outputs. First, all of the inputs are described: each on its own line in the form of `in: <identifier> "<description>"`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier> "<description>"`. The `"<description>"` parts are optional, although useful to document your functions. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
+Inputs are values that are not defined in the function itself and are not globals given by Kerbulator, but have to be supplied when running the function. Outputs are values the function produces. When you don't define any outputs, the last statement of the function will be taken as implicit output. Functions can have multiple inputs and outputs. First, all of the inputs are described: each on its own line in the form of `in: <identifier> "<description>"`, then all of the outputs are described: again each on its own line and in the form of `out: <identifier> "<description>"`. The `"<description>"` parts are optional, although useful to document your functions. Inputs must always be described first and then the outputs and then all of the statements of the function. For example, this is wrong:
 
     out: c
     in: a
     c = √(a^2 + b^2)
     in: b
 
-Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the run button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
+Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the run button gives an error. The `orbital_velocity` function needs values as input, but currently Kerbulator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
 
 ### Calling functions from functions
 
@@ -149,14 +149,14 @@ By calling the `orbital_velocity` function from inside another function, Bob can
     # Calculate Δv required to circularize our orbit
     Δv = v2 - v1
 
-    # Burn at apoapsis. Kalculator has a global for this.
+    # Burn at apoapsis. Kerbulator has a global for this.
     Δt = Craft.TimeToAp
 
-He saves his function and presses the `Run` button. Behold! Kalculates faithfully spits out a Δv and Δt value: the two outputs he had defined. Note that the other variables are discarded, never to be heard from again outside of their function. With these values Bob is able to circularize his orbit! Lets take a look at the 'function calls' that Bob has just made. He 'calls' the function `orbital_velocity` two times, each time with slightly different inputs. To call a function you usually write `<function name>(input1, input2, ...)`. This form will work every time, but take a look at the other ways to call a function in the [language reference](langref.mkd#function-calls). Also, take a look at the [build-in functions](langref.mkd#build-in-functions) that Kalculator provides for you. The ability to call functions that call functions that call functions, etc., gives Kalculator the ability to do very complex computations.
+He saves his function and presses the `Run` button. Behold! Kerbulator faithfully spits out a Δv and Δt value: the two outputs he had defined. Note that the other variables are discarded, never to be heard from again outside of their function. With these values Bob is able to circularize his orbit! Lets take a look at the 'function calls' that Bob has just made. He 'calls' the function `orbital_velocity` two times, each time with slightly different inputs. To call a function you usually write `<function name>(input1, input2, ...)`. This form will work every time, but take a look at the other ways to call a function in the [language reference](langref.mkd#function-calls). Also, take a look at the [build-in functions](langref.mkd#build-in-functions) that Kerbulator provides for you. The ability to call functions that call functions that call functions, etc., gives Kerbulator the ability to do very complex computations.
 
 ### Creating maneuver nodes
 
-Bob is just about to create a maneuver node manually when he realizes that Kalculator has the ability to create it for him. However, he needs to make a small change to his code. When Kalculator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
+Bob is just about to create a maneuver node manually when he realizes that Kerbulator has the ability to create it for him. However, he needs to make a small change to his code. When Kerbulator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
 
 Name   | Description
 -------|----------
@@ -169,7 +169,7 @@ Name   | Description
 `Δt`   | Time at which to perform the burn (where 0 means right now)
 `dt`   | Same as `Δt`
 
-All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
+All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kerbulator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
 
 Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the node button (maneuver node icon) in the run window in order to create the node. Happy flying Bob!
 
@@ -209,12 +209,12 @@ For all the cool things you can do with lists, take a look at what the [language
 
 ### Writing functions in your own editor
 
-Bob likes the little editor inside KSP, because it gives quick access to Greek and math symbols to make his formulae look pretty. However, when writing very long functions, you may want to use some other editor. Kalculator stores its functions in a folder on your disk. The location depends on your platform:
+Bob likes the little editor inside KSP, because it gives quick access to Greek and math symbols to make his formulae look pretty. However, when writing very long functions, you may want to use some other editor. Kerbulator stores its functions in a folder on your disk. The location depends on your platform:
 
 Platform | Location
 ---------|---------
-Windows  | `C:/Users/{username}/AppData/LocalLow/Squad/Kerbal Space Program/Kalculator`
-OSX      | `/Users/{username}/Library/Caches/unity.Squad.Kerbal Space Program/Kalculator`
-Linux    | `/home/{username}/.config/unity3d/unity.Squad/Kerbal Space Program/Kalculator`
+Windows  | `C:/Users/{username}/AppData/LocalLow/Squad/Kerbal Space Program/Kerbulator`
+OSX      | `/Users/{username}/Library/Caches/unity.Squad.Kerbal Space Program/Kerbulator`
+Linux    | `/home/{username}/.config/unity3d/unity.Squad/Kerbal Space Program/Kerbulator`
 
-Everytime you switch from KSP to some other window, Kalculator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kalculator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kalculator. Functions are text files in UTF-8 encoding with the extention `.math`.
+Everytime you switch from KSP to some other window, Kerbulator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kerbulator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kerbulator. Functions are text files in UTF-8 encoding with the extention `.math`.

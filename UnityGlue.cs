@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Kalculator {
+namespace Kerbulator {
 	/// <summary>Glue code when plugin is loaded in the Unity editor and KSP game
 	/// assembly is not available.</summary>
 	public class UnityGlue : MonoBehaviour, IGlue {
-		private KalculatorGUI gui;
+		private KerbulatorGUI gui;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
 		void Start() {
-			gui = new KalculatorGUI(this, true, true);
+			gui = new KerbulatorGUI(this, true, true);
 		}
 
 		/// <summary>Called by Unity to draw the GUI</summary>
@@ -17,7 +17,7 @@ namespace Kalculator {
 			gui.OnGUI();
 		}
 
-		public void AddGlobals(Kalculator kalc) {
+		public void AddGlobals(Kerbulator kalc) {
 		}
 
 		public void PlaceNode(List<Variable> output) {

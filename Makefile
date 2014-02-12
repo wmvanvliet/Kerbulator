@@ -1,4 +1,4 @@
-# Makefile for building Kalculator
+# Makefile for building Kerbulator
 
 KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
 MANAGED := KSP.app/Contents/Data/Managed/
@@ -16,7 +16,7 @@ PDFLATEX   := /usr/local/texlive/2012/bin/x86_64-darwin/pdflatex
 all: build
 
 info:
-	@echo "== Kalculator Build Information =="
+	@echo "== Kerbulator Build Information =="
 	@echo "  resgen2: ${RESGEN2}"
 	@echo "  gmcs:    ${GMCS}"
 	@echo "  git:     ${GIT}"
@@ -30,29 +30,29 @@ build: info
 	mkdir -p build
 	${GMCS} -t:library -lib:${KSPDIR}/${MANAGED} \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
-		-out:build/Kalculator.dll \
+		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 
 doc: doc/space.tex
 	cd doc; ${PDFLATEX} space; ${PDFLATEX} space
 
 package: build doc
-	mkdir -p package/Kalculator/Plugins
-	mkdir -p package/Kalculator/Textures
-	cp build/Kalculator.dll package/Kalculator/Plugins/
-	cp icons/*.png package/Kalculator/Textures/
-	cp README.md package/Kalculator
-	cp LICENSE.md package/Kalculator
-	mkdir -p package/Kalculator/doc
-	cp doc/*.mkd doc/*.png package/Kalculator/doc
-	cp doc/space.pdf package/Kalculator/doc/math_notes.pdf
+	mkdir -p package/Kerbulator/Plugins
+	mkdir -p package/Kerbulator/Textures
+	cp build/Kerbulator.dll package/Kerbulator/Plugins/
+	cp icons/*.png package/Kerbulator/Textures/
+	cp README.md package/Kerbulator
+	cp LICENSE.md package/Kerbulator
+	mkdir -p package/Kerbulator/doc
+	cp doc/*.mkd doc/*.png package/Kerbulator/doc
+	cp doc/space.pdf package/Kerbulator/doc/math_notes.pdf
 
 
 tar.gz: package
-	cd package; ${TAR} zcf Kalculator-$(shell ${GIT} describe --tags).tar.gz Kalculator
+	cd package; ${TAR} zcf Kerbulator-$(shell ${GIT} describe --tags).tar.gz Kerbulator
 
 zip: package
-	cd package; ${ZIP} -9 -r Kalculator-$(shell ${GIT} describe --tags).zip Kalculator
+	cd package; ${ZIP} -9 -r Kerbulator-$(shell ${GIT} describe --tags).zip Kerbulator
 
 clean:
 	@echo "Cleaning up build and package directories..."
@@ -60,22 +60,22 @@ clean:
 
 install: package
 	mkdir -p ${KSPDIR}/GameData/
-	cp -r package/Kalculator ${KSPDIR}/GameData/
+	cp -r package/Kerbulator ${KSPDIR}/GameData/
 
 uninstall: info
-	rm -rf ${KSPDIR}/GameData/Kalculator
+	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${GMCS} Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
-	${MONO} Kalculator.exe tests
+	${GMCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
+	${MONO} Kerbulator.exe tests
 
 unity: 
-	cp Kalculator.cs KalculatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
+	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
 	cp UnityGlue.cs ~/Calculator/Assets/
 	cp icons/*.png ~/Calculator/Assets/Resources
 
 release: zip tar.gz
-	cp Kalculator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kalculator
-	cp Kalculator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kalculator
+	cp Kerbulator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kerbulator
+	cp Kerbulator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kerbulator
 
 .PHONY : all info doc build package tar.gz zip clean install uninstall

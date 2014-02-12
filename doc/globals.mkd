@@ -1,7 +1,7 @@
 Globals
 =======
 
-Kalculator aims to supply the user to all readings provided by the various
+Kerbulator aims to supply the user to all readings provided by the various
 instruments in the cockpit and the map view of vanilla KSP. I feel it strikes a
 good balance between giving not to little and not too much precalculated
 information. This balance is important to keep the game fun.
@@ -11,7 +11,7 @@ meaning you can use them in any function without having to initialize them
 yourself. You can however at any point in your function overwrite them with
 your own value and they will keep this value for the remainder of the current
 function (but not in other functions: the scope is local.) For example,
-Kalculator provides the mass of the planet you are currently orbiting:
+Kerbulator provides the mass of the planet you are currently orbiting:
 
     out: x "The original value of Parent.M"
 	out: y "A new value for Parent.M"
@@ -31,7 +31,7 @@ G               | Graviational constant: 6.67384 × 10^(-11)
 
 ### Information about various orbits
 
-Kalculator has globals that correspond to all the information KSP gives the
+Kerbulator has globals that correspond to all the information KSP gives the
 player about orbits for the following bodies. In the table below, replace {body} with
 the name of the body you wish to obtain information about. 
 
