@@ -1,4 +1,4 @@
-﻿﻿Manual
+﻿Manual
 ======
 
 ### Meet Bob Kerman
@@ -17,13 +17,13 @@ He would like to calculate at which time to turn on his engines and how much Δv
 
 ### Starting Kalculator
 
-Bob notices, when he's flying, a button labeled `Kalculator` in the left hand corner of the screen. Therefore he knows his Kalculator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kalculator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
-
+Bob notices, when he's flying, the Kalculator button (+ - × ÷ in a square) in the left hand corner of the screen. Therefore he knows his Kalculator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kalculator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
+k
 ### Writing functions
 
 Functions are the bread and butter of Kalculator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kalculator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to perform the calculation we want.
 
-Bob wants to start simple by calculating `1+1`. He clicks the `New function` button, which opens an editor window. There are some buttons there. `Delete` will delete the function. `Save` will save the function to disk, so you can access it later. `Run` will execute the function and actually do the computation. There is also a sort of keyboard at the bottom which helps Bob enter greek and mathematical symbols as his keyboard does not have keys for those. That leaves a textfield containing the name of the function (currently `unnamed`) and a big text area where Bob can write the actual programming code.
+Bob wants to start simple by calculating `1+1`. He clicks the `New function` button, which opens an editor window. There are some buttons there. The delete button (trashcan icon) will delete the function. The save button (disk icon) will save the function to disk, so you can access it later. The run button (triangle in circle icon) will execute the function and actually do the computation. There is also a sort of keyboard at the bottom which helps Bob enter greek and mathematical symbols as his keyboard does not have keys for those. That leaves a textfield containing the name of the function (currently `unnamed`) and a big text area where Bob can write the actual programming code.
 
 Bob writes into the big text area:
 
@@ -41,7 +41,7 @@ Bob feels that `unnamed` is not the proper name for such a beautiful formula and
 
 ### Running functions
 
-Bob hits the `Run` button next to the `simple_sum` function in the main window. He could also have pressed the `Run` button in the editor for the same effect. A new window appears (called the run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the `Run` button in either the run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever `Run` button was pressed.
+Bob hits the run button (a triangle inside a circle) next to the `simple_sum` function in the main window. He could also have pressed the run button in the editor for the same effect. A new window appears (called the run window) and behold: it shows `x=2`, which is the correct answer. He can choose to run the function again by pressing the run button in either the run window, editor window or main window. Bob is pleased to find out the function always reliably produces `x=2`, whichever run button was pressed.
 
 ### A more complicated function
 
@@ -70,7 +70,7 @@ Bob presses the `New function` button, names the function `current_velocity` and
     
     v = √( M*G * (2/r - 2 / (r_min + r_max)) )
 
-This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the `Run` button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
+This function begins by initializing a whole bunch of variables to different values. Note that Kalculator supports scientific notation, which simplifies writing down very big and very small numbers. Next, the variables are used to compute the current speed *v* of Bob's craft. He presses the run button and sees that the speed calculated by Kalculator is exactly the speed indicated by his instruments. Bob is very smart and of course his formula is correct. Bob notices however that it would be nice to attach some notes to his function, explaining what all those variables mean. Whenever you type a `#` mark, this mark and anything following it is completely ignored by Kalculator up to the end of the line. Bob changes his `current_velocity` function to the following:
 
     M = 5.2915793E22    # Mass of Kerbin
     G = 6.673834E-11    # Gravitational constant
@@ -131,7 +131,7 @@ Inputs are values that are not defined in the function itself and are not global
     c = √(a^2 + b^2)
     in: b
 
-Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the `Run` button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
+Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the run button gives an error. The `orbital_velocity` function needs values as input, but currently Kalculator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
 
 ### Calling functions from functions
 
@@ -171,7 +171,7 @@ Name   | Description
 
 All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kalculator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
 
-Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the `Make node` button in the run window in order to create the node. Happy flying Bob!
+Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the node button (maneuver node icon) in the run window in order to create the node. Happy flying Bob!
 
 ### Calling functions with multiple outputs
 
