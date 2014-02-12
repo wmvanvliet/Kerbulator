@@ -11,15 +11,28 @@ namespace Kalculator {
 	/// assembly is available.</summary>
 	public class GameGlue : MonoBehaviour, IGlue {
 		private KalculatorGUI gui;
+		private IButton mainButton;
+		private bool guiEnabled = true;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
 		void Start() {
-			gui = new KalculatorGUI(this, false, true);
+			if(ToolbarManager.ToolbarAvailable) {
+				guiEnabled = false;
+				mainButton = ToolbarManager.Instance.add("Kalculator", "Kalculator");
+				mainButton.TexturePath = "Kalculator/Textures/kalculator";
+				mainButton.ToolTip = "Open a powerful calculator";
+				mainButton.OnClick += (e) => {
+					guiEnabled = !guiEnabled;
+				};
+			}
+
+			gui = new KalculatorGUI(this, false, !ToolbarManager.ToolbarAvailable);
 		}
 
 		/// <summary>Called by Unity to draw the GUI</summary>
 		public void OnGUI() {
-			gui.OnGUI();
+			if(guiEnabled)
+				gui.OnGUI();
 		}
 
 		/// <summary>Add/Update some useful globals</summary>
@@ -75,6 +88,11 @@ namespace Kalculator {
 
 		public Texture2D GetTexture(string id) {
 			return GameDatabase.Instance.GetTexture("Kalculator/Textures/"+ id, false);
+		}
+
+		/// <summary>Called by Unity when plugin is unloaded</summary>
+		public void OnDestroy() {
+			mainButton.Destroy();
 		}
 	}
 }

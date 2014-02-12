@@ -81,6 +81,7 @@ namespace Kalculator {
 			this.glue = glue;
 			this.inEditor = inEditor;
 			this.drawMainButton = drawMainButton;
+			mainWindowEnabled = !drawMainButton;
 
 			functionDir = Application.persistentDataPath + "/Kalculator";
 			editFunctionContent = maneuverTemplate;
