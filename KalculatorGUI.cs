@@ -2,13 +2,17 @@
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using KSP.IO; // UNITY
 
 namespace Kalculator {
-	// Register plugin with KSP. Indicate that it only needs to be active during flight
-	[KSPAddon(KSPAddon.Startup.Flight, false)] // UNITY
+	/// <summary>Glue code to smooth over differences when plugin is loaded in
+	/// the Unity editor versus when it is loaded in the actual game.</summary>
+	public interface IGlue {
+		void PlaceNode(List<Variable> output);
+		void AddGlobals(Kalculator kalc);
+		Texture2D GetTexture(string id);
+	}
 
-	public class KalculatorGUI : MonoBehaviour {
+	public class KalculatorGUI {
 		// Selecting functions and getting info
 		private Function selectedFunction = null;
 		private string functionDescription = "";
@@ -37,7 +41,8 @@ namespace Kalculator {
 		private Kalculator kalc;
 
 		// Main button position
-		private Rect mainButtonPos = new Rect(200, 5, 100, 20);
+		private bool drawMainButton = false;
+		private Rect mainButtonPos = new Rect(200, 5, 32, 32);
 
 		// Window positions
 		private Rect mainWindowPos = new Rect(0, 60, 280, 400);
@@ -59,34 +64,59 @@ namespace Kalculator {
 		// GUI styles in use
 		private bool stylesInitiated = false;
 		GUIStyle keyboard;
+		GUIStyle defaultButton;
 
-		/// <summary>Called by Unity when the Plugin is started</summary>
-		void Start() {
+		private IGlue glue;
+		private bool inEditor = false;
+
+		// Icons
+		Texture2D kalculatorIcon;
+		Texture2D editIcon;
+		Texture2D runIcon;
+		Texture2D saveIcon;
+		Texture2D deleteIcon;
+		Texture2D nodeIcon;
+
+		public KalculatorGUI(IGlue glue, bool inEditor, bool drawMainButton) {
+			this.glue = glue;
+			this.inEditor = inEditor;
+			this.drawMainButton = drawMainButton;
+
 			functionDir = Application.persistentDataPath + "/Kalculator";
 			editFunctionContent = maneuverTemplate;
 
 			if(!Directory.Exists(functionDir)) {
-				print("Dir does not exist");
 				Directory.CreateDirectory(functionDir);
-			} else {
-				print(functionDir +" exists!");
 			}
-			
+
+			// Load icons
+			kalculatorIcon = glue.GetTexture("kalculator");
+			editIcon = glue.GetTexture("edit");
+			runIcon = glue.GetTexture("run");
+			nodeIcon = glue.GetTexture("node");
+			saveIcon = glue.GetTexture("save");
+			deleteIcon = glue.GetTexture("delete");
+
 			Scan();
 			kalc = new Kalculator(functionDir);
 		}
 
-		/// <summary>Called by Unity to draw the GUI</summary>
+		/// <summary>Draws the GUI</summary>
 		public void OnGUI() {
 			// Initiate styles
 			if(!stylesInitiated) {
 				keyboard = new GUIStyle(GUI.skin.GetStyle("button"));
 				keyboard.padding = new RectOffset(0,0,2,2);
+
+				defaultButton = new GUIStyle(GUI.skin.GetStyle("button"));
+				defaultButton.padding = new RectOffset(4,4,4,4);
 			}
 
-			// Draw the main button
-			if(GUI.Button(mainButtonPos, "Kalculator"))
-				mainWindowEnabled = !mainWindowEnabled;
+			if(drawMainButton) {
+				// Draw the main button
+				if(GUI.Button(mainButtonPos, kalculatorIcon, defaultButton))
+					mainWindowEnabled = !mainWindowEnabled;
+			}
 
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
@@ -118,13 +148,13 @@ namespace Kalculator {
 			foreach(KeyValuePair<string, Function> f in functions) {
 				GUILayout.BeginHorizontal();
 
-				if(GUILayout.Button(f.Key)) { 
+				if(GUILayout.Button(f.Key, GUILayout.Height(24))) { 
 					selectedFunction = f.Value;
 					functionDescription = FunctionDescription(f.Value);
 					functionDescriptionHeight = GUI.skin.GetStyle("label").CalcHeight(new GUIContent(functionDescription), 225);
 				}
 
-				if(GUILayout.Button("Edit", GUILayout.Width(40))) {
+				if(GUILayout.Button(editIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 					// Load the function to be edited
 					editFunction = f.Value;
 					functionFile = functionDir +"/"+ f.Key +".math";
@@ -133,7 +163,7 @@ namespace Kalculator {
 					editWindowEnabled = true;
 				}
 
-				if(GUILayout.Button("Run", GUILayout.Width(40))) {
+				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 					// Load the function to be run
 					functionOutput = "";
 					runFunction = f.Value;
@@ -191,20 +221,20 @@ namespace Kalculator {
 
 			GUILayout.BeginHorizontal();
 			
-			if(GUILayout.Button("Delete", GUILayout.MaxWidth(70))) {
+			if(GUILayout.Button(deleteIcon, defaultButton, GUILayout.Width(25), GUILayout.Height(24))) {
 				Delete();
 			}
 
-			editFunctionName = GUILayout.TextField(editFunctionName);
+			editFunctionName = GUILayout.TextField(editFunctionName, GUILayout.Height(24));
 			
-			if(GUILayout.Button("Save", GUILayout.MaxWidth(70))) {
+			if(GUILayout.Button(saveIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 				Save();
 
 				if(editFunction == null)
 					editFunction = functions[editFunctionName];
 			}
 
-			if(GUILayout.Button("Run", GUILayout.Width(40))) {
+			if(GUILayout.Button(runIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 				// Load the function to be run
 				functionOutput = "";
 				runFunction = editFunction;
@@ -284,30 +314,14 @@ namespace Kalculator {
 
 				GUILayout.BeginHorizontal();
 
-				if(GUILayout.Button("Run", GUILayout.MaxWidth(100))) {
+				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
 					List<Variable> output = Run();
 					functionOutput = FormatOutput(runFunction, output);
 				}
 				
-				if(GUILayout.Button("Make Node", GUILayout.MaxWidth(100))) {
-					double dr = 0, dn = 0, dp = 0;
-					double dt = 0;
-
+				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 					List<Variable> output = Run();
-
-					// Look at the resulting variables and create a maneuver node with them
-					foreach(Variable var in output) {
-						if(var.id == "Δv_r" || var.id == "dv_r")
-							dr = var.val;
-						else if(var.id == "Δv_n" || var.id == "dv_n")
-							dn = var.val;
-						else if(var.id == "Δv_p" || var.id == "dv_p")
-							dp = var.val;
-						else if(var.id == "Δt" || var.id == "dt")
-							dt = var.val + Planetarium.GetUniversalTime(); // UNITY
-					}
-
-					PlaceManeuverNode(new Vector3d(dr, -dn, dp), dt); // UNITY
+					glue.PlaceNode(output);
 					functionOutput = FormatOutput(runFunction, output);
 				}
 
@@ -327,47 +341,10 @@ namespace Kalculator {
 			if(editFunction != null && runFunction == editFunction)
 				Save();
 
-			// Add/Update some useful globals
-			Globals.Add(kalc);
+			glue.AddGlobals(kalc);
 
 			return kalc.Run(runFunction);
 		}
-
-		// UNITY
-		/// <summary>Place a maneuver node that represents a burn.</summary>
-		/// <param name="dV">The dV of the burn in the directions (radial+, normal-, prograde)</param>
-		/// <param name="UT">The absolute time at which to initiate the burn</param>
-		private void PlaceManeuverNode(Vector3d dV, double UT)
-		{
-			Vessel vessel = FlightGlobals.ActiveVessel;
-			if(vessel == null)
-				return;
-
-			//placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
-			//and log an exception if we get a bad dV vector:
-			for(int i = 0; i < 3; i++)
-			{
-				if(double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
-				{
-					throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad dV: " + dV);
-				}
-			}
-
-			if(double.IsNaN(UT) || double.IsInfinity(UT))
-			{
-				throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad UT: " + UT);
-			}
-
-			//It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
-			//protects against that.
-			UT = Math.Max(UT, Planetarium.GetUniversalTime());
-
-			//convert a dV in world coordinates into the coordinate system of the maneuver node,
-			//which uses (x, y, z) = (radial+, normal-, prograde)
-			ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
-			mn.OnGizmoUpdated(dV, UT);
-		}
-		// /UNITY
 
 		/// <summary>Save the current function being edited.</summary>
 		public void Save() {

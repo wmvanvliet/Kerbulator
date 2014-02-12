@@ -33,11 +33,8 @@ build: info
 		-out:build/Kalculator.dll \
 		${SOURCEFILES}
 
-doc: build
-	mkdir -p package/Kalculator/doc
-	cp doc/*.mkd doc/*.png package/Kalculator/doc
+doc: doc/space.tex
 	cd doc; ${PDFLATEX} space; ${PDFLATEX} space
-	cp doc/space.pdf package/Kalculator/doc/math_notes.pdf
 
 package: build doc
 	mkdir -p package/Kalculator/Plugins
@@ -46,6 +43,9 @@ package: build doc
 	cp icons/*.png package/Kalculator/Textures/
 	cp README.md package/Kalculator
 	cp LICENSE.md package/Kalculator
+	mkdir -p package/Kalculator/doc
+	cp doc/*.mkd doc/*.png package/Kalculator/doc
+	cp doc/space.pdf package/Kalculator/doc/math_notes.pdf
 
 
 tar.gz: package
@@ -60,7 +60,7 @@ clean:
 
 install: package
 	mkdir -p ${KSPDIR}/GameData/
-	cp -rv package/Kalculator ${KSPDIR}/GameData/
+	cp -r package/Kalculator ${KSPDIR}/GameData/
 
 uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kalculator
@@ -70,8 +70,9 @@ test: info
 	${MONO} Kalculator.exe tests
 
 unity: 
-	cp Kalculator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs ~/Calculator/Assets/Standard\ Assets/
-	cp KalculatorGUI.cs ~/Calculator/Assets/
+	cp Kalculator.cs KalculatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
+	cp UnityGlue.cs ~/Calculator/Assets/
+	cp icons/*.png ~/Calculator/Assets/Resources
 
 release: zip tar.gz
 	cp Kalculator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kalculator
