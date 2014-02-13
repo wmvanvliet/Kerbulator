@@ -95,7 +95,7 @@ x = functions
 x = constants
 
 # Run test on globals
-x = globals
+#x = globals
 
 # Get creative with identifiers
 a = 1 # single char

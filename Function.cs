@@ -323,20 +323,14 @@ namespace Kerbulator {
 								break;
 							case "⌊":
 								Consume("⌋");
-								while(ops.Count > 0 && ops.Peek().precidence > operators[t.val].precidence)
-									expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
 								ops.Push(operators[t.val]);
 								break;
 							case "⌈":
 								Consume("⌉");
-								while(ops.Count > 0 && ops.Peek().precidence > operators[t.val].precidence)
-									expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
 								ops.Push(operators[t.val]);
 								break;
 							case "|":
 								Consume("|");
-								while(ops.Count > 0 && ops.Peek().precidence > operators[t.val].precidence)
-									expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
 								ops.Push(operators[t.val]);
 								break;
 						}
@@ -365,8 +359,15 @@ namespace Kerbulator {
 						}
 					} 
 
-					while(ops.Count > 0 && ops.Peek().precidence >= op.precidence)
-						expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
+					// Handle operators with higher precidence
+					while(ops.Count > 0) {
+						Operator prevOp = ops.Peek();
+					    if(op.arity == Arity.BINARY && prevOp.precidence >= op.precidence)
+							expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
+						else
+							break;
+					}
+
 					ops.Push(op);
 					Consume();
 				}
