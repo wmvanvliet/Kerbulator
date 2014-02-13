@@ -1,11 +1,20 @@
 Changelog
 ---------
+### 0.21
+Bugfixes. Thanks to Teseracto for finding them.
+
+- GUI features:
+  - Fixed losing changes on window switch
+  - Closing main window no longer breaks toolbar button
+- Language features:
+  - Operator precidence fixed. (Added some unit tests for these cases)
+
 ### 0.2
 Renamed the entire project Kerbulator, since Kalculator is already an
 excellent mod by agises.
 
 - Globals:
-  - Fixed µ globals
+  - Fixed ï¿½ globals
 - GUI features:
   - Added support for blizzy78 toolbar
   - Icons for some buttons
