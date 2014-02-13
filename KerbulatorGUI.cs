@@ -243,6 +243,9 @@ namespace Kerbulator {
 			}
 
 			if(GUILayout.Button(runIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
+				// Save it
+				Save();
+
 				// Load the function to be run
 				functionOutput = "";
 				runFunction = editFunction;
@@ -346,11 +349,10 @@ namespace Kerbulator {
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
 		public List<Variable> Run() {
-			if(editFunction != null && runFunction == editFunction)
+			if(runFunction == editFunction)
 				Save();
 
 			glue.AddGlobals(kalc);
-
 			return kalc.Run(runFunction);
 		}
 
@@ -367,6 +369,7 @@ namespace Kerbulator {
 			System.IO.File.WriteAllText(functionFile, editFunctionContent);
 
 			Scan();
+            editFunction = functions[editFunctionName];
 		}
 
 		/// <summary>Delete the current function being edited.</summary>
