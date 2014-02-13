@@ -363,7 +363,7 @@ namespace Kerbulator {
 						}
 					} 
 
-					while(ops.Count > 0 && ops.Peek().precidence > op.precidence)
+					while(ops.Count > 0 && ops.Peek().precidence >= op.precidence)
 						expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
 					ops.Push(op);
 					Consume();
