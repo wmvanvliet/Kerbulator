@@ -10,7 +10,7 @@ namespace Kerbulator {
 	/// <summary>Glue code when plugin is loaded in KSP and game
 	/// assembly is available.</summary>
 	public class GameGlue : MonoBehaviour, IGlue {
-		private KerbulatorGUI gui;
+		private KerbulatorGUI gui = null;
 		private IButton mainButton;
 		private bool mainWindowEnabled = true;
 
@@ -36,7 +36,8 @@ namespace Kerbulator {
 		}
 
         public void OnApplicationFocus(bool focused) {
-            gui.OnApplicationFocus(focused);
+			if(gui != null)
+				gui.OnApplicationFocus(focused);
         }
 
 		/// <summary>Add/Update some useful globals</summary>

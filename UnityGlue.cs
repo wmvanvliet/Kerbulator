@@ -5,7 +5,7 @@ namespace Kerbulator {
 	/// <summary>Glue code when plugin is loaded in the Unity editor and KSP game
 	/// assembly is not available.</summary>
 	public class UnityGlue : MonoBehaviour, IGlue {
-		private KerbulatorGUI gui;
+		private KerbulatorGUI gui = null;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
 		void Start() {
@@ -18,7 +18,8 @@ namespace Kerbulator {
 		}
 
         public void OnApplicationFocus(bool focused) {
-            gui.OnApplicationFocus(focused);
+			if(gui != null)
+				gui.OnApplicationFocus(focused);
         }
 
 		public void AddGlobals(Kerbulator kalc) {
