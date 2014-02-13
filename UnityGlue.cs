@@ -30,5 +30,8 @@ namespace Kerbulator {
 		public Texture2D GetTexture(string id) {
 			return (Texture2D)Resources.Load(id);
 		}
+
+		public void ChangeState(bool open) {
+		}
 	}
 }

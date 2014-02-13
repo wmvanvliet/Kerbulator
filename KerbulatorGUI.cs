@@ -10,6 +10,7 @@ namespace Kerbulator {
 		void PlaceNode(List<Variable> output);
 		void AddGlobals(Kerbulator kalc);
 		Texture2D GetTexture(string id);
+		void ChangeState(bool open);
 	}
 
 	public class KerbulatorGUI {
@@ -81,7 +82,7 @@ namespace Kerbulator {
 			this.glue = glue;
 			this.inEditor = inEditor;
 			this.drawMainButton = drawMainButton;
-			mainWindowEnabled = !drawMainButton;
+			ChangeState(false);
 
 			functionDir = Application.persistentDataPath + "/Kerbulator";
 			editFunctionContent = maneuverTemplate;
@@ -102,6 +103,11 @@ namespace Kerbulator {
 			kalc = new Kerbulator(functionDir);
 		}
 
+        public void ChangeState(bool open) {
+            mainWindowEnabled = open;
+            glue.ChangeState(open);
+        }
+
 		/// <summary>Draws the GUI</summary>
 		public void OnGUI() {
 			// Initiate styles
@@ -115,8 +121,9 @@ namespace Kerbulator {
 
 			if(drawMainButton) {
 				// Draw the main button
-				if(GUI.Button(mainButtonPos, kerbulatorIcon, defaultButton))
-					mainWindowEnabled = !mainWindowEnabled;
+				if(GUI.Button(mainButtonPos, kerbulatorIcon, defaultButton)) {
+					ChangeState(!mainWindowEnabled);
+				}
 			}
 
 			// Draw the windows (if enabled)
@@ -140,7 +147,7 @@ namespace Kerbulator {
 		/// <param name="id">An unique number indentifying the window</param>
 		public void DrawMainWindow(int id) {
 			// Close button at the top right corner
-			mainWindowEnabled = !GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, "");
+			ChangeState(!GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
 
 			GUILayout.Label("Available functions:");
 

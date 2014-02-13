@@ -23,7 +23,7 @@ namespace Kerbulator {
 				mainButton.ToolTip = "Open a powerful calculator";
                 mainButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
 				mainButton.OnClick += (e) => {
-					guiEnabled = !guiEnabled;
+					gui.ChangeState(!guiEnabled);
 				};
 			}
 
@@ -98,6 +98,10 @@ namespace Kerbulator {
 		/// <summary>Called by Unity when plugin is unloaded</summary>
 		public void OnDestroy() {
 			mainButton.Destroy();
+		}
+
+		public void ChangeState(bool open) {
+			guiEnabled = open;
 		}
 	}
 }
