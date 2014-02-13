@@ -12,18 +12,18 @@ namespace Kerbulator {
 	public class GameGlue : MonoBehaviour, IGlue {
 		private KerbulatorGUI gui;
 		private IButton mainButton;
-		private bool guiEnabled = true;
+		private bool mainWindowEnabled = true;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
 		void Start() {
 			if(ToolbarManager.ToolbarAvailable) {
-				guiEnabled = false;
+                mainWindowEnabled = false;
 				mainButton = ToolbarManager.Instance.add("Kerbulator", "Kerbulator");
 				mainButton.TexturePath = "Kerbulator/Textures/kerbulator";
 				mainButton.ToolTip = "Open a powerful calculator";
                 mainButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
 				mainButton.OnClick += (e) => {
-					gui.ChangeState(!guiEnabled);
+                    gui.ChangeState(!mainWindowEnabled);
 				};
 			}
 
@@ -32,8 +32,7 @@ namespace Kerbulator {
 
 		/// <summary>Called by Unity to draw the GUI</summary>
 		public void OnGUI() {
-			if(guiEnabled)
-				gui.OnGUI();
+			gui.OnGUI();
 		}
 
         public void OnApplicationFocus(bool focused) {
@@ -101,7 +100,7 @@ namespace Kerbulator {
 		}
 
 		public void ChangeState(bool open) {
-			guiEnabled = open;
+            mainWindowEnabled = open;
 		}
 	}
 }
