@@ -6,22 +6,23 @@ using System.Collections.Generic;
 
 namespace Kerbulator {
 	public class Function {
-		private string id = "";
+		string id = "";
 
-		private Queue<Token> tokens;
-		private Dictionary<string, Operator>operators;
-		private Dictionary<string, Variable> globals;
-		private Dictionary<string, Variable> locals;
-		private Dictionary<string, Function> functions;
+		protected Queue<Token> tokens;
+		protected Dictionary<string, Operator>operators;
+		protected Dictionary<string, Variable> globals;
+		protected Dictionary<string, Variable> locals;
+		protected Dictionary<string, Function> functions;
 
 		List<string> ins;
 		List<string> outs;
 		List<string> inDescriptions;
 		List<string> outDescriptions;
+
 		private bool inError = false;
 		private string errorString = "";
 
-		public Function(string id, string function) {
+		public Function(string id, string function, bool parse) {
 			this.id = id;
 			this.ins = new List<string>();
 			this.outs = new List<string>();
@@ -33,18 +34,19 @@ namespace Kerbulator {
 				t.Tokenize(function +"\n");
 				tokens = t.tokens;
 
-				Parse();
+				if(parse)
+					Parse();
 			} catch(Exception e) {
 				inError = true;
 				errorString = e.Message;
 			}
 		}
-	   
+
 		public static Function FromFile(string filename) {
 			StreamReader file = File.OpenText(filename);
             string contents = file.ReadToEnd();
             file.Close();
-			return new Function(Path.GetFileNameWithoutExtension(filename), contents);
+			return new Function(Path.GetFileNameWithoutExtension(filename), contents, true);
 		}
 
 		public static Dictionary<string, Function> Scan(string dir) {
@@ -271,7 +273,7 @@ namespace Kerbulator {
 			return supplied == required + 1;
 		}
 
-		private Variable ExecuteExpression() {
+		protected Variable ExecuteExpression() {
 			Stack<Variable> expr = new Stack<Variable>();
 			Stack<Operator> ops = new Stack<Operator>();
 
@@ -734,6 +736,28 @@ namespace Kerbulator {
 
 			throw new Exception("Trying to perform an operation on invalid types.");
 		}
+	}
 
+	/// <summary>Sometimes an expression needs to be evaluated without being part of a function</summary>
+	public class Expression: Function {
+		public Expression(string expression):
+			base("_", expression, false) {
+
+			if(InError)
+				throw new Exception(ErrorString);
+		}
+
+		public Variable Evaluate(Dictionary<string, Operator> operators, Dictionary<string, Variable> globals, Dictionary<string, Function> functions) {
+			this.locals = new Dictionary<string, Variable>();
+			this.operators = operators;
+			this.globals = globals;
+			this.functions = functions;
+
+			Queue<Token> oldTokens = new Queue<Token>(tokens);
+			Variable result = ExecuteExpression();
+			tokens = oldTokens;
+			return result;
+		}
 	}
 }
+
