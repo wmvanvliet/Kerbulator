@@ -108,8 +108,7 @@ namespace Kerbulator {
 			kalc.AddGlobal(new Variable(prefix +".day", VarType.NUMBER, (double)body.rotationPeriod));
 			kalc.AddGlobal(new Variable(prefix +".SOI", VarType.NUMBER, (double)body.sphereOfInfluence));
 			kalc.AddGlobal(new Variable(prefix +".AtmosHeight", VarType.NUMBER, (double)body.maxAtmosphereAltitude));
-			// TODO: atmospheric pressure at sea level... how to take it from some internal variable?
-			AddAtmosPress(kalc, prefix);
+			kalc.AddGlobal(new Variable(prefix +".AtmosPress", VarType.NUMBER, (double)body.atmosphereMultiplier * 101325.0));
 		}
 
 		public static void AddDouble(Kerbulator kalc, string id, double v) {
@@ -149,65 +148,6 @@ namespace Kerbulator {
 
 			Variable g = new Variable(id, VarType.LIST, elements);
 			kalc.AddGlobal(g);
-		}
-
-		public static void AddAtmosPress(Kerbulator kalc, string name) {
-			// Taken from http://wiki.kerbalspaceprogram.com
-			switch(name) {
-				case "Kerbal":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Moho":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Eve":
-					AddDouble(kalc, name +".AtmosPress", 506625.0);
-					break;
-				case "Gilly":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Kerbin":
-					AddDouble(kalc, name +".AtmosPress", 101325.0);
-					break;
-				case "Mun":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Minmus":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Duna":
-					AddDouble(kalc, name +".AtmosPress", 20265.0);
-					break;
-				case "Ike":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Dres":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Jool":
-					AddDouble(kalc, name +".AtmosPress", 1519880.0);
-					break;
-				case "Laythe":
-					AddDouble(kalc, name +".AtmosPress", 81060.0);
-					break;
-				case "Vall":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Tylo":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Bob":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Pol":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				case "Eeloo":
-					AddDouble(kalc, name +".AtmosPress", 0.0);
-					break;
-				default:
-					break;
-			}
 		}
 	}
 }
