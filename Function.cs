@@ -738,27 +738,5 @@ namespace Kerbulator {
 			throw new Exception("Trying to perform an operation on invalid types.");
 		}
 	}
-
-	/// <summary>Sometimes an expression needs to be evaluated without being part of a function</summary>
-	public class Expression: Function {
-		public Expression(string expression):
-			base("_", expression, false) {
-
-			if(InError)
-				throw new Exception(ErrorString);
-		}
-
-		public Variable Evaluate(Dictionary<string, Operator> operators, Dictionary<string, Variable> globals, Dictionary<string, Function> functions) {
-			this.locals = new Dictionary<string, Variable>();
-			this.operators = operators;
-			this.globals = globals;
-			this.functions = functions;
-
-			Queue<Token> oldTokens = new Queue<Token>(tokens);
-			Variable result = ExecuteExpression();
-			tokens = oldTokens;
-			return result;
-		}
-	}
 }
 

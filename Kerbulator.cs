@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Kerbulator {
 	public class Kerbulator {
@@ -89,18 +90,23 @@ namespace Kerbulator {
 		}
 
 		public Variable RunExpression(string expression) {
-			Dictionary<string, Function> functions = Function.Scan(functionDir);
-			Expression e = new Expression(expression);
-			return e.Evaluate(operators, globals, functions);
+			JITFunction func = new JITFunction(expression, operators);
+			Func<double> f = Expression.Lambda<Func<double>>(func.ParseExpression()).Compile();
+			return new Variable(VarType.NUMBER, f());
 		}
 
 		public static void Main(string[] args) {
+			Kerbulator.DEBUG = (args[0] == "-v");
+
 			Kerbulator k = new Kerbulator("./tests");
 			if(args[0].EndsWith(".test")) {
 				Console.WriteLine("Running unit tests in "+ args[0]);
 				StreamReader file = File.OpenText(args[0]);
 				string line;
 				while( (line = file.ReadLine()) != null ) {
+					if(line.Trim().StartsWith("#"))
+						continue;
+
 					string[] parts = line.Split('>');
 					string expression = parts[0].Trim();
 					string expectedResult = parts[1].Trim();
@@ -121,7 +127,6 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
-				Kerbulator.DEBUG = true;
 				List<Variable> result = k.Run(args[0]);
 				foreach(Variable v in result)
 					Debug(v.id +" = "+ v.ToString() +", ");
