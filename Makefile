@@ -82,9 +82,8 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs JITFunction.cs
+	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs
 	${MONO} Kerbulator.exe tests/expressions.test
-	echo ${OS}
 
 unity: 
 	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
