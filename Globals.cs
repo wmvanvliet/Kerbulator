@@ -97,6 +97,7 @@ namespace Kerbulator {
 
 			if(orbit.UTsoi > 0) {
 				kalc.AddGlobal(new Variable(prefix +".SOI.dt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
+				kalc.AddGlobal(new Variable(prefix +".SOI.Δt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
 				kalc.AddGlobal(new Variable(prefix +".SOI.TrueAnomaly", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
 				kalc.AddGlobal(new Variable(prefix +".SOI.θ", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
 			}
