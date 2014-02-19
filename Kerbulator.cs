@@ -85,13 +85,19 @@ namespace Kerbulator {
 
 		public List<Variable> Run(Function f) {
 			Dictionary<string, Function> functions = Function.Scan(functionDir);
-			return f.Execute(new List<Variable>(), operators, globals, functions);
+			List<Variable> r = f.Execute(new List<Variable>(), operators, globals, functions);
+			if(f.InError)
+				throw new Exception(f.ErrorString);
+			return r;
 		}
 
 		public Variable RunExpression(string expression) {
 			Dictionary<string, Function> functions = Function.Scan(functionDir);
 			Expression e = new Expression(expression);
-			return e.Evaluate(operators, globals, functions);
+			Variable r = e.Evaluate(operators, globals, functions);
+			if(e.InError)
+				throw new Exception(e.ErrorString);
+			return r;
 		}
 
 		public static void Main(string[] args) {
@@ -131,8 +137,8 @@ namespace Kerbulator {
 				}
 
 				foreach(Variable v in result)
-					Debug(v.id +" = "+ v.ToString() +", ");
-				Debug("\n");
+					Console.Write(v.id +" = "+ v.ToString() +", ");
+				Console.WriteLine("\n");
 			}
 		}
 	}
