@@ -215,6 +215,6 @@ Platform | Location
 ---------|---------
 Windows  | `C:/Users/{username}/AppData/LocalLow/Squad/Kerbal Space Program/Kerbulator`
 OSX      | `/Users/{username}/Library/Caches/unity.Squad.Kerbal Space Program/Kerbulator`
-Linux    | `/home/{username}/.config/unity3d/unity.Squad/Kerbal Space Program/Kerbulator`
+Linux    | `/home/{username}/.config/unity3d/Squad/Kerbal Space Program/Kerbulator`
 
 Everytime you switch from KSP to some other window, Kerbulator makes sure the files on your disk are up to date. Then, when returning to the KSP window, Kerbulator reloads the functions from disk. Any editing you've done on those files (and any new files you've created) will be picked up by Kerbulator. Functions are text files in UTF-8 encoding with the extention `.math`.
