@@ -10,7 +10,7 @@ namespace Kerbulator {
 		public JITFunction(string expression, Dictionary<string, Operator> operators) {
 			this.operators = operators;
 
-			Tokenizer tok = new Tokenizer();
+			Tokenizer tok = new Tokenizer("unnamed");
 			tok.Tokenize(expression);
 			tokens = tok.tokens;
 		}

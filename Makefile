@@ -1,7 +1,23 @@
 # Makefile for building Kerbulator
 
-KSPDIR  := ${HOME}/KSP
-MANAGED := KSP_Data/Managed/
+ifeq ($(OS),Windows_NT)
+	KSPDIR  := C:/Program Files\ \(x86\)/Steam/SteamApps/common/Kerbal\ Space\ Program
+	MANAGED := KSP_Data/Managed/
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S), Darwin)
+		KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
+		MANAGED := KSP.app/Contents/Data/Managed/
+	endif
+	ifeq ($(UNAME_S), Linux)
+		KSPDIR  := ${HOME}/.local/share/Steam/SteamApps/common/Kerbal\ Space\ Program
+		MANAGED := KSP_Data/Managed/
+	endif
+	ifeq ($(UNAME_S), FreeBSD)
+		KSPDIR  := ${HOME}/KSP
+		MANAGED := KSP_Data/Managed/
+	endif
+endif
 
 SOURCEFILES := $(wildcard *.cs)
 
@@ -66,8 +82,9 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs
-	${MONO} Kerbulator.exe -v tests
+	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs JITFunction.cs
+	${MONO} Kerbulator.exe tests/expressions.test
+	echo ${OS}
 
 unity: 
 	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
