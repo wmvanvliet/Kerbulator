@@ -1,24 +1,24 @@
 # Makefile for building Kerbulator
 
-KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
-MANAGED := KSP.app/Contents/Data/Managed/
+KSPDIR  := ${HOME}/KSP
+MANAGED := KSP_Data/Managed/
 
 SOURCEFILES := $(wildcard *.cs)
 
-RESGEN2 := /usr/bin/resgen2
-GMCS    := /usr/bin/gmcs
-MONO    := /usr/bin/mono
-GIT     := /usr/bin/git
+RESGEN2 := /usr/local/bin/resgen2
+MCS    := /usr/local/bin/mcs
+MONO    := /usr/local/bin/mono
+GIT     := /usr/local/bin/git
 TAR     := /usr/bin/tar
-ZIP     := /usr/bin/zip
-PDFLATEX   := /usr/local/texlive/2012/bin/x86_64-darwin/pdflatex
+ZIP     := /usr/local/bin/zip
+PDFLATEX   := /usr/local/bin/pdflatex
 
 all: build
 
 info:
 	@echo "== Kerbulator Build Information =="
 	@echo "  resgen2: ${RESGEN2}"
-	@echo "  gmcs:    ${GMCS}"
+	@echo "  mcs:    ${MCS}"
 	@echo "  git:     ${GIT}"
 	@echo "  tar:     ${TAR}"
 	@echo "  zip:     ${ZIP}"
@@ -28,7 +28,7 @@ info:
 
 build: info
 	mkdir -p build
-	${GMCS} -t:library -lib:${KSPDIR}/${MANAGED} \
+	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
@@ -36,7 +36,7 @@ build: info
 doc: doc/space.tex
 	cd doc; ${PDFLATEX} space; ${PDFLATEX} space
 
-package: build doc
+package: build 
 	mkdir -p package/Kerbulator/Plugins
 	mkdir -p package/Kerbulator/Textures
 	cp build/Kerbulator.dll package/Kerbulator/Plugins/
@@ -66,8 +66,8 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${GMCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
-	${MONO} Kerbulator.exe tests
+	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs
+	${MONO} Kerbulator.exe -v tests
 
 unity: 
 	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/

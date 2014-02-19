@@ -86,7 +86,10 @@ namespace Kerbulator {
 
 		public List<Variable> Run(Function f) {
 			Dictionary<string, Function> functions = Function.Scan(functionDir);
-			return f.Execute(new List<Variable>(), operators, globals, functions);
+			List<Variable> r = f.Execute(new List<Variable>(), operators, globals, functions);
+			if(f.InError)
+				throw new Exception(f.ErrorString);
+			return r;
 		}
 
 		public Variable RunExpression(string expression) {
@@ -116,7 +119,7 @@ namespace Kerbulator {
 						if(r.Equals(expectedResult))
 							Console.WriteLine(expression +" = "+ r +" [PASS]");
 						else
-							Console.WriteLine(expression +" = "+ r +" [FAIL] "+ r);
+							Console.WriteLine(expression +" = "+ r +" [FAIL] "+ expectedResult);
 					} catch(Exception e) {
 						if(expectedResult == "ERROR")
 							Console.WriteLine(expression +" = ERROR [PASS]");
@@ -127,10 +130,18 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
-				List<Variable> result = k.Run(args[0]);
+				List<Variable> result;
+				if(args[0] == "-v") {
+					Kerbulator.DEBUG = true;
+					result = k.Run(args[1]);
+				} else {
+					Kerbulator.DEBUG = false;
+					result = k.Run(args[0]);
+				}
+
 				foreach(Variable v in result)
-					Debug(v.id +" = "+ v.ToString() +", ");
-				Debug("\n");
+					Console.Write(v.id +" = "+ v.ToString() +", ");
+				Console.WriteLine("\n");
 			}
 		}
 	}

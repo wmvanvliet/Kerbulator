@@ -30,7 +30,7 @@ namespace Kerbulator {
 			this.outDescriptions = new List<string>();
 
 			try {
-				Tokenizer t = new Tokenizer();
+				Tokenizer t = new Tokenizer(id);
 				t.Tokenize(function +"\n");
 				tokens = t.tokens;
 
@@ -96,30 +96,42 @@ namespace Kerbulator {
 		}
 
 		private Token Consume() {
+			return ConsumeWithErr("reached unexpected end of expression");
+		}
+
+		private Token ConsumeWithErr(string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Unexpected end of expression.");
+				throw new Exception(err);
 
 			return tokens.Dequeue();
 		}
 
 		private Token Consume(string val) {
+			return Consume(val, "expected: "+ val);
+		}
+
+		private Token Consume(string val, string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Expected: "+ val);
+				throw new Exception("reached unexpected end of expression, was expecting: "+ val);
 
 			Token t = tokens.Dequeue();
 			if(!String.Equals(t.val, val))
-				throw new Exception("Expected: "+ val);
+				throw new Exception(t.pos + err);
 
 			return t;
 		}
 
 		private Token Consume(TokenType type) {
+			return Consume(type, "expected: "+ Enum.GetName(typeof(TokenType), type));
+		}
+
+		private Token Consume(TokenType type, string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Expected "+ Enum.GetName(typeof(TokenType), type));
+				throw new Exception("reached unexpected end of expression, was expecting: "+ Enum.GetName(typeof(TokenType), type));
 
 			Token t = tokens.Dequeue();
 			if(t.type != type)
-				throw new Exception("Expected "+ Enum.GetName(typeof(TokenType), type));
+				throw new Exception(t.pos + err);
 
 			return t;
 		}
@@ -173,7 +185,7 @@ namespace Kerbulator {
 				this.functions = functions;
 
 				if(ins.Count != arguments.Count)
-					throw new Exception("Function takes "+ ins.Count +" arguments, but "+ arguments.Count +" were supplied.");
+					throw new Exception("function "+ this.id +" takes "+ ins.Count +" arguments, but "+ arguments.Count +" were supplied");
 
 				for(int i=0; i<ins.Count; i++)
 					locals.Add(ins[i], arguments[i].Copy(ins[i]));
@@ -189,7 +201,7 @@ namespace Kerbulator {
 				if(outs.Count > 0) {
 					foreach(string id in outs) {
 						if(!locals.ContainsKey(id))
-							throw new Exception("Output variable "+ id +" is not defined by function.");
+							throw new Exception("output variable "+ id +" is not defined in the code of function "+ this.id);
 						result.Add(locals[id]);
 					}
 				} else
@@ -214,10 +226,10 @@ namespace Kerbulator {
 				if(tokens.Peek().val == "=")
 					break;
 				else
-					Consume(",");
+					Consume(",", "variable names on the left hand side of the = should be separated by a ,");
 			}
 
-			Consume("=");
+			Token equalsTok = Consume("=", "a statement needs to have an = symbol here.");
 			Variable val = ExecuteExpression();
 			Variable copy;
 
@@ -232,9 +244,9 @@ namespace Kerbulator {
 			} else {
 				List<Variable> elements = new List<Variable>(ids.Count);
 				if(val.type != VarType.LIST)
-					throw new Exception("Expression needed to yield "+ ids.Count +" values, but yielded 1.");
+					throw new Exception(equalsTok.pos +"expression needed to yield "+ ids.Count +" values, but yielded only 1");
 				if(ids.Count != val.elements.Count)
-					throw new Exception("Expression needed to yield "+ ids.Count +" values, but yielded "+ val.elements.Count);	
+					throw new Exception(equalsTok.pos +"expression needed to yield "+ ids.Count +" values, but yielded only "+ val.elements.Count);	
 
 				for(int i=0; i<ids.Count; i++) {
 					copy = val.elements[i].Copy(ids[i]);
@@ -277,8 +289,9 @@ namespace Kerbulator {
 			Stack<Variable> expr = new Stack<Variable>();
 			Stack<Operator> ops = new Stack<Operator>();
 
+			Token t = null;
 			while(tokens.Count > 0 && tokens.Peek().type != TokenType.END) {
-				Token t = tokens.Peek();
+				t = tokens.Peek();
 				Kerbulator.DebugLine("Token: "+ Enum.GetName(typeof(TokenType), t.type) +": "+ t.val);
 
 				if(t.type == TokenType.BRACE) {
@@ -362,9 +375,13 @@ namespace Kerbulator {
 					// Handle operators with higher precidence
 					while(ops.Count > 0) {
 						Operator prevOp = ops.Peek();
-					    if(op.arity == Arity.BINARY && prevOp.precidence >= op.precidence)
-							expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
-						else
+					    if(op.arity == Arity.BINARY && prevOp.precidence >= op.precidence) {
+							try {
+								expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
+							} catch(Exception e) {
+								throw new Exception(t.pos + e.Message);
+							}
+						} else
 							break;
 					}
 
@@ -382,7 +399,7 @@ namespace Kerbulator {
 					else if(globals.ContainsKey(t.val))
 						var = globals[t.val];
 					else
-						throw new Exception("Undefined variable or function: "+ t.val);
+						throw new Exception(t.pos +"undefined variable or function: "+ t.val);
 
 					Consume();
 
@@ -405,9 +422,13 @@ namespace Kerbulator {
 							Consume(")");
 
 							// Execute function right now with the given argument list
-							Variable result = ExecuteFunction(var, arguments);
-							Kerbulator.DebugLine("Result of function: "+ result.ToString());
-							expr.Push(result);
+							try {
+								Variable result = ExecuteFunction(var, arguments);
+								Kerbulator.DebugLine("Result of function: "+ result.ToString());
+								expr.Push(result);
+							} catch(Exception e) {
+								throw new Exception(t.pos + e.Message);
+							}
 						} else {
 							int numArgs = 0;
 							if(var.type == VarType.FUNCTION)
@@ -417,9 +438,13 @@ namespace Kerbulator {
 
 							if(numArgs == 0) {
 								// Function doesn't take arguments, execute right now with empty argument list
-								Variable result = ExecuteFunction(var, new List<Variable>());
-								Kerbulator.DebugLine("Result of function: "+ result.ToString());
-								expr.Push(result);
+								try {
+									Variable result = ExecuteFunction(var, new List<Variable>());
+									Kerbulator.DebugLine("Result of function: "+ result.ToString());
+									expr.Push(result);
+								} catch(Exception e) {
+									throw new Exception(t.pos + e.Message);
+								}
 							} else {
 								// Push the execution of the function onto the stack
 								Kerbulator.DebugLine("No arguments specified");
@@ -458,20 +483,24 @@ namespace Kerbulator {
 				expr.Push( ExecuteOperator(op, expr, ops) );
 			}
 
-			if(expr.Count > 1)
-				throw new Exception("Malformed expression");
+			if(expr.Count > 1) {
+				if(t == null)
+					throw new Exception("malformed expression");
+				else
+					throw new Exception(t.pos + "malformed expression");
+			}
 		
 			return expr.Pop();
 		}
 
 		private Variable ExecuteOperator(Operator op, Stack<Variable> expr, Stack<Operator> ops) {
-			Kerbulator.DebugLine("Executing: "+ op.id);
+			Kerbulator.DebugLine("executing: "+ op.id);
 			if(op.arity == Arity.BINARY && expr.Count < 2)
-				throw new Exception("Malformed expression");
+				throw new Exception("operator "+ op.id +" needs a number or expression on both the left and the right hand side");
 			else if(op.arity == Arity.UNARY && expr.Count < 1)
-				throw new Exception("Malformed expression");
+				throw new Exception("operator "+ op.id +" needs a number or expression on the right hand side");
 			else if(op.arity == Arity.BOTH)
-				throw new Exception("Arity of "+ op.id +" still undefined.");
+				throw new Exception("arity of "+ op.id +" still undefined");
 
 			Variable a,b;
 
@@ -676,12 +705,15 @@ namespace Kerbulator {
 						return new Variable(VarType.LIST, z);
 
 					default:
-						throw new Exception("Unknown function: "+ func.id);
+						throw new Exception("unknown build-in function: "+ func.id);
 				}
 			} else {
 				// User function
 				Kerbulator.DebugLine("Executing "+ func.id);
-				List<Variable> result = functions[func.id].Execute(arguments, operators, globals, functions);
+				Function f = functions[func.id];
+				List<Variable> result = f.Execute(arguments, operators, globals, functions);
+				if(f.InError)
+					throw new Exception(f.ErrorString);
 
 				if(result.Count == 1)
 					return result[0];
