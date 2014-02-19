@@ -3,7 +3,7 @@ Changelog
 ### 0.22
 Better errors and more globals.
 
-- Globals ([description of all globals](docs/globals.mkd)):
+- Globals ([description of all globals](doc/globals.mkd)):
   - Added `{body}.Inc`
   - Added `{body}.LAN`
   - Added `{body}.Ω`
