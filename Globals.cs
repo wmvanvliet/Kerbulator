@@ -19,6 +19,22 @@ namespace Kerbulator {
 			if(v != null) {
 				// Current orbit
 				Globals.AddOrbit(kalc, orbit1, "Craft");
+				
+				// Navball (thank you MechJeb source)
+				Vector3d CoM = v.findWorldCenterOfMass();
+				Vector3d up = (CoM - v.mainBody.position).normalized;
+				Vector3d north = Vector3d.Exclude(up, (v.mainBody.position + v.mainBody.transform.up * (float)v.mainBody.Radius) - CoM).normalized;
+				Quaternion rotationSurface = Quaternion.LookRotation(north, up);
+				Quaternion rotationVesselSurface = Quaternion.Inverse(Quaternion.Euler(90, 0, 0) * Quaternion.Inverse(v.GetTransform().rotation) * rotationSurface);
+            	Vector3d velocityVesselOrbit = v.orbit.GetVel();
+				Vector3d velocityVesselSurface = velocityVesselOrbit - v.mainBody.getRFrmVel(CoM);
+
+            	Globals.AddDouble(kalc, "Navball.Heading", rotationVesselSurface.eulerAngles.y);
+            	Globals.AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
+            	Globals.AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
+            	Globals.AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
+            	Globals.AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
+            	Globals.AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
 
 				// Current time
 				double UT = (double)Planetarium.GetUniversalTime();
@@ -48,12 +64,12 @@ namespace Kerbulator {
 					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
 					Globals.AddDouble(kalc, "Craft.Inter1.dt", T1);
 					Globals.AddDouble(kalc, "Craft.Inter1.Δt", T1);
-					Globals.AddDouble(kalc, "Craft.Inter1.sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
+					Globals.AddDouble(kalc, "Craft.Inter1.Sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
 					Globals.AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT));
 					Globals.AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT));
 					Globals.AddDouble(kalc, "Craft.Inter2.dt", T2);
 					Globals.AddDouble(kalc, "Craft.Inter2.Δt", T2);
-					Globals.AddDouble(kalc, "Craft.Inter2.sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
+					Globals.AddDouble(kalc, "Craft.Inter2.Sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
 					Globals.AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT));
 					Globals.AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT));
 				}
@@ -67,10 +83,12 @@ namespace Kerbulator {
 
 			kalc.AddGlobal(new Variable(prefix +".Ap", VarType.NUMBER, (double)orbit.ApA));
 			kalc.AddGlobal(new Variable(prefix +".Pe", VarType.NUMBER, (double)orbit.PeA));
-			//kalc.AddGlobal(new Variable(prefix +".Inc", VarType.NUMBER, (double)orbit.inclination));
+			kalc.AddGlobal(new Variable(prefix +".Inc", VarType.NUMBER, (double)orbit.inclination));
 			kalc.AddGlobal(new Variable(prefix +".Alt", VarType.NUMBER, (double)orbit.altitude));
 			kalc.AddGlobal(new Variable(prefix +".ArgPe", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
 			kalc.AddGlobal(new Variable(prefix +".ω", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
+			kalc.AddGlobal(new Variable(prefix +".LAN", VarType.NUMBER, (double)orbit.LAN));
+			kalc.AddGlobal(new Variable(prefix +".Ω", VarType.NUMBER, (double)orbit.LAN));
 			kalc.AddGlobal(new Variable(prefix +".TimeToAp", VarType.NUMBER, (double)orbit.timeToAp));
 			kalc.AddGlobal(new Variable(prefix +".TimeToPe", VarType.NUMBER, (double)orbit.timeToPe));
 			kalc.AddGlobal(new Variable(prefix +".Vel", VarType.NUMBER, (double)orbit.vel.magnitude));
@@ -79,6 +97,7 @@ namespace Kerbulator {
 
 			if(orbit.UTsoi > 0) {
 				kalc.AddGlobal(new Variable(prefix +".SOI.dt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
+				kalc.AddGlobal(new Variable(prefix +".SOI.Δt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
 				kalc.AddGlobal(new Variable(prefix +".SOI.TrueAnomaly", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
 				kalc.AddGlobal(new Variable(prefix +".SOI.θ", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
 			}

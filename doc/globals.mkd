@@ -42,6 +42,8 @@ Name            | Description
 {body}.Alt      | Altitude of this body above sea-level of parent body
 {body}.ArgPe    | Argument of periapsis (angle between the periapsis and ascending node)
 {body}.ω        | Same as {body}.ArgPe
+{body}.LAN      | The longitude of the ascending node
+{body}.Ω        | Same as {body}.LAN
 {body}.TimeToPe | Time (in seconds) until the body will reach its periapsis
 {body}.TimeToAp | Time (in seconds) until the body will reach its apoapsis
 {body}.Vel      | Current orbital velocity of the object
@@ -53,6 +55,7 @@ If there is a SOI change occuring in the orbit, these are defined as well:
 Name                   | Description
 ---------------------- | -------------------------------------------------------
 {body}.SOI.dt          | Time (in seconds) until SOI change
+{body}.SOI.Δt          | Same as {body}.SOI.dt
 {body}.SOI.TrueAnomaly | True anomaly of the SOI change
 {body}.SOI.θ           | Same as {body}.SOI.TrueAnomaly
 
@@ -89,14 +92,23 @@ Name            | Description
 --------------- | -------------------------------------------------------
 {body}.R        | Radius of the body (in meters)
 {body}.M        | Mass of the body (in kilograms)
-{body}.mu       | Gravitational parameter (G*M) of the body
+{body}.mu       | Gravitational parameter (`G*M`) of the body
 {body}.µ        | Same as mu
-{body}.ω        | Same as {body}.ArgPe
 {body}.day      | Time (in seconds) it takes for the body to rotate around its axis
 {body}.SOI      | Size (in meters) of the sphere of influence of the body
 {body}.Vel      | Current orbital velocity of the object
 {body}.AtmosHeight | Height (in meters) of the atmosphere of the body (0 if it doesn't have one)
 {body}.AtmosPress | Pressure (in pascal) of the atmosphere of the body at sea level (0 if it doesn't have one)
+
+### Your navball
+Name            | Description
+--------------- | -------------------------------------------------------
+Navball.Heading | Your current heading of your vessel in degrees
+Navball.Pitch   | The current pitch of your vessel in degrees
+Navball.Roll    | The current roll of your vessel in degrees
+Navball.OrbitalVelocity | The current orbital velocity of your vessel in m/s
+Navball.SurfaceVelocity | The current velocity of your vessel relative to the surface of whatever you're orbiting in m/s
+Navball.VerticalVelocity | The current velocity of your vessel in the vertical direction, i.e. "up", i.e. away from whatever you are orbiting, in m/s
 
 ### Information about a target
 When a target is selected, some extra information about it is provided:
@@ -105,12 +117,12 @@ Name             | Description
 ---------------- | -------------------------------------------------------
 Craft.Inter1.dt  | Time (in seconds) until the first time we cross the target orbit
 Craft.Inter1.Δt  | Same as Craft.Inter1.dt
-Craft.Inter1.sep | Distance (in meters) between our craft and the target at Craft.Inter1.dt
+Craft.Inter1.Sep | Distance (in meters) between our craft and the target at Craft.Inter1.dt
 Craft.Inter1.TrueAnomaly | True anomaly of the first time we cross the target orbit
 Craft.Inter1.θ   | Same as Craft.Inter1.TrueAnomaly
 Craft.Inter2.dt  | Time (in seconds) until the second time we cross the target orbit
 Craft.Inter2.Δt  | Same as Craft.Inter1.dt
-Craft.Inter2.sep | Distance (in meters) between our craft and the target at Craft.Inter2.dt
+Craft.Inter2.Sep | Distance (in meters) between our craft and the target at Craft.Inter2.dt
 Craft.Inter2.TrueAnomaly | True anomaly of the second time we cross the target orbit
 Craft.Inter2.θ   | Same as Craft.Inter2.TrueAnomaly
 

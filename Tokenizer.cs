@@ -54,10 +54,13 @@ namespace Kerbulator {
 				string err = "";
 				if(func != null)
 					err += "In function "+ func;
-				if(line > 0)
-					err += " on line "+ line;
-				if(col > 0)
-					err += ", column "+ col;
+
+				if(line > 0) {
+					err += " (line "+ line;
+					if(col > 0)
+						err += ", col "+ col;
+					err += ")";
+				}
 
 				return err +": ";
 			}
@@ -195,14 +198,14 @@ namespace Kerbulator {
 					case '=':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.OPERATOR, c.ToString(), functionName, lineno, col));
-						tok = new Token();
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '[':
 					case ']':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.LIST, c.ToString(), functionName, lineno, col));
-						tok = new Token();
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '(':
@@ -216,7 +219,7 @@ namespace Kerbulator {
 					case '|':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.BRACE, c.ToString(), functionName, lineno, col));
-						tok = new Token();
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case ':':

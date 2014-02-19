@@ -81,7 +81,19 @@ namespace Kerbulator {
 
 		public List<Variable> Run(string functionId) {
 			Dictionary<string, Function> functions = Function.Scan(functionDir);
-			return functions[functionId].Execute(new List<Variable>(), operators, globals, functions);
+			if(!functions.ContainsKey(functionId))
+				throw new Exception("Function not found: "+ functionId);
+
+			Function f = functions[functionId];
+			if(f.InError)
+				throw new Exception(f.ErrorString);
+
+			List<Variable> r = functions[functionId].Execute(new List<Variable>(), operators, globals, functions);
+
+			if(f.InError)
+				throw new Exception(f.ErrorString);
+
+			return r;
 		}
 
 		public List<Variable> Run(Function f) {

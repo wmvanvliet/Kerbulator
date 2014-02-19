@@ -14,6 +14,9 @@ namespace Kerbulator {
 	}
 
 	public class KerbulatorGUI {
+		// Error reporting
+		private string error = null;
+
 		// Selecting functions and getting info
 		private Function selectedFunction = null;
 		private string functionDescription = "";
@@ -26,7 +29,7 @@ namespace Kerbulator {
 		private string functionFile = "maneuver.math";
 		private string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
-		// Running functions
+		// Ruinning functions
 		private Function runFunction = null;
 		private string functionOutput = "";
 
@@ -85,12 +88,26 @@ namespace Kerbulator {
 			ChangeState(false);
 
 			functionDir = Application.persistentDataPath + "/Kerbulator";
+
+			// Sometimes, Application.persistentDataPath returns an empty string.
+			// To not completely crash, create a KerbulatorFunctions directory in the users home dir
+			if(functionDir == "/Kerbulator") {
+				string homePath =
+                    (Environment.OSVersion.Platform == PlatformID.Unix || 
+                     Environment.OSVersion.Platform == PlatformID.MacOSX)
+					 ? Environment.GetEnvironmentVariable("HOME")
+					 : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
+				functionDir = homePath +"/KerbulatorFunctions";
+			}
+
+			Debug.Log("Function dir: "+ functionDir);
+
 			editFunctionContent = maneuverTemplate;
 
 			if(!Directory.Exists(functionDir)) {
 				Directory.CreateDirectory(functionDir);
 			}
-
+			
 			// Load icons
 			kerbulatorIcon = glue.GetTexture("kerbulator");
 			editIcon = glue.GetTexture("edit");
@@ -100,6 +117,7 @@ namespace Kerbulator {
 			deleteIcon = glue.GetTexture("delete");
 
 			Scan();
+
 			kalc = new Kerbulator(functionDir);
 		}
 
@@ -129,17 +147,14 @@ namespace Kerbulator {
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
 				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
-				//mainWindowPos.height = 0;
 			}
 
 			if(editWindowEnabled) {
 				editWindowPos = GUILayout.Window(93842, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(false));
-				//editWindowPos.height = 0;
 			}
 
 			if(runWindowEnabled) {
 				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(false));
-				//runWindowPos.height = 0;
 			}
 		}
 
@@ -148,6 +163,9 @@ namespace Kerbulator {
 		public void DrawMainWindow(int id) {
 			// Close button at the top right corner
 			ChangeState(!GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
+
+			if(error != null)
+				GUILayout.Label(error);
 
 			GUILayout.Label("Available functions:");
 
@@ -361,12 +379,24 @@ namespace Kerbulator {
 			if(editFunction != null) {
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
 				Debug.Log(oldFunctionFile);
-				if(System.IO.File.Exists(oldFunctionFile))
-					System.IO.File.Delete(oldFunctionFile);
+				if(System.IO.File.Exists(oldFunctionFile)) {
+					try {
+						System.IO.File.Delete(oldFunctionFile);
+					} catch(Exception e) {
+						error = "Cannot save function: "+ e.Message;
+						return;
+					}
+				}
 			}
 
 			functionFile = functionDir +"/"+ editFunctionName +".math";
-			System.IO.File.WriteAllText(functionFile, editFunctionContent);
+
+			try {
+				System.IO.File.WriteAllText(functionFile, editFunctionContent);
+			} catch(Exception e) {
+				error = "Cannot save function: "+ e.Message;
+				return;
+			}
 
 			Scan();
             editFunction = functions[editFunctionName];
@@ -376,8 +406,14 @@ namespace Kerbulator {
 		public void Delete() {
 			if(editFunction != null) {
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
-				if(System.IO.File.Exists(oldFunctionFile))
-					System.IO.File.Delete(oldFunctionFile);
+				if(System.IO.File.Exists(oldFunctionFile)) {
+					try {
+						System.IO.File.Delete(oldFunctionFile);
+					} catch(Exception e) {
+						error = "Cannot save function: "+ e.Message;
+						return;
+					}
+				}
 			}
 
 			Scan();
@@ -454,7 +490,12 @@ namespace Kerbulator {
 
 		/// <summary>Scan for available functions and update funtion references if needed.</summary>
 		public void Scan() {
-			functions = Function.Scan(functionDir);
+			try {
+				functions = Function.Scan(functionDir);
+			} catch(Exception e) {
+				error = "Cannot access function dir ("+ functionDir +"): "+ e.Message;
+				functions = new Dictionary<string, Function>();
+			}
 
 			if(selectedFunction != null) {
 				if(functions.ContainsKey(selectedFunction.Id)) {

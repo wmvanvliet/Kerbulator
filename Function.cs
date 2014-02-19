@@ -427,7 +427,7 @@ namespace Kerbulator {
 								Kerbulator.DebugLine("Result of function: "+ result.ToString());
 								expr.Push(result);
 							} catch(Exception e) {
-								throw new Exception(t.pos + e.Message);
+								throw new Exception(e.Message +" (called from "+ t.func +", line "+ t.line +")");
 							}
 						} else {
 							int numArgs = 0;
@@ -443,7 +443,7 @@ namespace Kerbulator {
 									Kerbulator.DebugLine("Result of function: "+ result.ToString());
 									expr.Push(result);
 								} catch(Exception e) {
-									throw new Exception(t.pos + e.Message);
+									throw new Exception(e.Message +" (called from "+ t.func +", line "+ t.line +")");
 								}
 							} else {
 								// Push the execution of the function onto the stack
@@ -480,7 +480,14 @@ namespace Kerbulator {
 			// Handle remaining ops
 			while(ops.Count > 0) {
 				Operator op = ops.Pop();
-				expr.Push( ExecuteOperator(op, expr, ops) );
+				try {
+					expr.Push( ExecuteOperator(op, expr, ops) );
+				} catch(Exception e) {
+					if(t == null)
+						throw new Exception(e.Message);
+					else
+						throw new Exception(t.pos + e.Message);
+				}
 			}
 
 			if(expr.Count > 1) {
