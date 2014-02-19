@@ -79,7 +79,7 @@ Jool        | Planet Jool
 Laythe      | Moon Laythe
 Vall        | Moon Vall
 Tylo        | Moon Tylo
-Bob         | Moon Bob
+Bop         | Moon Bop
 Pol         | Moon Pol
 Eeloo       | Planet Eeloo
 
