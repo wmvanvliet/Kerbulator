@@ -77,7 +77,7 @@ namespace Kerbulator {
 		override public string ToString() {
 			switch(type) {
 				case VarType.NUMBER:
-					return val.ToString();
+					return val.ToString(System.Globalization.CultureInfo.InvariantCulture);
 				case VarType.LIST:
 					string str = "[";
 					for(int i=0; i<elements.Count-1; i++)
