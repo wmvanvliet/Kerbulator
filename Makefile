@@ -6,7 +6,7 @@ MANAGED := KSP.app/Contents/Data/Managed/
 SOURCEFILES := $(wildcard *.cs)
 
 RESGEN2 := /usr/bin/resgen2
-GMCS    := /usr/bin/gmcs
+MCS    := /usr/bin/mcs
 MONO    := /usr/bin/mono
 GIT     := /usr/bin/git
 TAR     := /usr/bin/tar
@@ -18,7 +18,7 @@ all: build
 info:
 	@echo "== Kerbulator Build Information =="
 	@echo "  resgen2: ${RESGEN2}"
-	@echo "  gmcs:    ${GMCS}"
+	@echo "  gmcs:    ${MCS}"
 	@echo "  git:     ${GIT}"
 	@echo "  tar:     ${TAR}"
 	@echo "  zip:     ${ZIP}"
@@ -28,7 +28,7 @@ info:
 
 build: info
 	mkdir -p build
-	${GMCS} -t:library -lib:${KSPDIR}/${MANAGED} \
+	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
@@ -66,7 +66,7 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${GMCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs Globals.cs
+	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs 
 	${MONO} Kerbulator.exe tests
 
 unity: 
