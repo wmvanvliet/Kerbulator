@@ -9,73 +9,129 @@ namespace Kerbulator {
 	public class Token {
 		public TokenType type;
 		public string val;
+		public string func;
+		public int line;
+		public int col;
 
 		public Token() {
 			this.type = TokenType.EMPTY;
 			this.val = "";
+			this.func = null;
+			this.line = -1;
+			this.col = -1;
+		}
+
+		public Token(string func, int line, int col) {
+			this.type = TokenType.EMPTY;
+			this.val = "";
+			this.func = func;
+			this.line = line;
+			this.col = col;
 		}
 
 		public Token(TokenType type, string val) {
 			this.type = type;
 			this.val = val;
+			this.func = null;
+			this.line = -1;
+			this.col = -1;
+		}
+
+		public Token(TokenType type, string val, string func, int line, int col) {
+			this.type = type;
+			this.val = val;
+			this.func = func;
+			this.line = line;
+			this.col = col;
 		}
 		
 		override public string ToString() {
 			return Enum.GetName(typeof(TokenType), this.type) +": "+ this.val;
 		}
+
+		public string pos {
+			get {
+				string err = "";
+				if(func != null)
+					err += "In function "+ func;
+				if(line > 0)
+					err += " on line "+ line;
+				if(col > 0)
+					err += ", column "+ col;
+
+				return err +": ";
+			}
+
+			protected set {}
+		}
+
 	}
 
 	public class Tokenizer {
 		public Queue<Token> tokens;
-		public Tokenizer() {
+		private string functionName;
+
+		public Tokenizer(string functionName) {
 			tokens = new Queue<Token>();
+			this.functionName = functionName;
 		}
 
 		public void Tokenize(string line) {
-			Token tok = new Token();
-			for(int i=0; i<line.Length; i++) {
+			int lineno = 1;
+			int col = 1;
+			Token tok = new Token(functionName, lineno, col);
+			for(int i=0; i<line.Length; i++, col++) {
 				char c = line[i];
 				switch(c)
 				{
 					case ' ':
 						HandleToken(tok);
-						tok = new Token();
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '\n':
 						HandleToken(tok);
-						HandleToken(new Token(TokenType.END, "\n"));
-						tok = new Token();
+						HandleToken(new Token(TokenType.END, "\n", functionName, lineno, col));
+						lineno ++;
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '#':
 						HandleToken(tok);
 						// Skip to next newline
-						i = line.IndexOf('\n', i+1) - 1;
-						if(i < 0)
-							i = line.Length-1;
+						int newI = line.IndexOf('\n', i+1) - 1;
+						if(newI < 0)
+							newI = line.Length-1;
+						col += newI - i;
+						i = newI;
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '"':
 						HandleToken(tok);
+						tok = new Token(TokenType.TEXT, "", functionName, lineno, col);
 
 						// Read until next unescaped "
-						string text = "";
-						for(i=i+1; i<line.Length; i++) {
+						bool terminated = false;
+						for(i=i+1, col++; i<line.Length; i++, col++) {
 							if(line[i] == '\\') {
 								if(i >= line.Length - 1)
-									throw new Exception("Unterminated quoted string.");
-								text += line[i+1];
-								i += 2;
-							} else if(line[i] != '"') {
-								text += line[i];
-							} else {
+									break;
+								tok.val += line[i+1];
+								i += 2; col += 2;
+							} else if(line[i] == '"') {
+								terminated = true;
 								break;
+							} else {
+								tok.val += line[i];
 							}
 						}
 
-						HandleToken(new Token(TokenType.TEXT, text));
-						tok = new Token();
+						if(!terminated)
+							throw new Exception(tok.pos + "missing end quote (\") for string");
+
+						HandleToken(tok);
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case '0':
@@ -94,7 +150,7 @@ namespace Kerbulator {
 						} else if(tok.type == TokenType.NUMBER || tok.type == TokenType.IDENTIFIER)
 							tok.val += c;
 						else
-							throw new Exception("invalid char");
+							throw new Exception(tok.pos + c +" is invalid here");
 						break;
 
 					case 'e':
@@ -106,10 +162,10 @@ namespace Kerbulator {
 							tok.val += c;
 							if(i < line.Length - 1 && line[i+1] == '-') {
 								tok.val += line[i+1].ToString();
-								i++;
+								i++; col++;
 							}
 						} else
-							throw new Exception("invalid char");
+							throw new Exception(tok.pos + c +" is invalid here");
 						break;
 
 					case '.':
@@ -118,12 +174,12 @@ namespace Kerbulator {
 							tok.val = c.ToString();
 						} else if(tok.type == TokenType.NUMBER) {
 							if(tok.val.IndexOf(c) >= 0)
-								throw new Exception("invalid char");
+								throw new Exception(tok.pos +"numbers can only have one decimal point (.) in them");
 							tok.val += c;
 						} else if(tok.type == TokenType.IDENTIFIER) {
 							tok.val += c;
 						} else 
-							throw new Exception("invalid char");
+							throw new Exception(tok.pos +"variable/function names cannot start with a dot (.)");
 						break;
 
 					case '-':
@@ -138,14 +194,14 @@ namespace Kerbulator {
 					case '^':
 					case '=':
 						HandleToken(tok);
-						HandleToken(new Token(TokenType.OPERATOR, c.ToString()));
+						HandleToken(new Token(TokenType.OPERATOR, c.ToString(), functionName, lineno, col));
 						tok = new Token();
 						break;
 
 					case '[':
 					case ']':
 						HandleToken(tok);
-						HandleToken(new Token(TokenType.LIST, c.ToString()));
+						HandleToken(new Token(TokenType.LIST, c.ToString(), functionName, lineno, col));
 						tok = new Token();
 						break;
 
@@ -159,30 +215,30 @@ namespace Kerbulator {
 					case '⌉':
 					case '|':
 						HandleToken(tok);
-						HandleToken(new Token(TokenType.BRACE, c.ToString()));
+						HandleToken(new Token(TokenType.BRACE, c.ToString(), functionName, lineno, col));
 						tok = new Token();
 						break;
 
 					case ':':
 						if(tok.val == "in")
-							HandleToken(new Token(TokenType.IN, tok.val));
+							HandleToken(new Token(TokenType.IN, tok.val, functionName, lineno, col));
 						else if(tok.val == "out")
-							HandleToken(new Token(TokenType.OUT, tok.val));
+							HandleToken(new Token(TokenType.OUT, tok.val, functionName, lineno, col));
 						else
-							throw new Exception("this is not in or out: "+ tok.val);
+							throw new Exception(tok.pos +"expected in: or out:, but encountered "+ tok.val +":");
 
-						tok = new Token();
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					case ',':
 						HandleToken(tok);
-						HandleToken(new Token(TokenType.COMMA, c.ToString()));
-						tok = new Token();
+						HandleToken(new Token(TokenType.COMMA, c.ToString(), functionName, lineno, col));
+						tok = new Token(functionName, lineno, col);
 						break;
 
 					default:
 						if(tok.type != TokenType.EMPTY && tok.type != TokenType.IDENTIFIER)
-							throw new Exception("invalid char: "+ c);
+							throw new Exception(tok.pos + "unexpected character: "+ c);
 						tok.type = TokenType.IDENTIFIER;
 						tok.val += c;
 						break;
