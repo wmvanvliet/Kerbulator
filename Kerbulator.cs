@@ -110,7 +110,7 @@ namespace Kerbulator {
 						if(r.Equals(expectedResult))
 							Console.WriteLine(expression +" = "+ r +" [PASS]");
 						else
-							Console.WriteLine(expression +" = "+ r +" [FAIL] "+ r);
+							Console.WriteLine(expression +" = "+ r +" [FAIL] "+ expectedResult);
 					} catch(Exception e) {
 						if(expectedResult == "ERROR")
 							Console.WriteLine(expression +" = ERROR [PASS]");
@@ -121,8 +121,15 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
-				Kerbulator.DEBUG = true;
-				List<Variable> result = k.Run(args[0]);
+				List<Variable> result;
+				if(args[0] == "-v") {
+					Kerbulator.DEBUG = true;
+					result = k.Run(args[1]);
+				} else {
+					Kerbulator.DEBUG = false;
+					result = k.Run(args[0]);
+				}
+
 				foreach(Variable v in result)
 					Debug(v.id +" = "+ v.ToString() +", ");
 				Debug("\n");

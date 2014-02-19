@@ -67,7 +67,7 @@ uninstall: info
 
 test: info
 	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs 
-	${MONO} Kerbulator.exe tests
+	${MONO} Kerbulator.exe -v tests
 
 unity: 
 	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/
