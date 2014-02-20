@@ -8,7 +8,6 @@ Better errors and more globals.
   - Added `{body}.LAN`
   - Added `{body}.Ω`
   - Added `{body}.SOI.Δt`
-  - Added `{body}.SOI.Δt`
   - Added `Navball.Heading`
   - Added `Navball.Pitch`
   - Added `Navball.Roll`
