@@ -82,7 +82,7 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs
+	${MCS} Kerbulator.cs Function.cs Variable.cs Tokenizer.cs JITFunction.cs
 	${MONO} Kerbulator.exe tests/expressions.test
 
 unity: 
@@ -93,5 +93,10 @@ unity:
 release: zip tar.gz
 	cp Kerbulator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kerbulator
 	cp Kerbulator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kerbulator
+
+jittest:
+	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
+		-out:test.exe test.cs
 
 .PHONY : all info doc build package tar.gz zip clean install uninstall

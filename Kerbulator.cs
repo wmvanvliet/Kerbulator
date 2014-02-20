@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Kerbulator {
 	public class Kerbulator {
@@ -39,7 +40,9 @@ namespace Kerbulator {
 			operators.Add("|", new Operator("|", 3, Arity.UNARY)); // Absolute
 			operators.Add("⌊", new Operator("⌊", 3, Arity.UNARY)); // Floor
 			operators.Add("⌈", new Operator("⌈", 3, Arity.UNARY)); // Ceiling
-			operators.Add("func", new Operator("func", 2, Arity.BINARY)); // Execute function as unary operator
+			operators.Add("func", new Operator("func", 2, Arity.BINARY)); // Execute buildin function as unary operator
+			operators.Add("buildin-function", new Operator("buildin-function", 2, Arity.BINARY)); // Execute buildin function as unary operator
+			operators.Add("user-function", new Operator("user-function", 2, Arity.BINARY)); // Execute user function as unary operator
 
 			globals = new Dictionary<string, Variable>();
 			globals.Add("abs", new Variable("abs", VarType.FUNCTION, 1));
@@ -105,13 +108,21 @@ namespace Kerbulator {
 		}
 
 		public Variable RunExpression(string expression) {
-			JITFunction func = new JITFunction(expression, operators);
-			Func<double> f = Expression.Lambda<Func<double>>(func.ParseExpression()).Compile();
+			JITFunction func = new JITFunction("unnamed", expression, operators, globals, new Dictionary<string, JITFunction>());
+			Expression<Func<double>> e = Expression.Lambda<Func<double>>(func.ParseExpression());
+			Func<double> f = e.Compile();
 			return new Variable(VarType.NUMBER, f());
 		}
 
 		public static void Main(string[] args) {
 			Kerbulator.DEBUG = (args[0] == "-v");
+			Type type = Type.GetType("Mono.Runtime");
+			if (type != null)
+			{                                          
+				MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+				if (displayName != null)                   
+					DebugLine(displayName.Invoke(null, null).ToString()); 
+			}
 
 			Kerbulator k = new Kerbulator("./tests");
 			if(args[0].EndsWith(".test")) {
