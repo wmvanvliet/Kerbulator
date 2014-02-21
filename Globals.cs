@@ -81,25 +81,25 @@ namespace Kerbulator {
 			if(orbit == null)
 				return;
 
-			kalc.AddGlobal(new Variable(prefix +".Ap", VarType.NUMBER, (double)orbit.ApA));
-			kalc.AddGlobal(new Variable(prefix +".Pe", VarType.NUMBER, (double)orbit.PeA));
-			kalc.AddGlobal(new Variable(prefix +".Inc", VarType.NUMBER, (double)orbit.inclination));
-			kalc.AddGlobal(new Variable(prefix +".Alt", VarType.NUMBER, (double)orbit.altitude));
-			kalc.AddGlobal(new Variable(prefix +".ArgPe", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
-			kalc.AddGlobal(new Variable(prefix +".ω", VarType.NUMBER, (double)orbit.argumentOfPeriapsis));
-			kalc.AddGlobal(new Variable(prefix +".LAN", VarType.NUMBER, (double)orbit.LAN));
-			kalc.AddGlobal(new Variable(prefix +".Ω", VarType.NUMBER, (double)orbit.LAN));
-			kalc.AddGlobal(new Variable(prefix +".TimeToAp", VarType.NUMBER, (double)orbit.timeToAp));
-			kalc.AddGlobal(new Variable(prefix +".TimeToPe", VarType.NUMBER, (double)orbit.timeToPe));
-			kalc.AddGlobal(new Variable(prefix +".Vel", VarType.NUMBER, (double)orbit.vel.magnitude));
-			kalc.AddGlobal(new Variable(prefix +".TrueAnomaly", VarType.NUMBER, (double)orbit.trueAnomaly));
-			kalc.AddGlobal(new Variable(prefix +".θ", VarType.NUMBER, (double)orbit.trueAnomaly));
+			AddDouble(kalc, prefix +".Ap", (double)orbit.ApA);
+			AddDouble(kalc, prefix +".Pe", (double)orbit.PeA);
+			AddDouble(kalc, prefix +".Inc", (double)orbit.inclination);
+			AddDouble(kalc, prefix +".Alt", (double)orbit.altitude);
+			AddDouble(kalc, prefix +".ArgPe", (double)orbit.argumentOfPeriapsis);
+			AddDouble(kalc, prefix +".ω", (double)orbit.argumentOfPeriapsis);
+			AddDouble(kalc, prefix +".LAN", (double)orbit.LAN);
+			AddDouble(kalc, prefix +".Ω", (double)orbit.LAN);
+			AddDouble(kalc, prefix +".TimeToAp", (double)orbit.timeToAp);
+			AddDouble(kalc, prefix +".TimeToPe", (double)orbit.timeToPe);
+			AddDouble(kalc, prefix +".Vel", (double)orbit.vel.magnitude);
+			AddDouble(kalc, prefix +".TrueAnomaly", (double)orbit.trueAnomaly);
+			AddDouble(kalc, prefix +".θ", (double)orbit.trueAnomaly);
 
 			if(orbit.UTsoi > 0) {
-				kalc.AddGlobal(new Variable(prefix +".SOI.dt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
-				kalc.AddGlobal(new Variable(prefix +".SOI.Δt", VarType.NUMBER, (double)orbit.UTsoi-Planetarium.GetUniversalTime()));
-				kalc.AddGlobal(new Variable(prefix +".SOI.TrueAnomaly", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
-				kalc.AddGlobal(new Variable(prefix +".SOI.θ", VarType.NUMBER, (double)orbit.TrueAnomalyAtUT(orbit.UTsoi)));
+				AddDouble(kalc, prefix +".SOI.dt", (double)orbit.UTsoi-Planetarium.GetUniversalTime());
+				AddDouble(kalc, prefix +".SOI.Δt", (double)orbit.UTsoi-Planetarium.GetUniversalTime());
+				AddDouble(kalc, prefix +".SOI.TrueAnomaly", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
+				AddDouble(kalc, prefix +".SOI.θ", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
 			}
 		}
 
@@ -120,25 +120,24 @@ namespace Kerbulator {
 				// Leave a pull request or file an issue if you can help me figure this out!
 			}
 
-			kalc.AddGlobal(new Variable(prefix +".R", VarType.NUMBER, (double)body.Radius));
-			kalc.AddGlobal(new Variable(prefix +".M", VarType.NUMBER, (double)body.Mass));
-			kalc.AddGlobal(new Variable(prefix +".mu", VarType.NUMBER, (double)body.gravParameter));
-            kalc.AddGlobal(new Variable(prefix +".μ", VarType.NUMBER, (double)body.gravParameter));
-			kalc.AddGlobal(new Variable(prefix +".day", VarType.NUMBER, (double)body.rotationPeriod));
-			kalc.AddGlobal(new Variable(prefix +".SOI", VarType.NUMBER, (double)body.sphereOfInfluence));
-			kalc.AddGlobal(new Variable(prefix +".AtmosHeight", VarType.NUMBER, (double)body.maxAtmosphereAltitude));
-			kalc.AddGlobal(new Variable(prefix +".AtmosPress", VarType.NUMBER, (double)body.atmosphereMultiplier * 101325.0));
+			AddDouble(kalc, prefix +".R", (double)body.Radius);
+			AddDouble(kalc, prefix +".M", (double)body.Mass);
+			AddDouble(kalc, prefix +".mu", (double)body.gravParameter);
+            AddDouble(kalc, prefix +".μ", (double)body.gravParameter);
+			AddDouble(kalc, prefix +".day", (double)body.rotationPeriod);
+			AddDouble(kalc, prefix +".SOI", (double)body.sphereOfInfluence);
+			AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
+			AddDouble(kalc, prefix +".AtmosPress", (double)body.atmosphereMultiplier * 101325.0);
 		}
 
 		public static void AddDouble(Kerbulator kalc, string id, double v) {
 			Variable g = new Variable(id, VarType.NUMBER, v);
-			kalc.AddGlobal(g);
+			kalc.Globals.Add(id, g);
 		}
 
 		public static void AddBool(Kerbulator kalc, string id, bool v) {
 			double val = v ? 1.0 : 0.0;
-			Variable g = new Variable(id, VarType.NUMBER, val);
-			kalc.AddGlobal(g);
+			AddDouble(kalc, id, val);
 		}
 
 		public static void AddVector3d(Kerbulator kalc, string id, Vector3d v) {
@@ -152,7 +151,7 @@ namespace Kerbulator {
 			elements.Add(z);
 
 			Variable g = new Variable(id, VarType.LIST, elements);
-			kalc.AddGlobal(g);
+			kalc.Globals.Add(id, g);
 		}
 
 		public static void AddVector3(Kerbulator kalc, string id, Vector3 v) {
@@ -166,7 +165,7 @@ namespace Kerbulator {
 			elements.Add(z);
 
 			Variable g = new Variable(id, VarType.LIST, elements);
-			kalc.AddGlobal(g);
+			kalc.Globals.Add(id, g);
 		}
 	}
 }

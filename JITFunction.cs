@@ -90,7 +90,7 @@ namespace Kerbulator {
 			StreamReader file = File.OpenText(filename);
             string contents = file.ReadToEnd();
             file.Close();
-			JITFunction f =  new JITFunction(Path.GetFileNameWithoutExtension(filename), contents, kalc);
+			JITFunction f = new JITFunction(Path.GetFileNameWithoutExtension(filename), contents, kalc);
 			try {
 				f.Parse();
 			} catch(Exception e) {
@@ -145,7 +145,7 @@ namespace Kerbulator {
 
 		// With .NET 4.0, there is a BlockExpression. For now, we must hack our own
 		// implementation to execute multiple expressions.
-		public Variable ExecuteBlock(params double[] statementResults) {
+		public Variable ExecuteBlock(double[] statementResults) {
 			return new Variable(VarType.NUMBER, statementResults[statementResults.Length-1]);
 		}
 
@@ -202,19 +202,19 @@ namespace Kerbulator {
 			Expression functionExpression = Expression.Call(
 				thisExpression,
 				typeof(JITFunction).GetMethod("ExecuteBlock"),
-				statements
+				Expression.NewArrayInit(typeof(double), statements)
 			);
 
 			compiledFunction = Expression.Lambda<Func<Variable>>(functionExpression).Compile();
 		}
 
-		public bool SetLocal(string id, double val) {
+		public double SetLocal(string id, double val) {
 			if(locals.ContainsKey(id))
 				locals[id].val = val;
 			else
 				locals.Add(id, new Variable(id, VarType.NUMBER, val));
 
-			return true;
+			return val;
 		}
 
 		public Expression ParseStatement() {

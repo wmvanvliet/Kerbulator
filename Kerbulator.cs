@@ -97,8 +97,9 @@ namespace Kerbulator {
 				throw new Exception("JITFunction not found: "+ functionId);
 
 			JITFunction f = functions[functionId];
-			if(f.InError)
+			if(f.InError) {
 				throw new Exception(f.ErrorString);
+			}
 
 			List<Variable> r = functions[functionId].Execute(new List<Variable>());
 
