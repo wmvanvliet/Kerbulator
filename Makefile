@@ -1,33 +1,37 @@
 # Makefile for building Kerbulator
 
 ifeq ($(OS),Windows_NT)
-	KSPDIR  := C:/Program Files\ \(x86\)/Steam/SteamApps/common/Kerbal\ Space\ Program
+	KSPDIR  := C:/Program\ Files\ \(x86\)/Steam/SteamApps/common/Kerbal\ Space\ Program
 	MANAGED := KSP_Data/Managed/
+	PREFIX := C:/Program\ Files\ \(x86\)/Mono-3.2.3
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S), Darwin)
 		KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
 		MANAGED := KSP.app/Contents/Data/Managed/
+		PREFIX := /usr
 	endif
 	ifeq ($(UNAME_S), Linux)
 		KSPDIR  := ${HOME}/.local/share/Steam/SteamApps/common/Kerbal\ Space\ Program
 		MANAGED := KSP_Data/Managed/
+		PREFIX := /usr
 	endif
 	ifeq ($(UNAME_S), FreeBSD)
 		KSPDIR  := ${HOME}/KSP
 		MANAGED := KSP_Data/Managed/
+		PREFIX := /usr/local
 	endif
 endif
 
 SOURCEFILES := $(wildcard *.cs)
 
-RESGEN2 := /usr/local/bin/resgen2
-MCS    := /usr/local/bin/mcs
-MONO    := /usr/local/bin/mono
-GIT     := /usr/local/bin/git
-TAR     := /usr/bin/tar
-ZIP     := /usr/local/bin/zip
-PDFLATEX   := /usr/local/bin/pdflatex
+RESGEN2 := $(PREFIX)/bin/resgen2
+MCS    := $(PREFIX)/bin/mcs
+MONO    := $(PREFIX)/bin/mono
+GIT     := $(PREFIX)/bin/git
+TAR     := $(PREFIX)/tar
+ZIP     := $(PREFIX)/bin/zip
+PDFLATEX   := $(PREFIX)/bin/pdflatex
 
 all: build
 
