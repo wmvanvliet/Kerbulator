@@ -18,8 +18,10 @@ namespace Kerbulator {
 				Console.WriteLine(s);
 		}
 
-		private Dictionary<string, Operator>operators;
+		private Dictionary<string, Operator> operators;
 		private Dictionary<string, Variable> globals;
+		private Dictionary<string, JITFunction> functions;
+
 		private string functionDir;
 
 		public Kerbulator(string functionDir) {
@@ -73,25 +75,32 @@ namespace Kerbulator {
 			globals.Add("π", new Variable("π", VarType.NUMBER, Math.PI));
 			globals.Add("e", new Variable("e", VarType.NUMBER, Math.E));
 			globals.Add("G", new Variable("G", VarType.NUMBER, 6.67384E-11));
+
+			functions = JITFunction.Scan(functionDir, this);
 		}
 
-		public void AddGlobal(Variable v) {
-			if(globals.ContainsKey(v.id))
-				globals[v.id] = v;
-			else
-				globals.Add(v.id, v);
+		public Dictionary<string, Variable> Globals {
+			get { return globals; }
+			protected set { }
+		}
+		public Dictionary<string, Operator> Operators {
+			get { return operators; }
+			protected set { }
+		}
+		public Dictionary<string, JITFunction> Functions {
+			get { return functions; }
+			protected set { }
 		}
 
 		public List<Variable> Run(string functionId) {
-			Dictionary<string, Function> functions = Function.Scan(functionDir);
 			if(!functions.ContainsKey(functionId))
-				throw new Exception("Function not found: "+ functionId);
+				throw new Exception("JITFunction not found: "+ functionId);
 
-			Function f = functions[functionId];
+			JITFunction f = functions[functionId];
 			if(f.InError)
 				throw new Exception(f.ErrorString);
 
-			List<Variable> r = functions[functionId].Execute(new List<Variable>(), operators, globals, functions);
+			List<Variable> r = functions[functionId].Execute(new List<Variable>());
 
 			if(f.InError)
 				throw new Exception(f.ErrorString);
@@ -99,16 +108,15 @@ namespace Kerbulator {
 			return r;
 		}
 
-		public List<Variable> Run(Function f) {
-			Dictionary<string, Function> functions = Function.Scan(functionDir);
-			List<Variable> r = f.Execute(new List<Variable>(), operators, globals, functions);
+		public List<Variable> Run(JITFunction f) {
+			List<Variable> r = f.Execute(new List<Variable>());
 			if(f.InError)
 				throw new Exception(f.ErrorString);
 			return r;
 		}
 
 		public Variable RunExpression(string expression) {
-			JITFunction func = new JITFunction("unnamed", expression, operators, globals, new Dictionary<string, JITFunction>());
+			JITFunction func = new JITFunction("unnamed", expression, this);
 			Expression<Func<double>> e = Expression.Lambda<Func<double>>(func.ParseExpression());
 			Func<double> f = e.Compile();
 			return new Variable(VarType.NUMBER, f());

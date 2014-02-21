@@ -1,16 +1,17 @@
 using System;
+using System.IO;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace Kerbulator {
 	public class JITFunction {
 		private string id;
-		private Dictionary<string, Operator> operators;
-		private Dictionary<string, Variable> locals;
-		private Dictionary<string, Variable> globals;
-		private Dictionary<string, JITFunction> functions;
-		private ConstantExpression thisExpression;
+		private Dictionary<string, Variable> locals = null;
+		private Kerbulator kalc;
 		private Queue<Token> tokens;
+
+		private ConstantExpression thisExpression;
+		//private ConstantExpression kalcExpression;
 
 		List<string> ins;
 		List<string> outs;
@@ -20,7 +21,9 @@ namespace Kerbulator {
 		private bool inError = false;
 		private string errorString = "";
 
-		public JITFunction(string id, string expression, Dictionary<string, Operator> operators, Dictionary<string, Variable> globals, Dictionary<string, JITFunction> functions) {
+		private Func<Variable> compiledFunction = null;
+
+		public JITFunction(string id, string expression, Kerbulator kalc) { 
 			this.id = id;
 
 			this.ins = new List<string>();
@@ -28,11 +31,11 @@ namespace Kerbulator {
 			this.inDescriptions = new List<string>();
 			this.outDescriptions = new List<string>();
 
-			this.operators = operators;
 			this.locals = new Dictionary<string, Variable>();
-			this.globals = globals;
-			this.functions = functions;
 			this.thisExpression = Expression.Constant(this);
+
+			this.kalc = kalc;
+			//this.kalcExpression = Expression.Constant(kalc);
 
 			try {
 				Tokenizer tok = new Tokenizer("unnamed");
@@ -79,7 +82,139 @@ namespace Kerbulator {
 			set { errorString = (string)value; Kerbulator.DebugLine(value); inError = true; }
 		}
 
+		virtual public List<Variable> Execute() {
+			return Execute(new List<Variable>());
+		}
+
+		public static JITFunction FromFile(string filename, Kerbulator kalc) {
+			StreamReader file = File.OpenText(filename);
+            string contents = file.ReadToEnd();
+            file.Close();
+			JITFunction f =  new JITFunction(Path.GetFileNameWithoutExtension(filename), contents, kalc);
+			try {
+				f.Parse();
+			} catch(Exception e) {
+				f.inError = true;
+				f.errorString = e.Message;
+			}
+			return f;
+		}
+
+		public static Dictionary<string, JITFunction> Scan(string dir, Kerbulator kalc) {
+			return Scan(dir, new Dictionary<string, JITFunction>(), kalc);
+		}
+
+		public static Dictionary<string, JITFunction> Scan(string dir, Dictionary<string, JITFunction> functions, Kerbulator kalc) {
+			foreach(string filename in Directory.GetFiles(dir, "*.math")) {
+				JITFunction f = FromFile(filename, kalc);
+				if( functions.ContainsKey(f.Id) )
+					functions[f.Id] = f;
+				else
+					functions.Add(f.Id, f);
+			}
+
+			return functions;
+		}
+
+		public List<Variable> Execute(List<Variable> arguments) {
+			if(compiledFunction == null)
+				throw new Exception("Cannot execute function "+ this.id +": function is not compiled yet.");
+
+			// (Re)initialize the local variable dictionary to contain just the input arguments
+			this.locals = new Dictionary<string, Variable>();
+			for(int i=0; i<ins.Count; i++)
+				locals.Add(ins[i], arguments[i].Copy(ins[i]));
+
+			// Run the function
+			List<Variable> result = new List<Variable>();
+			Variable lastVal = compiledFunction();
+
+			// Fetch the output variables from the locals dictionary
+			if(outs.Count > 0) {
+				foreach(string id in outs) {
+					if(!locals.ContainsKey(id))
+						throw new Exception("output variable "+ id +" is not defined in the code of function "+ this.id);
+					result.Add(locals[id]);
+				}
+			} else
+				// No outputs specified, just return the value yielded by the last statement
+				result.Add(lastVal);
+
+			return result;
+		}
+
+		// With .NET 4.0, there is a BlockExpression. For now, we must hack our own
+		// implementation to execute multiple expressions.
+		public Variable ExecuteBlock(params double[] statementResults) {
+			return new Variable(VarType.NUMBER, statementResults[statementResults.Length-1]);
+		}
+
 		public void Parse() {
+			// Skip leading whitespace
+			while(tokens.Peek().type == TokenType.END)
+				Consume();
+
+			// Parse in: statements
+			while(tokens.Peek().type == TokenType.IN) {
+				Consume();
+				Token id = Consume(TokenType.IDENTIFIER);
+
+				if(tokens.Peek().type == TokenType.TEXT) {
+					inDescriptions.Add( tokens.Dequeue().val );
+				}
+
+				Consume(TokenType.END);
+				ins.Add(id.val);
+				Kerbulator.DebugLine("Found IN statement for "+ id.val);
+			}
+
+			// Skip whitespace
+			while(tokens.Peek().type == TokenType.END)
+				Consume();
+
+			// Parse out: statements
+			while(tokens.Peek().type == TokenType.OUT) {
+				Consume();
+				Token id = Consume(TokenType.IDENTIFIER);
+
+				if(tokens.Peek().type == TokenType.TEXT) {
+					outDescriptions.Add( tokens.Dequeue().val );
+				}
+
+				Consume(TokenType.END);
+				outs.Add(id.val);
+				Kerbulator.DebugLine("Found OUT statement for "+ id.val);
+			}
+
+			Kerbulator.DebugLine("");
+
+			// Parse all other statements
+			List<Expression> statements = new List<Expression>();
+			while(tokens.Count > 0) {
+				statements.Add( ParseStatement() );
+				Consume(TokenType.END);
+			}
+			
+			if(statements.Count == 0)
+				throw new Exception("In function "+ this.id +": function does not contain any statemtns (it's empty)");
+
+			// Create expression that will execute all the statements
+			Expression functionExpression = Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteBlock"),
+				statements
+			);
+
+			compiledFunction = Expression.Lambda<Func<Variable>>(functionExpression).Compile();
+		}
+
+		public bool SetLocal(string id, double val) {
+			if(locals.ContainsKey(id))
+				locals[id].val = val;
+			else
+				locals.Add(id, new Variable(id, VarType.NUMBER, val));
+
+			return true;
 		}
 
 		public Expression ParseStatement() {
@@ -108,7 +243,12 @@ namespace Kerbulator {
 					expr
 				);
 				*/
-				return expr;
+				return Expression.Call(
+					thisExpression,
+					typeof(JITFunction).GetMethod("SetLocal"),
+					Expression.Constant(ids[0]),
+					expr
+				);
 			} else {
 				throw new Exception("Not implemented.");
 			}
@@ -226,7 +366,7 @@ namespace Kerbulator {
 
 		private void ParseOperator(Stack<Expression>expr, Stack<Operator>ops) {
 			Token t = tokens.Dequeue();
-			Operator op = operators[t.val];
+			Operator op = kalc.Operators[t.val];
 
 			// Handle ambiguous cases of arity
 			if(op.arity == Arity.BOTH) {	
@@ -328,7 +468,7 @@ namespace Kerbulator {
 					List<Expression> args = new List<Expression>();
 					args.Add(expr.Pop());
 					a = expr.Pop();
-					return ParseBuildInFunction(globals[(string)((ConstantExpression)a).Value], args);
+					return ParseBuildInFunction(kalc.Globals[(string)((ConstantExpression)a).Value], args);
 
 				case "user-function":
 					List<Expression> args2 = new List<Expression>();
@@ -385,15 +525,15 @@ namespace Kerbulator {
 						break;
 					case "⌊":
 						Consume("⌋");
-						ops.Push(operators[t.val]);
+						ops.Push(kalc.Operators[t.val]);
 						break;
 					case "⌈":
 						Consume("⌉");
-						ops.Push(operators[t.val]);
+						ops.Push(kalc.Operators[t.val]);
 						break;
 					case "|":
 						Consume("|");
-						ops.Push(operators[t.val]);
+						ops.Push(kalc.Operators[t.val]);
 						break;
 				}
 				return false;
@@ -409,23 +549,23 @@ namespace Kerbulator {
 		}
 
 		public double GetGlobal(string id) {
-			if(!locals.ContainsKey(id))
+			if(!kalc.Globals.ContainsKey(id))
 				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
-			return globals[id].val;
+			return kalc.Globals[id].val;
 		}
 
 		public JITFunction GetFunction(string id) {
-			if(!locals.ContainsKey(id))
-				throw new Exception("In function "+ this.id +": function "+ id +" is not defined.");
-			return functions[id];
+			throw new Exception("not implemented.");
 		}
 
 		private void ParseIdentifier(Stack<Expression> expr, Stack<Operator> ops) {
 			Token t = tokens.Dequeue();
 
-			if(functions.ContainsKey(t.val)) {
+			if(kalc.Functions.ContainsKey(t.val)) {
 				// User function call
-				JITFunction f = functions[t.val];
+
+				/*
+				JITFunction f = kalc.Functions[t.val];
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, execute function now
 					List<Expression> args = ParseArgumentList();
@@ -437,13 +577,14 @@ namespace Kerbulator {
 					// expr.Push( ParseUserFunction(f, new List<Expression>()) );
 				} else {
 					// Do function call later, when parameters are known
-					ops.Push(operators["user-function"]);
+					ops.Push(kalc.Operators["user-function"]);
 					expr.Push(Expression.Constant(t.val));
 				}
+				*/
 
-			} else if(globals.ContainsKey(t.val)) {
+			} else if(kalc.Globals.ContainsKey(t.val)) {
 				// Global identifier
-				Variable var = globals[t.val];
+				Variable var = kalc.Globals[t.val];
 				switch(var.type) {
 					case VarType.FUNCTION:
 						if(tokens.Count > 0 && tokens.Peek().val == "(") {
@@ -457,7 +598,7 @@ namespace Kerbulator {
 							expr.Push( ParseBuildInFunction(var, new List<Expression>()) );
 						} else {
 							// Do function call later, when parameters are known
-							ops.Push(operators["buildin-function"]);
+							ops.Push(kalc.Operators["buildin-function"]);
 							expr.Push(Expression.Constant(t.val));
 						}
 						break;
@@ -526,5 +667,15 @@ namespace Kerbulator {
 			);
 		}
 		*/
+	}
+
+	public class JITExpression: JITFunction {
+		public JITExpression(string expression, Kerbulator kalc)
+	   	:base("unnamed", expression, kalc)	{ 
+		}
+
+		override public List<Variable> Execute() {
+			return null;
+		}
 	}
 }
