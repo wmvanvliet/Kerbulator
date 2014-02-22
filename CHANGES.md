@@ -1,5 +1,11 @@
 Changelog
 ---------
+### 0.23
+Bugfix. Thanks to Bas Cornelissen to patiently work it out with me.
+
+- Language features:
+  - Properly deal with `\t` and `\r`
+
 ### 0.22
 Better errors and more globals.
 

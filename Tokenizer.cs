@@ -87,11 +87,15 @@ namespace Kerbulator {
 				char c = line[i];
 				switch(c)
 				{
+					// Whitespace
 					case ' ':
+					case '\t':
+					case '\r':
 						HandleToken(tok);
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// End of statement
 					case '\n':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.END, "\n", functionName, lineno, col));
@@ -99,6 +103,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Comments
 					case '#':
 						HandleToken(tok);
 						// Skip to next newline
@@ -110,6 +115,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Quoted strings
 					case '"':
 						HandleToken(tok);
 						tok = new Token(TokenType.TEXT, "", functionName, lineno, col);
@@ -137,6 +143,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Numbers
 					case '0':
 					case '1':
 					case '2':
@@ -185,6 +192,7 @@ namespace Kerbulator {
 							throw new Exception(tok.pos +"variable/function names cannot start with a dot (.)");
 						break;
 
+					// Operators
 					case '-':
 					case '+':
 					case '/':
@@ -201,6 +209,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Brackets
 					case '[':
 					case ']':
 						HandleToken(tok);
@@ -222,6 +231,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// In: and Out: statements
 					case ':':
 						if(tok.val == "in")
 							HandleToken(new Token(TokenType.IN, tok.val, functionName, lineno, col));
