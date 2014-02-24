@@ -597,7 +597,14 @@ namespace Kerbulator {
 					break;
 				case "|":
 					b = expr.Pop();
-					opExpression = CallUnaryMathFunction(op.id, "Abs", b);
+					if(b.GetType() == typeof(double))
+						opExpression = CallUnaryMathFunction(op.id, "Abs", b);
+					else
+						opExpression = Expression.Call(
+							typeof(VectorMath).GetMethod("Mag"),
+							b,
+							Expression.Constant("In function "+ this.id)
+						);
 					break;
 
 				case "buildin-function":
@@ -791,6 +798,9 @@ namespace Kerbulator {
 				Expression subexpr = ParseExpression();
 				arguments.Add(subexpr);
 				
+				if(tokens.Count == 0)
+					throw new Exception("In function "+ this.id +": missing ')'");
+
 				if(tokens.Peek().val != ")")
 					Consume(TokenType.COMMA);
 			}
@@ -798,45 +808,6 @@ namespace Kerbulator {
 			Consume(")");
 
 			return arguments;
-		}
-
-		public Object ListLen(Object a) {
-			if(a.GetType() != typeof(Object[]))
-				throw new Exception("In function "+ this.id +": function len() can only be called with a list as argument");
-
-			return (Object) ((Object[]) a).Length;
-		}
-
-		public Object ListDot(Object a, Object b) {
-			if(a.GetType() == typeof(double) && a.GetType() == typeof(double))
-				return (Object) ( (double) a * (double) b );
-			else if(a.GetType() == typeof(double) && b.GetType() == typeof(Object[])) {
-				return ExecuteBinaryFunction("*", (x,y) => x * y, a, b);
-			} else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(double))
-				return ExecuteBinaryFunction("*", (x,y) => x * y, a, b);
-			else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(Object[])) {
-				Object[] listA = (Object[]) a;
-				Object[] listB = (Object[]) b;
-
-				if(listA.Length != listB.Length)
-					throw new Exception("In function dot(): lists must be of equal length (called by "+ this.id +")");
-
-				Object res = 0;
-				for(int i=0; i<listA.Length; i++) {
-					ExecuteBinaryFunction(
-						"+",
-						(x,y) => x+y,
-						res,
-						ExecuteBinaryFunction(
-							"*",
-							(x,y) => x*y,
-							listA[i], listB[i]
-						)
-					);
-				}
-				return res;
-			} else
-				throw new Exception("In function "+ this.id +": called function dot() with invalid arguments");
 		}
 
 		private Expression ParseBuildInFunction(BuildInFunction func, List<Expression> arguments) {
@@ -902,16 +873,37 @@ namespace Kerbulator {
 					break;
 				case "len":
 					funcExpression = Expression.Call(
-						thisExpression,
-						typeof(JITFunction).GetMethod("ListLen"),
-						arguments[0]
+						typeof(VectorMath).GetMethod("Len"),
+						arguments[0],
+						Expression.Constant("In function "+ this.id)
 					);
 					break;
 				case "dot":
 					funcExpression = Expression.Call(
-						thisExpression,
-						typeof(JITFunction).GetMethod("ListDot"),
-						arguments[0], arguments[1]
+						typeof(VectorMath).GetMethod("Dot"),
+						arguments[0], arguments[1],
+						Expression.Constant("In function "+ this.id)
+					);
+					break;
+				case "mag":
+					funcExpression = Expression.Call(
+						typeof(VectorMath).GetMethod("Mag"),
+						arguments[0],
+						Expression.Constant("In function "+ this.id)
+					);
+					break;
+				case "norm":
+					funcExpression = Expression.Call(
+						typeof(VectorMath).GetMethod("Norm"),
+						arguments[0],
+						Expression.Constant("In function "+ this.id)
+					);
+					break;
+				case "cross":
+					funcExpression = Expression.Call(
+						typeof(VectorMath).GetMethod("Cross"),
+						arguments[0], arguments[1],
+						Expression.Constant("In function "+ this.id)
 					);
 					break;
 				default:

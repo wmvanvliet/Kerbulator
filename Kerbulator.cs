@@ -68,6 +68,7 @@ namespace Kerbulator {
 			buildInFunctions.Add("sqrt", new BuildInFunction("sqrt", 1));
 			buildInFunctions.Add("tan", new BuildInFunction("tan", 1));
 			buildInFunctions.Add("len", new BuildInFunction("len", 1));
+			buildInFunctions.Add("mag", new BuildInFunction("mag", 1));
 			buildInFunctions.Add("norm", new BuildInFunction("norm", 1));
 			buildInFunctions.Add("dot", new BuildInFunction("dot", 2));
 			buildInFunctions.Add("cross", new BuildInFunction("cross", 2));

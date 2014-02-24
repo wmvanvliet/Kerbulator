@@ -86,7 +86,7 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${MCS} Kerbulator.cs Variable.cs Tokenizer.cs JITFunction.cs
+	${MCS} Kerbulator.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs
 	${MONO} Kerbulator.exe tests/expressions.test
 
 unity: 

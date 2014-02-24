@@ -1,5 +1,12 @@
 Changelog
 ---------
+### 0.30
+JIT Compiling.
+
+- Language features
+  - Functions are now JIT-compiled and run at native .NET speed.
+  - Added build-in function `mag`
+
 ### 0.22
 Better errors and more globals.
 
