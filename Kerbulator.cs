@@ -19,7 +19,8 @@ namespace Kerbulator {
 		}
 
 		private Dictionary<string, Operator> operators;
-		private Dictionary<string, Variable> globals;
+		private Dictionary<string, Object> globals;
+		private Dictionary<string, BuildInFunction> buildInFunctions;
 		private Dictionary<string, JITFunction> functions;
 
 		private string functionDir;
@@ -46,40 +47,42 @@ namespace Kerbulator {
 			operators.Add("buildin-function", new Operator("buildin-function", 2, Arity.BINARY)); // Execute buildin function as unary operator
 			operators.Add("user-function", new Operator("user-function", 2, Arity.BINARY)); // Execute user function as unary operator
 
-			globals = new Dictionary<string, Variable>();
-			globals.Add("abs", new Variable("abs", VarType.FUNCTION, 1));
-			globals.Add("acos", new Variable("acos", VarType.FUNCTION, 1));
-			globals.Add("asin", new Variable("asin", VarType.FUNCTION, 1));
-			globals.Add("atan", new Variable("atan", VarType.FUNCTION, 1));
-			globals.Add("ceil", new Variable("ceil", VarType.FUNCTION, 1));
-			globals.Add("cos", new Variable("cos", VarType.FUNCTION, 1));
-			globals.Add("exp", new Variable("exp", VarType.FUNCTION, 1));
-			globals.Add("floor", new Variable("floor", VarType.FUNCTION, 1));
-			globals.Add("ln", new Variable("ln", VarType.FUNCTION, 1));
-			globals.Add("log", new Variable("log", VarType.FUNCTION, 1));
-			globals.Add("log10", new Variable("log10", VarType.FUNCTION, 1));
-			globals.Add("max", new Variable("max", VarType.FUNCTION, 2));
-			globals.Add("min", new Variable("min", VarType.FUNCTION, 2));
-			globals.Add("pow", new Variable("pow", VarType.FUNCTION, 2));
-			globals.Add("round", new Variable("round", VarType.FUNCTION, 2));
-			globals.Add("sign", new Variable("sign", VarType.FUNCTION, 1));
-			globals.Add("sin", new Variable("sin", VarType.FUNCTION, 1));
-			globals.Add("sqrt", new Variable("sqrt", VarType.FUNCTION, 1));
-			globals.Add("tan", new Variable("tan", VarType.FUNCTION, 1));
-			globals.Add("len", new Variable("len", VarType.FUNCTION, 1));
-			globals.Add("norm", new Variable("norm", VarType.FUNCTION, 1));
-			globals.Add("dot", new Variable("dot", VarType.FUNCTION, 2));
-			globals.Add("cross", new Variable("cross", VarType.FUNCTION, 2));
+			buildInFunctions = new Dictionary<string, BuildInFunction>();
+			buildInFunctions.Add("abs", new BuildInFunction("abs", 1));
+			buildInFunctions.Add("acos", new BuildInFunction("acos", 1));
+			buildInFunctions.Add("asin", new BuildInFunction("asin", 1));
+			buildInFunctions.Add("atan", new BuildInFunction("atan", 1));
+			buildInFunctions.Add("ceil", new BuildInFunction("ceil", 1));
+			buildInFunctions.Add("cos", new BuildInFunction("cos", 1));
+			buildInFunctions.Add("exp", new BuildInFunction("exp", 1));
+			buildInFunctions.Add("floor", new BuildInFunction("floor", 1));
+			buildInFunctions.Add("ln", new BuildInFunction("ln", 1));
+			buildInFunctions.Add("log", new BuildInFunction("log", 1));
+			buildInFunctions.Add("log10", new BuildInFunction("log10", 1));
+			buildInFunctions.Add("max", new BuildInFunction("max", 2));
+			buildInFunctions.Add("min", new BuildInFunction("min", 2));
+			buildInFunctions.Add("pow", new BuildInFunction("pow", 2));
+			buildInFunctions.Add("round", new BuildInFunction("round", 2));
+			buildInFunctions.Add("sign", new BuildInFunction("sign", 1));
+			buildInFunctions.Add("sin", new BuildInFunction("sin", 1));
+			buildInFunctions.Add("sqrt", new BuildInFunction("sqrt", 1));
+			buildInFunctions.Add("tan", new BuildInFunction("tan", 1));
+			buildInFunctions.Add("len", new BuildInFunction("len", 1));
+			buildInFunctions.Add("norm", new BuildInFunction("norm", 1));
+			buildInFunctions.Add("dot", new BuildInFunction("dot", 2));
+			buildInFunctions.Add("cross", new BuildInFunction("cross", 2));
 
-			globals.Add("pi", new Variable("pi", VarType.NUMBER, Math.PI));
-			globals.Add("π", new Variable("π", VarType.NUMBER, Math.PI));
-			globals.Add("e", new Variable("e", VarType.NUMBER, Math.E));
-			globals.Add("G", new Variable("G", VarType.NUMBER, 6.67384E-11));
+			globals = new Dictionary<string, Object>();
+			globals.Add("pi", Math.PI);
+			globals.Add("π", Math.PI);
+			globals.Add("e", Math.E);
+			globals.Add("G", 6.67384E-11);
 
-			functions = JITFunction.Scan(functionDir, this);
+			functions = new Dictionary<string, JITFunction>();
+			//functions = JITFunction.Scan(functionDir, functions, this);
 		}
 
-		public Dictionary<string, Variable> Globals {
+		public Dictionary<string, Object> Globals {
 			get { return globals; }
 			protected set { }
 		}
@@ -87,12 +90,18 @@ namespace Kerbulator {
 			get { return operators; }
 			protected set { }
 		}
+
+		public Dictionary<string, BuildInFunction> BuildInFunctions {
+			get { return buildInFunctions; }
+			protected set { }
+		}
+
 		public Dictionary<string, JITFunction> Functions {
 			get { return functions; }
 			protected set { }
 		}
 
-		public List<Variable> Run(string functionId) {
+		public List<Object> Run(string functionId) {
 			if(!functions.ContainsKey(functionId))
 				throw new Exception("JITFunction not found: "+ functionId);
 
@@ -101,7 +110,7 @@ namespace Kerbulator {
 				throw new Exception(f.ErrorString);
 			}
 
-			List<Variable> r = functions[functionId].Execute(new List<Variable>());
+			List<Object> r = functions[functionId].Execute(new List<Object>());
 
 			if(f.InError)
 				throw new Exception(f.ErrorString);
@@ -109,34 +118,33 @@ namespace Kerbulator {
 			return r;
 		}
 
-		public List<Variable> Run(JITFunction f) {
-			List<Variable> r = f.Execute(new List<Variable>());
+		public Object Run(JITFunction f) {
+			Object r = f.Execute(new List<Object>());
 			if(f.InError)
 				throw new Exception(f.ErrorString);
 			return r;
 		}
 
-		public Variable RunExpression(string expression) {
+		public Object RunExpression(string expression) {
 			JITFunction func = new JITFunction("unnamed", expression, this);
-			Expression<Func<double>> e = Expression.Lambda<Func<double>>(func.ParseExpression());
-			Func<double> f = e.Compile();
-			return new Variable(VarType.NUMBER, f());
+			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(func.ParseExpression());
+			Func<Object> f = e.Compile();
+			return f();
 		}
 
 		public static void Main(string[] args) {
-			Kerbulator.DEBUG = (args[0] == "-v");
-			Type type = Type.GetType("Mono.Runtime");
-			if (type != null)
-			{                                          
-				MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-				if (displayName != null)                   
-					DebugLine(displayName.Invoke(null, null).ToString()); 
+			string filename;
+			if(args[0] == "-v") {
+				Kerbulator.DEBUG = true;
+				filename = args[1];
+			} else {
+				filename = args[0];
 			}
 
 			Kerbulator k = new Kerbulator("./tests");
-			if(args[0].EndsWith(".test")) {
-				Console.WriteLine("Running unit tests in "+ args[0]);
-				StreamReader file = File.OpenText(args[0]);
+			if(filename.EndsWith(".test")) {
+				Console.WriteLine("Running unit tests in "+ filename);
+				StreamReader file = File.OpenText(filename);
 				string line;
 				while( (line = file.ReadLine()) != null ) {
 					if(line.Trim().StartsWith("#"))
@@ -162,17 +170,11 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
-				List<Variable> result;
-				if(args[0] == "-v") {
-					Kerbulator.DEBUG = true;
-					result = k.Run(args[1]);
-				} else {
-					Kerbulator.DEBUG = false;
-					result = k.Run(args[0]);
-				}
+				List<Object> result;
+				result = k.Run(filename);
 
-				foreach(Variable v in result)
-					Console.Write(v.id +" = "+ v.ToString() +", ");
+				foreach(Object v in result)
+					Console.Write(v.ToString() +", ");
 				Console.WriteLine("\n");
 			}
 		}

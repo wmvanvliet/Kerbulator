@@ -9,6 +9,19 @@ namespace Kerbulator {
 		public VarException(string msg): base(msg) {}
 		public VarException(string msg, Exception inner): base(msg, inner) {}
 	}
+	public class BuildInFunction {
+		public string id;
+		public int numArgs;
+
+		public BuildInFunction(string id, int numArgs) {
+			this.id = id;
+			this.numArgs = numArgs;
+		}
+
+		public override string ToString() {
+			return this.id;
+		}
+	}
 
 	public enum VarType {NUMBER, LIST, FUNCTION, USER_FUNCTION};
 	public class Variable {

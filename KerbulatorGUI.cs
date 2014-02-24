@@ -18,19 +18,19 @@ namespace Kerbulator {
 		private string error = null;
 
 		// Selecting functions and getting info
-		private Function selectedFunction = null;
+		private JITFunction selectedFunction = null;
 		private string functionDescription = "";
 		private float functionDescriptionHeight = 0;
 
 		// Editing functions
-		private Function editFunction = null;
+		private JITFunction editFunction = null;
 		private string editFunctionContent = "";
 		private string editFunctionName = "maneuver";
 		private string functionFile = "maneuver.math";
 		private string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
 		// Ruinning functions
-		private Function runFunction = null;
+		private JITFunction runFunction = null;
 		private string functionOutput = "";
 
 		// For dragging windows
@@ -57,7 +57,7 @@ namespace Kerbulator {
 		private bool runWindowEnabled = false;
 
 		// Dictionary containing all available functions
-		Dictionary<string, Function> functions;
+		Dictionary<string, JITFunction> functions;
 		string functionDir = "";
 
 		// Math symbols
@@ -171,7 +171,7 @@ namespace Kerbulator {
 
 			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(300));
 
-			foreach(KeyValuePair<string, Function> f in functions) {
+			foreach(KeyValuePair<string, JITFunction> f in functions) {
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(f.Key, GUILayout.Height(24))) { 
@@ -422,7 +422,7 @@ namespace Kerbulator {
 
 		/// <summary>Obtain some info of a function.</summary>
 		/// <param name="f">The function to obtain the info of</param>
-		public string FunctionDescription(Function f) {
+		public string FunctionDescription(JITFunction f) {
 			string desc = "";
 
 			if(f.Ins.Count == 0) {
@@ -458,7 +458,7 @@ namespace Kerbulator {
 		/// <summary>Provide a string representation of the output resulting from executing a function.</summary>
 		/// <param name="f">The function that was executed</param>
 		/// <param name="output">The variables resuting from the execution</param>
-		public string FormatOutput(Function f, List<Variable> output) {
+		public string FormatOutput(JITFunction f, List<Variable> output) {
 			string desc = "Outputs:\n";
 			if(output.Count == 0) {
 				desc += "None.";
@@ -478,7 +478,7 @@ namespace Kerbulator {
 		public void OnApplicationFocus(bool focused) {
 			if(focused) {
 				// Rebuild the list of functions. It could be that they were edited outside of KSP
-				functions = Function.Scan(functionDir);
+				functions = JITFunction.Scan(functionDir, functions, kalc);
 
 				// Reload the function being edited
 				if(editFunction != null)
@@ -491,10 +491,10 @@ namespace Kerbulator {
 		/// <summary>Scan for available functions and update funtion references if needed.</summary>
 		public void Scan() {
 			try {
-				functions = Function.Scan(functionDir);
+				functions = JITFunction.Scan(functionDir, functions, kalc);
 			} catch(Exception e) {
 				error = "Cannot access function dir ("+ functionDir +"): "+ e.Message;
-				functions = new Dictionary<string, Function>();
+				functions = new Dictionary<string, JITFunction>();
 			}
 
 			if(selectedFunction != null) {

@@ -2,11 +2,12 @@ using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Kerbulator {
 	public class JITFunction {
 		private string id;
-		private Dictionary<string, Variable> locals = null;
+		private Dictionary<string, Object> locals = null;
 		private Kerbulator kalc;
 		private Queue<Token> tokens;
 
@@ -21,7 +22,7 @@ namespace Kerbulator {
 		private bool inError = false;
 		private string errorString = "";
 
-		private Func<Variable> compiledFunction = null;
+		private Func<Object> compiledFunction = null;
 
 		public JITFunction(string id, string expression, Kerbulator kalc) { 
 			this.id = id;
@@ -31,7 +32,7 @@ namespace Kerbulator {
 			this.inDescriptions = new List<string>();
 			this.outDescriptions = new List<string>();
 
-			this.locals = new Dictionary<string, Variable>();
+			this.locals = new Dictionary<string, Object>();
 			this.thisExpression = Expression.Constant(this);
 
 			this.kalc = kalc;
@@ -82,8 +83,8 @@ namespace Kerbulator {
 			set { errorString = (string)value; Kerbulator.DebugLine(value); inError = true; }
 		}
 
-		virtual public List<Variable> Execute() {
-			return Execute(new List<Variable>());
+		virtual public List<Object> Execute() {
+			return Execute(new List<Object>());
 		}
 
 		public static JITFunction FromFile(string filename, Kerbulator kalc) {
@@ -96,12 +97,9 @@ namespace Kerbulator {
 			} catch(Exception e) {
 				f.inError = true;
 				f.errorString = e.Message;
+				throw e;
 			}
 			return f;
-		}
-
-		public static Dictionary<string, JITFunction> Scan(string dir, Kerbulator kalc) {
-			return Scan(dir, new Dictionary<string, JITFunction>(), kalc);
 		}
 
 		public static Dictionary<string, JITFunction> Scan(string dir, Dictionary<string, JITFunction> functions, Kerbulator kalc) {
@@ -116,18 +114,18 @@ namespace Kerbulator {
 			return functions;
 		}
 
-		public List<Variable> Execute(List<Variable> arguments) {
+		public List<Object> Execute(List<Object> arguments) {
 			if(compiledFunction == null)
 				throw new Exception("Cannot execute function "+ this.id +": function is not compiled yet.");
 
 			// (Re)initialize the local variable dictionary to contain just the input arguments
-			this.locals = new Dictionary<string, Variable>();
+			this.locals = new Dictionary<string, Object>();
 			for(int i=0; i<ins.Count; i++)
-				locals.Add(ins[i], arguments[i].Copy(ins[i]));
+				locals.Add(ins[i], arguments[i]);
 
 			// Run the function
-			List<Variable> result = new List<Variable>();
-			Variable lastVal = compiledFunction();
+			List<Object> result = new List<Object>();
+			Object lastVal = compiledFunction();
 
 			// Fetch the output variables from the locals dictionary
 			if(outs.Count > 0) {
@@ -145,8 +143,8 @@ namespace Kerbulator {
 
 		// With .NET 4.0, there is a BlockExpression. For now, we must hack our own
 		// implementation to execute multiple expressions.
-		public Variable ExecuteBlock(double[] statementResults) {
-			return new Variable(VarType.NUMBER, statementResults[statementResults.Length-1]);
+		public Object ExecuteBlock(Object[] statementResults) {
+			return statementResults[statementResults.Length-1];
 		}
 
 		public void Parse() {
@@ -202,17 +200,17 @@ namespace Kerbulator {
 			Expression functionExpression = Expression.Call(
 				thisExpression,
 				typeof(JITFunction).GetMethod("ExecuteBlock"),
-				Expression.NewArrayInit(typeof(double), statements)
+				Expression.NewArrayInit(typeof(Object), statements)
 			);
 
-			compiledFunction = Expression.Lambda<Func<Variable>>(functionExpression).Compile();
+			compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
 		}
 
-		public double SetLocal(string id, double val) {
+		public Object SetLocal(string id, Object val) {
 			if(locals.ContainsKey(id))
-				locals[id].val = val;
+				locals[id] = val;
 			else
-				locals.Add(id, new Variable(id, VarType.NUMBER, val));
+				locals.Add(id, val);
 
 			return val;
 		}
@@ -236,18 +234,12 @@ namespace Kerbulator {
 			Expression expr = ParseExpression();
 
 			if(ids.Count == 1) {
-				/*
-				ParameterExpression result = Expression.Parameter(typeof(double), ids[0]);
-				return Expression.Block(
-					new[] {result},
-					expr
-				);
-				*/
 				return Expression.Call(
 					thisExpression,
 					typeof(JITFunction).GetMethod("SetLocal"),
 					Expression.Constant(ids[0]),
 					expr
+					//Expression.Convert(expr, typeof(Object))
 				);
 			} else {
 				throw new Exception("Not implemented.");
@@ -273,6 +265,9 @@ namespace Kerbulator {
 						break;
 					case TokenType.BRACE:
 						end = ParseBrace(expr, ops);
+						break;
+					case TokenType.LIST:
+						end = ParseList(expr);
 						break;
 					case TokenType.IDENTIFIER:
 						ParseIdentifier(expr, ops);
@@ -351,17 +346,17 @@ namespace Kerbulator {
 		private void ParseNumber(Stack<Expression> expr) {
 			Token t = tokens.Dequeue();
 			Kerbulator.DebugLine("Pushing "+ t.val);
-			/*
 			expr.Push(
 				Expression.Convert(
 					Expression.Constant(Double.Parse(t.val, System.Globalization.CultureInfo.InvariantCulture)),
 					typeof(Object)
 				)
 			);
-			*/
+			/*
 			expr.Push(
 				Expression.Constant(Double.Parse(t.val, System.Globalization.CultureInfo.InvariantCulture))
 			);
+			*/
 		}
 
 		private void ParseOperator(Stack<Expression>expr, Stack<Operator>ops) {
@@ -405,81 +400,96 @@ namespace Kerbulator {
 				throw new Exception("Arity of "+ op.id +" still undefined.");
 
 			Expression a,b;
+			Expression opExpression;
 			switch(op.id) {
 				case "+":
-					b = expr.Pop(); a = expr.Pop();
-					return Expression.Add(a, b);
+					b = Expression.Convert(expr.Pop(), typeof(double));
+					a = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Add(a, b);
+					break;
 				case "-":
-					b = expr.Pop();
+					b = Expression.Convert(expr.Pop(), typeof(double));
 					if(op.arity == Arity.UNARY) 
-						return Expression.Negate(b);
+						opExpression = Expression.Negate(b);
 					else {
-						a = expr.Pop();
-						return Expression.Subtract(a, b);
+						a = Expression.Convert(expr.Pop(), typeof(double));
+						opExpression = Expression.Subtract(a, b);
 					}
+					break;
 				case "*":
 				case "·":
-					b = expr.Pop(); a = expr.Pop();
-					return Expression.Multiply(a, b);
+					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Multiply(a, b);
+					break;
 				case "/":
 				case "÷":
-					b = expr.Pop(); a = expr.Pop();
-					return Expression.Divide(a, b);
+					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Divide(a, b);
+					break;
 				case "%":
-					b = expr.Pop(); a = expr.Pop();
-					return Expression.Modulo(a, b);
+					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Modulo(a, b);
+					break;
 				case "^":
-					b = expr.Pop(); a = expr.Pop();
-					return Expression.Power(a, b);
+					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Power(a, b);
+					break;
 				case "√":
-					b = expr.Pop();
+					b = Expression.Convert(expr.Pop(), typeof(double));
 					if(op.arity == Arity.UNARY) {
-						return Expression.Call(
+						opExpression = Expression.Call(
 							typeof(Math).GetMethod("Sqrt"),
 						   	b
 						);
 					} else {
-						a = expr.Pop();
-						return Expression.Power(
+						a = Expression.Convert(expr.Pop(), typeof(double));
+						opExpression = Expression.Power(
 							a,
 							Expression.Divide(Expression.Constant(1.0), b)
 						);
 					}
+					break;
 				case "⌊":
-					b = expr.Pop();
-					return Expression.Call(
+					b = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Call(
 						typeof(Math).GetMethod("Floor", new[] {typeof(double)}),
 						b
 					);
+					break;
 				case "⌈":
-					b = expr.Pop();
-					return Expression.Call(
+					b = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Call(
 						typeof(Math).GetMethod("Ceiling", new[] {typeof(double)}),
 						b
 					);
+					break;
 				case "|":
-					b = expr.Pop();
-					return Expression.Call(
+					b = Expression.Convert(expr.Pop(), typeof(double));
+					opExpression = Expression.Call(
 						typeof(Math).GetMethod("Abs", new[] {typeof(double)}),
 						b
 					);
+					break;
 
 				case "buildin-function":
 					List<Expression> args = new List<Expression>();
 					args.Add(expr.Pop());
 					a = expr.Pop();
-					return ParseBuildInFunction(kalc.Globals[(string)((ConstantExpression)a).Value], args);
+					opExpression = ParseBuildInFunction(kalc.BuildInFunctions[(string)((ConstantExpression)a).Value], args);
+					break;
 
 				case "user-function":
 					List<Expression> args2 = new List<Expression>();
-					args2.Add(expr.Pop());
-					a = expr.Pop();
+					args2.Add(Expression.Convert(expr.Pop(), typeof(double)));
+					a = Expression.Convert(expr.Pop(), typeof(double));
 					throw new Exception("User functions not implemented yet.");
 					// return ParseUserFunction(functions[(string)((ConstantExpression)a).Value], args2);
 
 				default:
 					throw new Exception("Unknown operator: "+ op.id);
 			}
+
+			return Expression.Convert(opExpression, typeof(Object));
 		}
 
 		private bool ParseBrace(Stack<Expression> expr, Stack<Operator> ops) {
@@ -542,16 +552,45 @@ namespace Kerbulator {
 			}
 		}
 
-		public double GetLocal(string id) {
-			if(!locals.ContainsKey(id))
-				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
-			return locals[id].val;
+		public bool ParseList(Stack<Expression> expr) {
+			if(tokens.Peek().val == "]") {
+				return true;
+			}
+
+			// Consume left brace
+			Consume();
+
+			List<Expression> elements = new List<Expression>();
+			while(tokens.Peek().val != "]") {
+				Kerbulator.DebugLine("Starting subexpression");
+				Expression subexpr = ParseExpression();
+				Kerbulator.DebugLine("End of subexpression");
+				elements.Add(subexpr);
+				
+				if(tokens.Peek().val != "]")
+					Consume(TokenType.COMMA);
+			}
+
+			// Consume right brace
+			Consume();
+
+			if(elements.Count == 0)
+				throw new VarException("Empty lists are not allowed.");
+
+			expr.Push( Expression.NewArrayInit(typeof(Object), elements) );
+			return true;
 		}
 
-		public double GetGlobal(string id) {
+		public Object GetLocal(string id) {
+			if(!locals.ContainsKey(id))
+				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
+			return locals[id];
+		}
+
+		public Object GetGlobal(string id) {
 			if(!kalc.Globals.ContainsKey(id))
 				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
-			return kalc.Globals[id].val;
+			return kalc.Globals[id];
 		}
 
 		public JITFunction GetFunction(string id) {
@@ -563,6 +602,7 @@ namespace Kerbulator {
 
 			if(kalc.Functions.ContainsKey(t.val)) {
 				// User function call
+				Console.WriteLine("User function, not implemented yet");
 
 				/*
 				JITFunction f = kalc.Functions[t.val];
@@ -582,35 +622,25 @@ namespace Kerbulator {
 				}
 				*/
 
-			} else if(kalc.Globals.ContainsKey(t.val)) {
-				// Global identifier
-				Variable var = kalc.Globals[t.val];
-				switch(var.type) {
-					case VarType.FUNCTION:
-						if(tokens.Count > 0 && tokens.Peek().val == "(") {
-							// Parameter list supplied, execute function now
-							List<Expression> args = ParseArgumentList();
-							if(args.Count != var.numArgs)
-								throw new Exception(t.pos + "function "+ var.id +" takes "+ var.numArgs +" arguments, but "+ args.Count +" were supplied");
-							expr.Push( ParseBuildInFunction(var, args) );
-						} else if(var.numArgs == 0) {
-							// Function takes no arguments, execute now
-							expr.Push( ParseBuildInFunction(var, new List<Expression>()) );
-						} else {
-							// Do function call later, when parameters are known
-							ops.Push(kalc.Operators["buildin-function"]);
-							expr.Push(Expression.Constant(t.val));
-						}
-						break;
+			} else if(kalc.BuildInFunctions.ContainsKey(t.val)) {
+				BuildInFunction f = kalc.BuildInFunctions[t.val];
 
-					case VarType.NUMBER:
-						expr.Push(Expression.Constant(var.val));
-						break;
-
-					default:
-						throw new Exception(t.pos +" variable type not implemented.");
+				if(tokens.Count > 0 && tokens.Peek().val == "(") {
+					// Parameter list supplied, execute function now
+					List<Expression> args = ParseArgumentList();
+					if(args.Count != f.numArgs)
+						throw new Exception(t.pos + "function "+ f +" takes "+ f.numArgs +" arguments, but "+ args.Count +" were supplied");
+					expr.Push( ParseBuildInFunction(f, args) );
+				} else if(f.numArgs == 0) {
+					// Function takes no arguments, execute now
+					expr.Push( ParseBuildInFunction(f, new List<Expression>()) );
+				} else {
+					// Do function call later, when parameters are known
+					ops.Push(kalc.Operators["buildin-function"]);
+					expr.Push(Expression.Constant(t.val));
 				}
-
+			} else if(kalc.Globals.ContainsKey(t.val)) {
+				expr.Push(Expression.Constant( kalc.Globals[t.val], typeof(Object) ));
 			} else {
 				// Local identifier
 				expr.Push(
@@ -641,20 +671,147 @@ namespace Kerbulator {
 			return arguments;
 		}
 
-		private Expression ParseBuildInFunction(Variable func, List<Expression> arguments) {
+		private Expression ParseBuildInFunction(BuildInFunction func, List<Expression> arguments) {
+			Expression<Func<Object, Object>> unaryExpression;
+			Expression<Func<Object, Object, Object>> binaryExpression;
+			Expression funcExpression;
+
 			switch(func.id) {
 				case "abs":
-					return Expression.Call(
-						typeof(Math).GetMethod("Abs", new[] {typeof(double)}),
-						arguments[0]
+					unaryExpression = num => ApplyUnaryFunction(num, Math.Abs);
+					funcExpression = Expression.Invoke(unaryExpression, arguments[0]);
+					break;
+				case "acos":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Acos", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
 					);
+					break;
+				case "asin":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Asin", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+				case "atan":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Atan", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+				case "ceil":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Ceiling", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+				case "cos":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Cos", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+				case "exp":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Exp", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+				case "floor":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Floor", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+
+				case "ln":
+				case "log":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Log", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+
+				case "log10":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Log10", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+
+				case "max":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Max", new[] {typeof(double), typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
+					);
+					break;
+
+				case "min":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Min", new[] {typeof(double), typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
+					);
+					break;
+
+				case "pow":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Pow", new[] {typeof(double), typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
+					);
+					break;
+
+				case "round":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Round", new[] {typeof(double), typeof(int)}),
+						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(Expression.Convert(arguments[1], typeof(double)), typeof(int))
+					);
+					break;
+
+				case "sign":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Sign", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+
 				case "sin":
-					return Expression.Call(
+					funcExpression = Expression.Call(
 						typeof(Math).GetMethod("Sin", new[] {typeof(double)}),
-						arguments[0]
+						Expression.Convert(arguments[0], typeof(double))
 					);
+					break;
+
+				case "sqrt":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Sqrt", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
+
+				case "tan":
+					funcExpression = Expression.Call(
+						typeof(Math).GetMethod("Tan", new[] {typeof(double)}),
+						Expression.Convert(arguments[0], typeof(double))
+					);
+					break;
 				default:
 					throw new Exception("Unknown build-in function: "+ func.id);
+
+			}
+
+			return Expression.Convert(funcExpression, typeof(Object));
+		}
+
+		public delegate double UnaryFunction(double x); 
+		public delegate double BinaryFunction(double x, double y); 
+
+		private Object ApplyUnaryFunction(Object par, UnaryFunction action) {
+			if(par.GetType() == typeof(double))
+				return action((double)par);
+			else if(par.GetType() == typeof(Array)) {
+				return 2.0;	
+			} else {
+				return 3.0;
 			}
 		}
 
@@ -674,7 +831,7 @@ namespace Kerbulator {
 	   	:base("unnamed", expression, kalc)	{ 
 		}
 
-		override public List<Variable> Execute() {
+		override public List<Object> Execute() {
 			return null;
 		}
 	}
