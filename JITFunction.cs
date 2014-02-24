@@ -131,7 +131,7 @@ namespace Kerbulator {
 			if(outs.Count > 0) {
 				foreach(string id in outs) {
 					if(!locals.ContainsKey(id))
-						throw new Exception("output variable "+ id +" is not defined in the code of function "+ this.id);
+						throw new Exception("In function "+ this.id +": output variable "+ id +" is not defined");
 					result.Add(locals[id]);
 				}
 			} else
@@ -283,8 +283,9 @@ namespace Kerbulator {
 
 			bool end = false; // If ever set to true, this is the end of the expression
 
+			Token t = tokens.Peek();
 			while(!end && tokens.Count > 0 && tokens.Peek().type != TokenType.END) {
-				Token t = tokens.Peek();
+				t = tokens.Peek();
 				Kerbulator.DebugLine("Token: "+ Enum.GetName(typeof(TokenType), t.type) +": "+ t.val);
 
 				switch(t.type) {
@@ -320,36 +321,48 @@ namespace Kerbulator {
 			}
 
 			if(expr.Count > 1)
-				throw new Exception("Malformed expression");
+				throw new Exception(t.pos +"malformed expression");
 
 			return expr.Pop();
 		}
 
 		private Token Consume() {
+			return ConsumeWithErr("reached unexpected end of expression");
+		}
+
+		private Token ConsumeWithErr(string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Unexpected end of expression.");
+				throw new Exception(err);
 
 			return tokens.Dequeue();
 		}
 
 		private Token Consume(string val) {
+			return Consume(val, "expected: "+ val);
+		}
+
+		private Token Consume(string val, string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Expected: "+ val);
+				throw new Exception("reached unexpected end of expression, was expecting: "+ val);
 
 			Token t = tokens.Dequeue();
 			if(!String.Equals(t.val, val))
-				throw new Exception("Expected: "+ val);
+				throw new Exception(t.pos + err);
 
 			return t;
 		}
 
 		private Token Consume(TokenType type) {
+			return Consume(type, "expected: "+ Enum.GetName(typeof(TokenType), type));
+		}
+
+		private Token Consume(TokenType type, string err) {
 			if(tokens.Count == 0)
-				throw new Exception("Expected "+ Enum.GetName(typeof(TokenType), type));
+				throw new Exception("reached unexpected end of expression, was expecting: "+ Enum.GetName(typeof(TokenType), type));
 
 			Token t = tokens.Dequeue();
 			if(t.type != type)
-				throw new Exception("Expected "+ Enum.GetName(typeof(TokenType), type));
+				throw new Exception(t.pos + err);
 
 			return t;
 		}
@@ -699,15 +712,19 @@ namespace Kerbulator {
 			}
 
 			// Consume left brace
-			Consume();
+			Token t = Consume();
 
 			List<Expression> elements = new List<Expression>();
 			while(tokens.Peek().val != "]") {
+				t = tokens.Peek();
 				Kerbulator.DebugLine("Starting subexpression");
 				Expression subexpr = ParseExpression();
 				Kerbulator.DebugLine("End of subexpression");
 				elements.Add(subexpr);
 				
+				if(tokens.Count == 0)
+					throw new Exception(t.pos +"missing closing ']'");
+
 				if(tokens.Peek().val != "]")
 					Consume(TokenType.COMMA);
 			}
@@ -716,7 +733,7 @@ namespace Kerbulator {
 			Consume();
 
 			if(elements.Count == 0)
-				throw new VarException("Empty lists are not allowed.");
+				throw new VarException(t.pos +"Empty lists are not allowed.");
 
 			expr.Push( Expression.NewArrayInit(typeof(Object), elements) );
 			return false;
@@ -782,7 +799,7 @@ namespace Kerbulator {
 				// Local identifier
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, but function doesn't exist
-					throw new Exception("In function "+ this.id +": function "+ t.val +" does not exist");
+					throw new Exception(t.pos +"function "+ t.val +" does not exist");
 				}
 
 				expr.Push(
@@ -801,11 +818,13 @@ namespace Kerbulator {
 			Consume("(");
 
 			while(tokens.Peek().val != ")") {
+				Token t = tokens.Peek();
+
 				Expression subexpr = ParseExpression();
 				arguments.Add(subexpr);
 				
 				if(tokens.Count == 0)
-					throw new Exception("In function "+ this.id +": missing ')'");
+					throw new Exception(t.pos +"missing closing ')'");
 
 				if(tokens.Peek().val != ")")
 					Consume(TokenType.COMMA);
