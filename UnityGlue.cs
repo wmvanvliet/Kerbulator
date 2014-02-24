@@ -25,7 +25,7 @@ namespace Kerbulator {
 		public void AddGlobals(Kerbulator kalc) {
 		}
 
-		public void PlaceNode(List<Variable> output) {
+		public void PlaceNode(List<string> ids, List<System.Object> output) {
 		}
 
 		public Texture2D GetTexture(string id) {

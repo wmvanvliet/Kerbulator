@@ -23,11 +23,7 @@ namespace Kerbulator {
 		private Dictionary<string, BuildInFunction> buildInFunctions;
 		private Dictionary<string, JITFunction> functions;
 
-		private string functionDir;
-
 		public Kerbulator(string functionDir) {
-			this.functionDir = functionDir;
-
 			operators = new Dictionary<string, Operator>();
 			operators.Add("=", new Operator("=", 1, Arity.BINARY)); // Assignment
 			operators.Add("-", new Operator("-", 1, Arity.BOTH)); // Substraction or negation
@@ -133,7 +129,7 @@ namespace Kerbulator {
 			return f();
 		}
 		
-		private static string FormatVar(Object var) {
+		public static string FormatVar(Object var) {
 			if(var.GetType() == typeof(Object[])) {
 				Object[] list = (Object[]) var;
 				string result = "[";
@@ -146,7 +142,7 @@ namespace Kerbulator {
 			}
 		}
 
-		private static string FormatResult(JITFunction f, List<Object> result) {
+		public static string FormatResult(JITFunction f, List<Object> result) {
 			string str = "";
 			for(int i=0; i<result.Count-1; i++)
 				str += f.Outs[i] +" = "+ FormatVar(result[i]) +", ";

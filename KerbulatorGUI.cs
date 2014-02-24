@@ -7,7 +7,7 @@ namespace Kerbulator {
 	/// <summary>Glue code to smooth over differences when plugin is loaded in
 	/// the Unity editor versus when it is loaded in the actual game.</summary>
 	public interface IGlue {
-		void PlaceNode(List<Variable> output);
+		void PlaceNode(List<string> ids, List<System.Object> output);
 		void AddGlobals(Kerbulator kalc);
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
@@ -196,7 +196,7 @@ namespace Kerbulator {
 					runWindowEnabled = true;
 
 					// Run it
-					List<Variable> output = Run();
+					List<System.Object> output = Run();
 					functionOutput = FormatOutput(runFunction, output);
 				}
 
@@ -270,7 +270,7 @@ namespace Kerbulator {
 				runWindowEnabled = true;
 
 				// Run it
-				List<Variable> output = Run();
+				List<System.Object> output = Run();
 				functionOutput = FormatOutput(runFunction, output);
 			}
 
@@ -344,13 +344,13 @@ namespace Kerbulator {
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
-					List<Variable> output = Run();
+					List<System.Object> output = Run();
 					functionOutput = FormatOutput(runFunction, output);
 				}
 				
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
-					List<Variable> output = Run();
-					glue.PlaceNode(output);
+					List<System.Object> output = Run();
+					glue.PlaceNode(runFunction.Outs, output);
 					functionOutput = FormatOutput(runFunction, output);
 				}
 
@@ -366,7 +366,7 @@ namespace Kerbulator {
 
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
-		public List<Variable> Run() {
+		public List<System.Object> Run() {
 			if(runFunction == editFunction)
 				Save();
 
@@ -458,13 +458,14 @@ namespace Kerbulator {
 		/// <summary>Provide a string representation of the output resulting from executing a function.</summary>
 		/// <param name="f">The function that was executed</param>
 		/// <param name="output">The variables resuting from the execution</param>
-		public string FormatOutput(JITFunction f, List<Variable> output) {
+		public string FormatOutput(JITFunction f, List<System.Object> output) {
 			string desc = "Outputs:\n";
 			if(output.Count == 0) {
 				desc += "None.";
 			} else {
-				foreach(Variable v in output)
-					desc += v.id +" = "+ v.ToString() +"\n";
+				for(int i=0; i<output.Count; i++) {
+					desc += f.Outs[i]+" = "+ Kerbulator.FormatVar(output[i]) +"\n";
+				}
 			}
 
 			if(f.InError)

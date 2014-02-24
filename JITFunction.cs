@@ -817,8 +817,6 @@ namespace Kerbulator {
 		}
 
 		private Expression ParseBuildInFunction(BuildInFunction func, List<Expression> arguments) {
-			Expression<UnaryFunction> unaryFunction;
-			Expression<BinaryFunction> binaryFunction;
 			Expression funcExpression;
 
 			switch(func.id) {

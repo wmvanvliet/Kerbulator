@@ -44,20 +44,25 @@ namespace Kerbulator {
 		public void AddGlobals(Kerbulator kalc) {
 			Globals.Add(kalc); // UNITY
 		}
-		public void PlaceNode(List<Variable> output) { 
+		public void PlaceNode(List<string> ids, List<System.Object> output) { 
 			double dr = 0, dn = 0, dp = 0;
 			double UT = 0;
 
 			// Look at the resulting variables and create a maneuver node with them
-			foreach(Variable var in output) {
-				if(var.id == "Δv_r" || var.id == "dv_r")
-					dr = var.val;
-				else if(var.id == "Δv_n" || var.id == "dv_n")
-					dn = var.val;
-				else if(var.id == "Δv_p" || var.id == "dv_p")
-					dp = var.val;
-				else if(var.id == "Δt" || var.id == "dt")
-					UT = var.val + Planetarium.GetUniversalTime();
+			for(int i=0; i<ids.Count; i++) {
+				if(output[i].GetType() != typeof(double))
+					continue;
+
+				string id = ids[i];
+				double val = (double) output[i];
+				if(id == "Δv_r" || id == "dv_r")
+					dr = val;
+				else if(id == "Δv_n" || id == "dv_n")
+					dn = val;
+				else if(id == "Δv_p" || id == "dv_p")
+					dp = val;
+				else if(id == "Δt" || id == "dt")
+					UT = val + Planetarium.GetUniversalTime();
 			}
 
 			Vector3d dV = new Vector3d(dr, -dn, dp);
