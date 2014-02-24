@@ -83,10 +83,6 @@ namespace Kerbulator {
 			set { errorString = (string)value; Kerbulator.DebugLine(value); inError = true; }
 		}
 
-		virtual public List<Object> Execute() {
-			return Execute(new List<Object>());
-		}
-
 		public static JITFunction FromFile(string filename, Kerbulator kalc) {
 			StreamReader file = File.OpenText(filename);
             string contents = file.ReadToEnd();
@@ -112,6 +108,10 @@ namespace Kerbulator {
 			}
 
 			return functions;
+		}
+
+		virtual public List<Object> Execute() {
+			return Execute(new List<Object>());
 		}
 
 		public List<Object> Execute(List<Object> arguments) {
@@ -190,7 +190,9 @@ namespace Kerbulator {
 			// Parse all other statements
 			List<Expression> statements = new List<Expression>();
 			while(tokens.Count > 0) {
-				statements.Add( ParseStatement() );
+				Expression statement = ParseStatement();
+				if(statement != null)
+					statements.Add(statement);
 				Consume(TokenType.END);
 			}
 			
@@ -597,14 +599,15 @@ namespace Kerbulator {
 					break;
 				case "|":
 					b = expr.Pop();
-					if(b.GetType() == typeof(double))
-						opExpression = CallUnaryMathFunction(op.id, "Abs", b);
-					else
-						opExpression = Expression.Call(
+					opExpression = Expression.Condition(
+						Expression.TypeIs(b, typeof(double)),
+						CallUnaryMathFunction(op.id, "Abs", b),
+						Expression.Call(
 							typeof(VectorMath).GetMethod("Mag"),
 							b,
 							Expression.Constant("In function "+ this.id)
-						);
+						)
+					);
 					break;
 
 				case "buildin-function":
@@ -616,10 +619,12 @@ namespace Kerbulator {
 
 				case "user-function":
 					List<Expression> args2 = new List<Expression>();
-					args2.Add(Expression.Convert(expr.Pop(), typeof(double)));
-					a = Expression.Convert(expr.Pop(), typeof(double));
-					throw new Exception("User functions not implemented yet.");
-					// return ParseUserFunction(functions[(string)((ConstantExpression)a).Value], args2);
+					args2.Add(expr.Pop());
+					a = expr.Pop();
+					return ParseUserFunction(
+						kalc.Functions[(string)((ConstantExpression)a).Value],
+						args2
+					);
 
 				default:
 					throw new Exception("Unknown operator: "+ op.id);
@@ -719,13 +724,13 @@ namespace Kerbulator {
 
 		public Object GetLocal(string id) {
 			if(!locals.ContainsKey(id))
-				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
+				throw new Exception("In function "+ this.id +": variable or function '"+ id +"' is not defined.");
 			return locals[id];
 		}
 
 		public Object GetGlobal(string id) {
 			if(!kalc.Globals.ContainsKey(id))
-				throw new Exception("In function "+ this.id +": variable "+ id +" is not defined.");
+			throw new Exception("In function "+ this.id +": variable '"+ id +"' is not defined.");
 			return kalc.Globals[id];
 		}
 
@@ -738,25 +743,21 @@ namespace Kerbulator {
 
 			if(kalc.Functions.ContainsKey(t.val)) {
 				// User function call
-				Console.WriteLine("User function, not implemented yet");
-
-				/*
 				JITFunction f = kalc.Functions[t.val];
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, execute function now
 					List<Expression> args = ParseArgumentList();
 					if(args.Count != f.Ins.Count)
 						throw new Exception(t.pos + "function "+ f.Id +" takes "+ f.Ins.Count +" arguments, but "+ args.Count +" were supplied");
-					// expr.Push( ParseUserFunction(f, args) );
+					expr.Push( ParseUserFunction(f, args) );
 				} else if(f.Ins.Count == 0) {
 					// Function takes no arguments, execute now
-					// expr.Push( ParseUserFunction(f, new List<Expression>()) );
+					expr.Push( ParseUserFunction(f, new List<Expression>()) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["user-function"]);
 					expr.Push(Expression.Constant(t.val));
 				}
-				*/
 
 			} else if(kalc.BuildInFunctions.ContainsKey(t.val)) {
 				BuildInFunction f = kalc.BuildInFunctions[t.val];
@@ -779,6 +780,11 @@ namespace Kerbulator {
 				expr.Push(Expression.Constant( kalc.Globals[t.val], typeof(Object) ));
 			} else {
 				// Local identifier
+				if(tokens.Count > 0 && tokens.Peek().val == "(") {
+					// Parameter list supplied, but function doesn't exist
+					throw new Exception("In function "+ this.id +": function "+ t.val +" does not exist");
+				}
+
 				expr.Push(
 					Expression.Call(
 						thisExpression,
@@ -875,21 +881,21 @@ namespace Kerbulator {
 					funcExpression = Expression.Call(
 						typeof(VectorMath).GetMethod("Len"),
 						arguments[0],
-						Expression.Constant("In function "+ this.id)
+						Expression.Constant("In function "+ this.id +": ")
 					);
 					break;
 				case "dot":
 					funcExpression = Expression.Call(
 						typeof(VectorMath).GetMethod("Dot"),
 						arguments[0], arguments[1],
-						Expression.Constant("In function "+ this.id)
+						Expression.Constant("In function "+ this.id +": ")
 					);
 					break;
 				case "mag":
 					funcExpression = Expression.Call(
 						typeof(VectorMath).GetMethod("Mag"),
 						arguments[0],
-						Expression.Constant("In function "+ this.id)
+						Expression.Constant("In function "+ this.id +": ")
 					);
 					break;
 				case "norm":
@@ -913,15 +919,21 @@ namespace Kerbulator {
 			return Expression.Convert(funcExpression, typeof(Object));
 		}
 
-		/*
-		private Expression ParseUserFunction(JITFunction func, List<Expression> arguments) {
+		private Expression ParseUserFunction(JITFunction func, List<Expression> args) {
 			return Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteUserFunction"),
 				Expression.Constant(func),
-				typeof(JITFunction).GetMethod("Execute"),
-				arguments
+				Expression.NewArrayInit(
+					typeof(Object),
+					args
+				)
 			);
 		}
-		*/
+
+		public Object ExecuteUserFunction(JITFunction func, Object[] args) {
+			return func.Execute(new List<Object>(args)).ToArray();
+		}
 	}
 
 	public class JITExpression: JITFunction {

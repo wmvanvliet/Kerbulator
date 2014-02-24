@@ -13,13 +13,13 @@ c = -2 # Test negative number
 c = -10.234 # Test negative floating point number
 c = -.234 # Test negative floating point number without leading 0
 c = -.234E-06 # Test scientific notation
-
+ 
 d = √2 # Test unary operators
 d = -2
 d = -√2 # Test chaining of unary operators
 d = --√2 # Test chaining of unary operators
 d = -√2 * -√2
-
+ 
 e = (1+1) * (2+2) # Test simple brackets
 e = {1+1} * {2+2} # Test other brackets
 e = {(1+1) * (2+2)} / {(1+1) * (2+2)} # Test mixing brackets
@@ -60,21 +60,21 @@ k = somefunc(a+b) # Test user function call with expression
 k = somefunc2(somefunc(a+b), somefunc(a+b)) # Test user function call with argument list that contains expressions
 k = somefunc [1,2,3] # Test user function call with list
 k = somefunc2([1,2,3], [4,5,6]) # Test user function call with list
-
+ 
 l = somefunc3() # Test function generating a list
 l = abs(somefunc3())
-
+ 
 # Test calling function without any arguments
 m = somefunc4
 m = 1 + somefunc4
 m = somefunc4()
 m = somefunc4 + 1
 m = √(|-somefunc4| + 1)
-
+ 
 # Test functions operating on lists
 n = norm([1,2,3])
 n = cross(norm([1,2,3]), norm([1,2,1]))
-
+ 
 # Test operators on lists
 o = [1,2,3] + [1,2,3]
 o = 1 + [1,2,3]
@@ -108,4 +108,3 @@ a.b = 1.0
 
 out1 = a # Test simple output
 out2 = [a, [1,2,3]] # Test list output
-
