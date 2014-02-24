@@ -97,7 +97,7 @@ namespace Kerbulator {
 			} catch(Exception e) {
 				f.inError = true;
 				f.errorString = e.Message;
-				throw e;
+				//throw e;
 			}
 			return f;
 		}
@@ -175,9 +175,10 @@ namespace Kerbulator {
 				Consume();
 				Token id = Consume(TokenType.IDENTIFIER);
 
-				if(tokens.Peek().type == TokenType.TEXT) {
+				if(tokens.Peek().type == TokenType.TEXT)
 					outDescriptions.Add( tokens.Dequeue().val );
-				}
+				else
+					outDescriptions.Add("");
 
 				Consume(TokenType.END);
 				outs.Add(id.val);
@@ -215,6 +216,21 @@ namespace Kerbulator {
 			return val;
 		}
 
+		public Object UnpackList(Object result, List<string> ids) {
+			if(result.GetType() != typeof(Object[]))
+				throw new Exception("In function "+ this.id +": expression needed to yield "+ ids.Count +" values, but yielded only 1");
+
+			Object[] list = (Object[]) result;
+
+			if(ids.Count != list.Length)
+				throw new Exception("In function "+ this.id +": expression needed to yield "+ ids.Count +" values, but yielded only "+ list.Length);	
+			
+			for(int i=0; i<list.Length; i++)
+				SetLocal(ids[i], list[i]);
+
+			return list;
+		}
+
 		public Expression ParseStatement() {
 			if(tokens.Peek().type == TokenType.END)
 				return null;
@@ -233,16 +249,29 @@ namespace Kerbulator {
 			Consume("=");
 			Expression expr = ParseExpression();
 
+			// If the function has no outputs specified, use the result
+			// of the last statement as output
+			if(outs.Count == 0) {
+				outs = ids;
+				outDescriptions = new List<string>(outs.Count);
+				for(int i=0; i<outs.Count; i++)
+					outDescriptions.Add("");
+			}
+
 			if(ids.Count == 1) {
 				return Expression.Call(
 					thisExpression,
 					typeof(JITFunction).GetMethod("SetLocal"),
 					Expression.Constant(ids[0]),
 					expr
-					//Expression.Convert(expr, typeof(Object))
 				);
 			} else {
-				throw new Exception("Not implemented.");
+				return Expression.Call(
+					thisExpression,
+					typeof(JITFunction).GetMethod("UnpackList"),
+					expr,
+					Expression.Constant(ids)
+				);
 			}
 		}
 
@@ -390,6 +419,112 @@ namespace Kerbulator {
 			ops.Push(op);
 		}
 
+		public delegate double UnaryFunction(double a); 
+		public delegate double BinaryFunction(double a, double b); 
+
+		public Object ExecuteUnaryFunction(string id, UnaryFunction action, Object a) {
+			// Called with a double
+			if(a.GetType() == typeof(double))
+				return action((double)a);
+
+			// Called with a list
+			else if(a.GetType() == typeof(Object[])) {
+				Object[] list = (Object[]) a;
+				Object[] newList = new Object[list.Length];
+				for(int i=0; i<list.Length; i++)
+					newList[i] = ExecuteUnaryFunction(id, action, list[i]);
+				return newList;
+
+			// Called with something else
+			} else
+				throw new Exception("In function "+ this.id +": cannot apply "+ id +" to variable of type "+ a.GetType().ToString());
+		}
+
+		public Object ExecuteBinaryFunction(string id, BinaryFunction action, Object a, Object b) {
+			// Called with two doubles
+			if(a.GetType() == typeof(double) && b.GetType() == typeof(double))
+				return action((double)a, (double)b);
+
+			// Called with a list and a double
+			else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(double)) {
+				Object[] list = (Object[]) a;
+				Object[] newList = new Object[list.Length];
+				for(int i=0; i<list.Length; i++)
+					newList[i] = ExecuteBinaryFunction(id, action, list[i], b);
+				return newList;
+
+			// Called with a double and a list
+			} else if(a.GetType() == typeof(double) && b.GetType() == typeof(Object[])) {
+				Object[] list = (Object[]) b;
+				Object[] newList = new Object[list.Length];
+				for(int i=0; i<list.Length; i++)
+					newList[i] = ExecuteBinaryFunction(id, action, a, list[i]);
+				return newList;
+
+			// Called with two lists
+			} else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(Object[])) {
+				Object[] listA = (Object[]) a;
+				Object[] listB = (Object[]) b;
+				if(listA.Length != listB.Length)
+					throw new Exception("In function "+ this.id +": cannot apply "+ id +" to lists of different length (got "+ listA.Length +" and "+ listB.Length +")");
+				Object[] newList = new Object[listA.Length];
+				for(int i=0; i<listA.Length; i++)
+					newList[i] = ExecuteBinaryFunction(id, action, listA[i], listB[i]);
+				return newList;
+
+			// Called with something else
+			} else
+				throw new Exception("In function "+ this.id +": cannot apply "+ id +" to variables of type "+ a.GetType().ToString() +" and "+ b.GetType().ToString());
+		}
+
+		private Expression CallUnaryLambda(string id, Expression<UnaryFunction> e, Expression a) {
+			return Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteUnaryFunction"),
+				Expression.Constant(id),
+				e, a
+			);
+		}
+
+		private Expression CallBinaryLambda(string id, Expression<BinaryFunction> e, Expression a, Expression b) {
+			return Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteBinaryFunction"),
+				Expression.Constant(id),
+				e, a, b
+			);
+		}
+
+		private Expression CallUnaryMathFunction(string id, string name, Expression a) {
+			return Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteUnaryFunction"),
+				Expression.Constant(id),
+				Expression.Constant(
+					Delegate.CreateDelegate(
+						typeof(UnaryFunction),
+						typeof(Math).GetMethod(name, new[] {typeof(double)})
+					)
+				),
+				a
+			);
+		}
+
+		private Expression CallBinaryMathFunction(string id, string name, Expression a, Expression b) {
+			return Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteBinaryFunction"),
+				Expression.Constant(id),
+				Expression.Constant(
+					Delegate.CreateDelegate(
+						typeof(BinaryFunction),
+						typeof(Math).GetMethod(name, new[] {typeof(double), typeof(double)})
+					)
+				),
+				a, b
+			);
+		}
+
 		private Expression ExecuteOperator(Operator op, Stack<Expression> expr, Stack<Operator> ops) {
 			Kerbulator.DebugLine("Executing: "+ op.id);
 			if(op.arity == Arity.BINARY && expr.Count < 2)
@@ -403,72 +538,66 @@ namespace Kerbulator {
 			Expression opExpression;
 			switch(op.id) {
 				case "+":
-					b = Expression.Convert(expr.Pop(), typeof(double));
-					a = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Add(a, b);
+					b = expr.Pop();
+					a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => x + y, a, b);
 					break;
 				case "-":
-					b = Expression.Convert(expr.Pop(), typeof(double));
+					b = expr.Pop();
 					if(op.arity == Arity.UNARY) 
-						opExpression = Expression.Negate(b);
+						opExpression = CallUnaryLambda(op.id, x => -x, b);
 					else {
-						a = Expression.Convert(expr.Pop(), typeof(double));
-						opExpression = Expression.Subtract(a, b);
+						a = expr.Pop();
+						opExpression = CallBinaryLambda(op.id, (x,y)=> x-y, a, b);
 					}
 					break;
 				case "*":
 				case "·":
-					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Multiply(a, b);
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => x * y, a, b);
 					break;
 				case "/":
 				case "÷":
-					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Divide(a, b);
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => x / y, a, b);
 					break;
 				case "%":
-					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Modulo(a, b);
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => x % y, a, b);
 					break;
 				case "^":
-					b = Expression.Convert(expr.Pop(), typeof(double)); a = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Power(a, b);
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryMathFunction(op.id, "Pow", a, b);
 					break;
 				case "√":
-					b = Expression.Convert(expr.Pop(), typeof(double));
-					if(op.arity == Arity.UNARY) {
-						opExpression = Expression.Call(
-							typeof(Math).GetMethod("Sqrt"),
-						   	b
-						);
-					} else {
-						a = Expression.Convert(expr.Pop(), typeof(double));
-						opExpression = Expression.Power(
+					b = expr.Pop();
+					if(op.arity == Arity.UNARY)
+						opExpression = CallUnaryMathFunction(op.id, "Sqrt", b);
+					else {
+						a = expr.Pop();
+						opExpression = CallBinaryMathFunction(op.id, "Pow",
 							a,
-							Expression.Divide(Expression.Constant(1.0), b)
+							Expression.Convert(
+								Expression.Divide(
+									Expression.Constant(1.0),
+									Expression.Convert(b, typeof(double))
+								),
+								typeof(Object)
+							)
 						);
 					}
 					break;
 				case "⌊":
-					b = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Call(
-						typeof(Math).GetMethod("Floor", new[] {typeof(double)}),
-						b
-					);
+					b = expr.Pop();
+					opExpression = CallUnaryMathFunction(op.id, "Floor", b);
 					break;
 				case "⌈":
-					b = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Call(
-						typeof(Math).GetMethod("Ceiling", new[] {typeof(double)}),
-						b
-					);
+					b = expr.Pop();
+					opExpression = CallUnaryMathFunction(op.id, "Ceiling", b);
 					break;
 				case "|":
-					b = Expression.Convert(expr.Pop(), typeof(double));
-					opExpression = Expression.Call(
-						typeof(Math).GetMethod("Abs", new[] {typeof(double)}),
-						b
-					);
+					b = expr.Pop();
+					opExpression = CallUnaryMathFunction(op.id, "Abs", b);
 					break;
 
 				case "buildin-function":
@@ -578,7 +707,7 @@ namespace Kerbulator {
 				throw new VarException("Empty lists are not allowed.");
 
 			expr.Push( Expression.NewArrayInit(typeof(Object), elements) );
-			return true;
+			return false;
 		}
 
 		public Object GetLocal(string id) {
@@ -671,148 +800,125 @@ namespace Kerbulator {
 			return arguments;
 		}
 
+		public Object ListLen(Object a) {
+			if(a.GetType() != typeof(Object[]))
+				throw new Exception("In function "+ this.id +": function len() can only be called with a list as argument");
+
+			return (Object) ((Object[]) a).Length;
+		}
+
+		public Object ListDot(Object a, Object b) {
+			if(a.GetType() == typeof(double) && a.GetType() == typeof(double))
+				return (Object) ( (double) a * (double) b );
+			else if(a.GetType() == typeof(double) && b.GetType() == typeof(Object[])) {
+				return ExecuteBinaryFunction("*", (x,y) => x * y, a, b);
+			} else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(double))
+				return ExecuteBinaryFunction("*", (x,y) => x * y, a, b);
+			else if(a.GetType() == typeof(Object[]) && b.GetType() == typeof(Object[])) {
+				Object[] listA = (Object[]) a;
+				Object[] listB = (Object[]) b;
+
+				if(listA.Length != listB.Length)
+					throw new Exception("In function dot(): lists must be of equal length (called by "+ this.id +")");
+
+				Object res = 0;
+				for(int i=0; i<listA.Length; i++) {
+					ExecuteBinaryFunction(
+						"+",
+						(x,y) => x+y,
+						res,
+						ExecuteBinaryFunction(
+							"*",
+							(x,y) => x*y,
+							listA[i], listB[i]
+						)
+					);
+				}
+				return res;
+			} else
+				throw new Exception("In function "+ this.id +": called function dot() with invalid arguments");
+		}
+
 		private Expression ParseBuildInFunction(BuildInFunction func, List<Expression> arguments) {
-			Expression<Func<Object, Object>> unaryExpression;
-			Expression<Func<Object, Object, Object>> binaryExpression;
+			Expression<UnaryFunction> unaryFunction;
+			Expression<BinaryFunction> binaryFunction;
 			Expression funcExpression;
 
 			switch(func.id) {
 				case "abs":
-					unaryExpression = num => ApplyUnaryFunction(num, Math.Abs);
-					funcExpression = Expression.Invoke(unaryExpression, arguments[0]);
+					funcExpression = CallUnaryMathFunction(func.id, "Abs", arguments[0]);
 					break;
 				case "acos":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Acos", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Acos", arguments[0]);
 					break;
 				case "asin":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Asin", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Asin", arguments[0]);
 					break;
 				case "atan":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Atan", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Atan", arguments[0]);
 					break;
 				case "ceil":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Ceiling", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Ceiling", arguments[0]);
 					break;
 				case "cos":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Cos", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Cos", arguments[0]);
 					break;
 				case "exp":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Exp", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Exp", arguments[0]);
 					break;
 				case "floor":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Floor", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Floor", arguments[0]);
 					break;
-
 				case "ln":
 				case "log":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Log", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Log", arguments[0]);
 					break;
-
 				case "log10":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Log10", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Log10", arguments[0]);
 					break;
-
 				case "max":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Max", new[] {typeof(double), typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
-					);
+					funcExpression = CallBinaryMathFunction(func.id, "Max", arguments[0], arguments[1]);
 					break;
-
 				case "min":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Min", new[] {typeof(double), typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
-					);
+					funcExpression = CallBinaryMathFunction(func.id, "Min", arguments[0], arguments[1]);
 					break;
-
 				case "pow":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Pow", new[] {typeof(double), typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(arguments[1], typeof(double))
-					);
+						funcExpression = CallBinaryMathFunction(func.id, "Pow", arguments[0], arguments[1]);
 					break;
-
 				case "round":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Round", new[] {typeof(double), typeof(int)}),
-						Expression.Convert(arguments[0], typeof(double)), Expression.Convert(Expression.Convert(arguments[1], typeof(double)), typeof(int))
-					);
+					funcExpression = CallBinaryLambda(func.id, (a,b) => Math.Round(a, (int)b), arguments[0], arguments[1]);
 					break;
-
 				case "sign":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Sign", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryLambda(func.id, a => (int)Math.Sign(a), arguments[0]);
 					break;
-
 				case "sin":
-					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Sin", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
-					);
+					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0]);
 					break;
-
 				case "sqrt":
+					funcExpression = CallUnaryMathFunction(func.id, "Sqrt", arguments[0]);
+					break;
+				case "tan":
+					funcExpression = CallUnaryMathFunction(func.id, "Tan", arguments[0]);
+					break;
+				case "len":
 					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Sqrt", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
+						thisExpression,
+						typeof(JITFunction).GetMethod("ListLen"),
+						arguments[0]
 					);
 					break;
-
-				case "tan":
+				case "dot":
 					funcExpression = Expression.Call(
-						typeof(Math).GetMethod("Tan", new[] {typeof(double)}),
-						Expression.Convert(arguments[0], typeof(double))
+						thisExpression,
+						typeof(JITFunction).GetMethod("ListDot"),
+						arguments[0], arguments[1]
 					);
 					break;
 				default:
 					throw new Exception("Unknown build-in function: "+ func.id);
-
 			}
 
 			return Expression.Convert(funcExpression, typeof(Object));
-		}
-
-		public delegate double UnaryFunction(double x); 
-		public delegate double BinaryFunction(double x, double y); 
-
-		private Object ApplyUnaryFunction(Object par, UnaryFunction action) {
-			if(par.GetType() == typeof(double))
-				return action((double)par);
-			else if(par.GetType() == typeof(Array)) {
-				return 2.0;	
-			} else {
-				return 3.0;
-			}
 		}
 
 		/*

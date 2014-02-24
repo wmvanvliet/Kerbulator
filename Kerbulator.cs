@@ -79,7 +79,7 @@ namespace Kerbulator {
 			globals.Add("G", 6.67384E-11);
 
 			functions = new Dictionary<string, JITFunction>();
-			//functions = JITFunction.Scan(functionDir, functions, this);
+			functions = JITFunction.Scan(functionDir, functions, this);
 		}
 
 		public Dictionary<string, Object> Globals {
@@ -101,9 +101,9 @@ namespace Kerbulator {
 			protected set { }
 		}
 
-		public List<Object> Run(string functionId) {
+		public string Run(string functionId) {
 			if(!functions.ContainsKey(functionId))
-				throw new Exception("JITFunction not found: "+ functionId);
+				throw new Exception("Function not found: "+ functionId);
 
 			JITFunction f = functions[functionId];
 			if(f.InError) {
@@ -115,11 +115,11 @@ namespace Kerbulator {
 			if(f.InError)
 				throw new Exception(f.ErrorString);
 
-			return r;
+			return FormatResult(f, r);
 		}
 
-		public Object Run(JITFunction f) {
-			Object r = f.Execute(new List<Object>());
+		public List<Object> Run(JITFunction f) {
+			List<Object> r = f.Execute(new List<Object>());
 			if(f.InError)
 				throw new Exception(f.ErrorString);
 			return r;
@@ -130,6 +130,27 @@ namespace Kerbulator {
 			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(func.ParseExpression());
 			Func<Object> f = e.Compile();
 			return f();
+		}
+		
+		private static string FormatVar(Object var) {
+			if(var.GetType() == typeof(Object[])) {
+				Object[] list = (Object[]) var;
+				string result = "[";
+				for(int i=0; i<list.Length-1; i++)
+					result += FormatVar(list[i]) + ", ";
+				result += FormatVar(list[list.Length-1]) + "]";
+				return result;
+			} else {
+				return var.ToString();
+			}
+		}
+
+		private static string FormatResult(JITFunction f, List<Object> result) {
+			string str = "";
+			for(int i=0; i<result.Count-1; i++)
+				str += f.Outs[i] +" = "+ FormatVar(result[i]) +", ";
+			str += f.Outs[result.Count-1] +" = "+ FormatVar(result[result.Count-1]);
+			return str;
 		}
 
 		public static void Main(string[] args) {
@@ -155,7 +176,7 @@ namespace Kerbulator {
 					string expectedResult = parts[1].Trim();
 
 					try {
-						string r = k.RunExpression(expression).ToString();
+						string r = FormatVar( k.RunExpression(expression) );
 						if(r.Equals(expectedResult))
 							Console.WriteLine(expression +" = "+ r +" [PASS]");
 						else
@@ -170,12 +191,7 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
-				List<Object> result;
-				result = k.Run(filename);
-
-				foreach(Object v in result)
-					Console.Write(v.ToString() +", ");
-				Console.WriteLine("\n");
+				Console.WriteLine(k.Run(filename), "\n");
 			}
 		}
 	}
