@@ -76,7 +76,7 @@ namespace Kerbulator {
 			globals.Add("G", 6.67384E-11);
 
 			functions = new Dictionary<string, JITFunction>();
-			functions = JITFunction.Scan(functionDir, functions, this);
+			JITFunction.Scan(functionDir, this);
 		}
 
 		public Dictionary<string, Object> Globals {

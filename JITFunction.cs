@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Kerbulator {
 	public class JITFunction {
 		private string id;
-		private Dictionary<string, Object> locals = null;
+		private Dictionary<string, System.Object> locals = null;
 		private Kerbulator kalc;
 		private Queue<Token> tokens;
 
@@ -23,6 +23,7 @@ namespace Kerbulator {
 		private string errorString = "";
 
 		private Func<Object> compiledFunction = null;
+		private static DateTime lastScan = new DateTime(0);
 
 		public JITFunction(string id, string expression, Kerbulator kalc) { 
 			this.id = id;
@@ -85,7 +86,7 @@ namespace Kerbulator {
 
 		public static JITFunction FromFile(string filename, Kerbulator kalc) {
 			StreamReader file = File.OpenText(filename);
-            string contents = file.ReadToEnd();
+            string contents = file.ReadToEnd() + "\n";
             file.Close();
 			JITFunction f = new JITFunction(Path.GetFileNameWithoutExtension(filename), contents, kalc);
 			try {
@@ -98,16 +99,61 @@ namespace Kerbulator {
 			return f;
 		}
 
-		public static Dictionary<string, JITFunction> Scan(string dir, Dictionary<string, JITFunction> functions, Kerbulator kalc) {
-			foreach(string filename in Directory.GetFiles(dir, "*.math")) {
-				JITFunction f = FromFile(filename, kalc);
-				if( functions.ContainsKey(f.Id) )
-					functions[f.Id] = f;
-				else
-					functions.Add(f.Id, f);
+		public static void Scan(string dir, Kerbulator kalc) {
+			// This function is called pretty often, so I went through some lengths to ensure that only new or updated functions are compiled.
+			
+			List<string> files = new List<string>(Directory.GetFiles(dir, "*.math"));
+			List<string> compiledFunctions = new List<string>(kalc.Functions.Keys);
+
+			files.Sort();
+			compiledFunctions.Sort();
+
+			int i=0;
+			int j=0;
+
+			while(i < files.Count || j < compiledFunctions.Count) {
+				UnityEngine.Debug.Log(i +"<"+ files.Count +" and "+ j +"<"+ compiledFunctions.Count);
+
+				if(i >= files.Count) {
+					// Deleted function
+					kalc.Functions.Remove(compiledFunctions[j]);
+					j++;
+				}
+
+				else if(j >= compiledFunctions.Count) {
+					// Added function
+					JITFunction f = FromFile(files[i], kalc);
+					kalc.Functions[f.Id] = f;
+					i++;
+				}
+
+				else if(string.Compare(files[i], compiledFunctions[j]) == 1) {
+					// Deleted function
+					kalc.Functions.Remove(compiledFunctions[j]);
+					i++;
+				}
+
+				else if(string.Compare(files[i], compiledFunctions[j]) == -1) {
+					// Added function
+					JITFunction f = FromFile(files[i], kalc);
+					kalc.Functions[f.Id] = f;
+					j++;
+				}
+
+				else {
+					// Function already exists
+					// Recompile only if file is newer
+					DateTime dt = File.GetLastWriteTime(files[i]);
+					if(lastScan == null || dt > lastScan) {
+						JITFunction f = FromFile(files[i], kalc);
+						kalc.Functions[f.Id] = f;
+					}
+
+					i++; j++;
+				}
 			}
 
-			return functions;
+			lastScan = DateTime.Now;
 		}
 
 		virtual public List<Object> Execute() {
@@ -406,6 +452,10 @@ namespace Kerbulator {
 
 		private void ParseOperator(Stack<Expression>expr, Stack<Operator>ops) {
 			Token t = tokens.Dequeue();
+
+			if(!kalc.Operators.ContainsKey(t.val))
+				throw new Exception(t.pos +" unknown operator: "+ t.val);
+
 			Operator op = kalc.Operators[t.val];
 
 			// Handle ambiguous cases of arity

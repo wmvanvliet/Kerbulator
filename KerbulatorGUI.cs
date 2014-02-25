@@ -57,7 +57,7 @@ namespace Kerbulator {
 		private bool runWindowEnabled = false;
 
 		// Dictionary containing all available functions
-		Dictionary<string, JITFunction> functions;
+		Dictionary<string, JITFunction> functions = new Dictionary<string, JITFunction>();
 		string functionDir = "";
 
 		// Math symbols
@@ -116,9 +116,8 @@ namespace Kerbulator {
 			saveIcon = glue.GetTexture("save");
 			deleteIcon = glue.GetTexture("delete");
 
-			Scan();
-
 			kalc = new Kerbulator(functionDir);
+			Scan();
 		}
 
         public void ChangeState(bool open) {
@@ -171,7 +170,7 @@ namespace Kerbulator {
 
 			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(300));
 
-			foreach(KeyValuePair<string, JITFunction> f in functions) {
+			foreach(KeyValuePair<string, JITFunction> f in kalc.Functions) {
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(f.Key, GUILayout.Height(24))) { 
@@ -257,7 +256,7 @@ namespace Kerbulator {
 				Save();
 
 				if(editFunction == null)
-					editFunction = functions[editFunctionName];
+					editFunction = kalc.Functions[editFunctionName];
 			}
 
 			if(GUILayout.Button(runIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
@@ -378,7 +377,6 @@ namespace Kerbulator {
 		public void Save() {
 			if(editFunction != null) {
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
-				Debug.Log(oldFunctionFile);
 				if(System.IO.File.Exists(oldFunctionFile)) {
 					try {
 						System.IO.File.Delete(oldFunctionFile);
@@ -387,6 +385,7 @@ namespace Kerbulator {
 						return;
 					}
 				}
+				kalc.Functions.Remove(editFunction.Id);
 			}
 
 			functionFile = functionDir +"/"+ editFunctionName +".math";
@@ -398,8 +397,9 @@ namespace Kerbulator {
 				return;
 			}
 
-			Scan();
-            editFunction = functions[editFunctionName];
+			JITFunction f = JITFunction.FromFile(functionFile, kalc);
+			kalc.Functions.Add(editFunctionName, f);
+            editFunction = kalc.Functions[editFunctionName];
 		}
 
 		/// <summary>Delete the current function being edited.</summary>
@@ -416,7 +416,7 @@ namespace Kerbulator {
 				}
 			}
 
-			Scan();
+			kalc.Functions.Remove(editFunction.Id);
 			editWindowEnabled = false;
 		}
 
@@ -479,7 +479,7 @@ namespace Kerbulator {
 		public void OnApplicationFocus(bool focused) {
 			if(focused) {
 				// Rebuild the list of functions. It could be that they were edited outside of KSP
-				functions = JITFunction.Scan(functionDir, functions, kalc);
+				JITFunction.Scan(functionDir, kalc);
 
 				// Reload the function being edited
 				if(editFunction != null)
@@ -492,10 +492,11 @@ namespace Kerbulator {
 		/// <summary>Scan for available functions and update funtion references if needed.</summary>
 		public void Scan() {
 			try {
-				functions = JITFunction.Scan(functionDir, functions, kalc);
+				JITFunction.Scan(functionDir, kalc);
 			} catch(Exception e) {
 				error = "Cannot access function dir ("+ functionDir +"): "+ e.Message;
 				functions = new Dictionary<string, JITFunction>();
+				throw e;
 			}
 
 			if(selectedFunction != null) {
