@@ -642,8 +642,7 @@ namespace Kerbulator {
 					a = expr.Pop();
 					return ParseUserFunction(
 						kalc.Functions[(string)((ConstantExpression)a).Value],
-						args2,
-						pos
+						args2
 					);
 
 				default:
@@ -740,7 +739,7 @@ namespace Kerbulator {
 			Consume();
 
 			if(elements.Count == 0)
-				throw new VarException(t.pos +"Empty lists are not allowed.");
+				throw new Exception(t.pos +"Empty lists are not allowed.");
 
 			expr.Push( Expression.NewArrayInit(typeof(Object), elements) );
 			return false;
@@ -763,10 +762,10 @@ namespace Kerbulator {
 					List<Expression> args = ParseArgumentList();
 					if(args.Count != f.Ins.Count)
 						throw new Exception(t.pos + "function "+ f.Id +" takes "+ f.Ins.Count +" arguments, but "+ args.Count +" were supplied");
-					expr.Push( ParseUserFunction(f, args, t.pos) );
+					expr.Push( ParseUserFunction(f, args) );
 				} else if(f.Ins.Count == 0) {
 					// Function takes no arguments, execute now
-					expr.Push( ParseUserFunction(f, new List<Expression>(), t.pos) );
+					expr.Push( ParseUserFunction(f, new List<Expression>()) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["user-function"]);
@@ -881,7 +880,7 @@ namespace Kerbulator {
 					funcExpression = CallBinaryLambda(func.id, (a,b) => Math.Round(a, (int)b), arguments[0], arguments[1], pos);
 					break;
 				case "sign":
-					funcExpression = CallUnaryLambda(func.id, a => Math.Sign(a), arguments[0], pos);
+					funcExpression = CallUnaryLambda(func.id, a => (int)Math.Sign(a), arguments[0], pos);
 					break;
 				case "sin":
 					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0], pos);
@@ -934,7 +933,7 @@ namespace Kerbulator {
 			return Expression.Convert(funcExpression, typeof(Object));
 		}
 
-		private Expression ParseUserFunction(JITFunction func, List<Expression> args, string pos) {
+		private Expression ParseUserFunction(JITFunction func, List<Expression> args) {
 			return Expression.Call(
 				thisExpression,
 				typeof(JITFunction).GetMethod("ExecuteUserFunction"),
