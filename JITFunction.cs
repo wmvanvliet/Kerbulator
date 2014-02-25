@@ -142,7 +142,7 @@ namespace Kerbulator {
 					// Function already exists
 					// Recompile only if file is newer
 					DateTime dt = File.GetLastWriteTime(files[i]);
-					if(lastScan == null || dt > lastScan) {
+					if(dt > lastScan) {
 						JITFunction f = FromFile(files[i], kalc);
 						kalc.Functions[f.Id] = f;
 					}
