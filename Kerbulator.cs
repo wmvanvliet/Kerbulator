@@ -116,9 +116,15 @@ namespace Kerbulator {
 		}
 
 		public List<Object> Run(JITFunction f) {
+			if(f.InError) {
+				throw new Exception(f.ErrorString);
+			}
+
 			List<Object> r = f.Execute(new List<Object>());
+
 			if(f.InError)
 				throw new Exception(f.ErrorString);
+
 			return r;
 		}
 

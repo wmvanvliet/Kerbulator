@@ -112,8 +112,6 @@ namespace Kerbulator {
 			int j=0;
 
 			while(i < files.Count || j < compiledFunctions.Count) {
-				UnityEngine.Debug.Log(i +"<"+ files.Count +" and "+ j +"<"+ compiledFunctions.Count);
-
 				if(i >= files.Count) {
 					// Deleted function
 					kalc.Functions.Remove(compiledFunctions[j]);
