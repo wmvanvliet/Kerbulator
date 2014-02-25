@@ -7,6 +7,12 @@ JIT Compiling.
   - Functions are now JIT-compiled and run at native .NET speed.
   - Added build-in function `mag`
 
+### 0.23
+Bugfix. Thanks to Bas Cornelissen to patiently work it out with me.
+
+- Language features:
+  - Properly deal with `\t` and `\r`
+
 ### 0.22
 Better errors and more globals.
 
