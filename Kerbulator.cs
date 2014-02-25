@@ -138,7 +138,7 @@ namespace Kerbulator {
 				result += FormatVar(list[list.Length-1]) + "]";
 				return result;
 			} else {
-				return var.ToString();
+				return ((double)var).ToString(System.Globalization.CultureInfo.InvariantCulture);
 			}
 		}
 

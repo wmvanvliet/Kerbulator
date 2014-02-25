@@ -218,14 +218,14 @@ namespace Kerbulator {
 			return val;
 		}
 
-		public Object UnpackList(Object result, List<string> ids) {
+		public Object UnpackList(Object result, List<string> ids, string pos) {
 			if(result.GetType() != typeof(Object[]))
-				throw new Exception("In function "+ this.id +": expression needed to yield "+ ids.Count +" values, but yielded only 1");
+				throw new Exception(pos +"expression needed to yield "+ ids.Count +" values, but yielded only 1");
 
 			Object[] list = (Object[]) result;
 
 			if(ids.Count != list.Length)
-				throw new Exception("In function "+ this.id +": expression needed to yield "+ ids.Count +" values, but yielded only "+ list.Length);	
+				throw new Exception(pos +"expression needed to yield "+ ids.Count +" values, but yielded only "+ list.Length);	
 			
 			for(int i=0; i<list.Length; i++)
 				SetLocal(ids[i], list[i]);
@@ -248,7 +248,7 @@ namespace Kerbulator {
 					Consume(",");
 			}
 
-			Consume("=");
+			Token eqToken = Consume("=");
 			Expression expr = ParseExpression();
 
 			// If the function has no outputs specified, use the result
@@ -272,7 +272,8 @@ namespace Kerbulator {
 					thisExpression,
 					typeof(JITFunction).GetMethod("UnpackList"),
 					expr,
-					Expression.Constant(ids)
+					Expression.Constant(ids),
+					Expression.Constant(eqToken.pos)
 				);
 			}
 		}
@@ -317,7 +318,7 @@ namespace Kerbulator {
 			// Handle remaining ops
 			while(ops.Count > 0) {
 				Operator op = ops.Pop();
-				expr.Push( ExecuteOperator(op, expr, ops) );
+				expr.Push( ExecuteOperator(op, expr, ops, t.pos) );
 			}
 
 			if(expr.Count > 1)
@@ -426,7 +427,7 @@ namespace Kerbulator {
 					// Leave for later
 					break;
 				else
-					expr.Push( ExecuteOperator(ops.Pop(), expr, ops) );
+					expr.Push( ExecuteOperator(ops.Pop(), expr, ops, t.pos) );
 			}
 
 			// Push current operator on the stack
@@ -447,7 +448,7 @@ namespace Kerbulator {
 				Object[] list = (Object[]) a;
 				Object[] newList = new Object[list.Length];
 				for(int i=0; i<list.Length; i++)
-					newList[i] = ExecuteUnaryFunction(id, action, list[i]);
+					newList[i] = ExecuteUnaryFunction(id, action, list[i], pos);
 				return newList;
 
 			// Called with something else
@@ -481,7 +482,7 @@ namespace Kerbulator {
 				Object[] listA = (Object[]) a;
 				Object[] listB = (Object[]) b;
 				if(listA.Length != listB.Length)
-					throw new Exception("In function "+ this.id +": cannot apply "+ id +" to lists of different length (got "+ listA.Length +" and "+ listB.Length +")");
+					throw new Exception(pos +"cannot apply "+ id +" to lists of different length (got "+ listA.Length +" and "+ listB.Length +")");
 				Object[] newList = new Object[listA.Length];
 				for(int i=0; i<listA.Length; i++)
 					newList[i] = ExecuteBinaryFunction(id, action, listA[i], listB[i], pos);
@@ -489,7 +490,7 @@ namespace Kerbulator {
 
 			// Called with something else
 			} else
-				throw new Exception("In function "+ this.id +": cannot apply "+ id +" to variables of type "+ a.GetType().ToString() +" and "+ b.GetType().ToString());
+				throw new Exception(pos +"cannot apply "+ id +" to variables of type "+ a.GetType().ToString() +" and "+ b.GetType().ToString());
 		}
 
 		private Expression CallUnaryLambda(string id, Expression<UnaryFunction> e, Expression a, string pos) {
@@ -623,7 +624,7 @@ namespace Kerbulator {
 						Expression.Call(
 							typeof(VectorMath).GetMethod("Mag"),
 							b,
-							Expression.Constant("In function "+ this.id)
+							Expression.Constant(pos)
 						)
 					);
 					break;
@@ -632,7 +633,7 @@ namespace Kerbulator {
 					List<Expression> args = new List<Expression>();
 					args.Add(expr.Pop());
 					a = expr.Pop();
-					opExpression = ParseBuildInFunction(kalc.BuildInFunctions[(string)((ConstantExpression)a).Value], args);
+					opExpression = ParseBuildInFunction(kalc.BuildInFunctions[(string)((ConstantExpression)a).Value], args, pos);
 					break;
 
 				case "user-function":
@@ -762,10 +763,10 @@ namespace Kerbulator {
 					List<Expression> args = ParseArgumentList();
 					if(args.Count != f.Ins.Count)
 						throw new Exception(t.pos + "function "+ f.Id +" takes "+ f.Ins.Count +" arguments, but "+ args.Count +" were supplied");
-					expr.Push( ParseUserFunction(f, args) );
+					expr.Push( ParseUserFunction(f, args, t.pos) );
 				} else if(f.Ins.Count == 0) {
 					// Function takes no arguments, execute now
-					expr.Push( ParseUserFunction(f, new List<Expression>()) );
+					expr.Push( ParseUserFunction(f, new List<Expression>(), t.pos) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["user-function"]);
@@ -783,7 +784,7 @@ namespace Kerbulator {
 					expr.Push( ParseBuildInFunction(f, args, t.pos) );
 				} else if(f.numArgs == 0) {
 					// Function takes no arguments, execute now
-					expr.Push( ParseBuildInFunction(f, new List<Expression>()), t.pos );
+					expr.Push( ParseBuildInFunction(f, new List<Expression>(), t.pos) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["buildin-function"]);
@@ -880,7 +881,7 @@ namespace Kerbulator {
 					funcExpression = CallBinaryLambda(func.id, (a,b) => Math.Round(a, (int)b), arguments[0], arguments[1], pos);
 					break;
 				case "sign":
-					funcExpression = CallUnaryLambda(func.id, a => (int)Math.Sign(a), arguments[0], pos);
+					funcExpression = CallUnaryLambda(func.id, a => Math.Sign(a), arguments[0], pos);
 					break;
 				case "sin":
 					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0], pos);
@@ -941,8 +942,7 @@ namespace Kerbulator {
 				Expression.NewArrayInit(
 					typeof(Object),
 					args
-				),
-				Expression.Constant(pos)
+				)
 			);
 		}
 

@@ -2,14 +2,14 @@ using System;
 
 namespace Kerbulator {
 	public class VectorMath {
-		public static Object Len(Object a, string pos) {
+		public static int Len(Object a, string pos) {
 			if(a.GetType() != typeof(Object[]))
 				throw new Exception(pos +"function len() can only be called with a list as argument");
 
-			return (Object) ((Object[]) a).Length;
+			return ((Object[]) a).Length;
 		}
 
-		public static Object Dot(Object a, Object b, string pos) {
+		public static double Dot(Object a, Object b, string pos) {
 			if(a.GetType() != typeof(Object[]) || b.GetType() != typeof(Object[]))
 				throw new Exception(pos +"arguments to function dot() must both be lists");
 
@@ -27,10 +27,11 @@ namespace Kerbulator {
 
 				res += (double)listA[i] * (double)listB[i];
 			}
-			return (Object) res;
+
+			return res;
 		}
 
-		public static Object Mag(Object a, string pos) {
+		public static double Mag(Object a, string pos) {
 			if(a.GetType() != typeof(Object[]))
 				throw new Exception(pos +"function mag() can only be called with a list as argument");
 
@@ -44,10 +45,11 @@ namespace Kerbulator {
 			}
 			mag = Math.Sqrt(mag);
 
-			return (Object) mag;
+			Console.WriteLine("MAG "+ mag);
+			return mag;
 		}
 
-		public static Object Norm(Object a, string pos) {
+		public static Object[] Norm(Object a, string pos) {
 			if(a.GetType() != typeof(Object[]))
 				throw new Exception(pos +"function norm() can only be called with a list as argument");
 
@@ -56,13 +58,17 @@ namespace Kerbulator {
 			Object[] listA = (Object[]) a;
 			Object[] newA = new Object[listA.Length];
 
-			for(int i=0; i<listA.Length; i++)
-				newA[i] = (double)listA[i] / mag;
+			for(int i=0; i<listA.Length; i++) {
+				if(listA[i].GetType() != typeof(double))
+					throw new Exception(pos +"argument to function norm() must be a lists that contains only numbers");
 
-			return (Object) newA;
+				newA[i] = (double)listA[i] / mag;
+			}
+
+			return newA;
 		}
 
-		public static Object Cross(Object a, Object b, string pos) {
+		public static Object[] Cross(Object a, Object b, string pos) {
 			if(a.GetType() != typeof(Object[]) || b.GetType() != typeof(Object[]))
 				throw new Exception(pos +"arguments to function cross() must both be lists");
 
@@ -83,7 +89,7 @@ namespace Kerbulator {
 				(double) x[0] * (double) y[1] - (double) x[1] * (double) y[0]
 			};
 
-			return (Object) res;
+			return res;
 		}
 	}
 }
