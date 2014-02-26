@@ -254,6 +254,7 @@ namespace Kerbulator {
 		}
 
 		public Object SetLocal(string id, Object val) {
+			Console.WriteLine("Setting local "+ id +" = "+ Kerbulator.FormatVar(val));
 			if(locals.ContainsKey(id))
 				locals[id] = val;
 			else
@@ -283,17 +284,15 @@ namespace Kerbulator {
 
 			List<string> ids = new List<string>();
 
+			Token t;
 			while(true) {
-				Token t = Consume(TokenType.IDENTIFIER);
+				t = Consume(TokenType.IDENTIFIER, "statements must start with a variable name");
 				ids.Add(t.val);
-				if(tokens.Peek().val == "=")
+				if(tokens.Peek().type == TokenType.EQUALS || tokens.Peek().type == TokenType.COLON)
 					break;
 				else
 					Consume(",");
 			}
-
-			Token eqToken = Consume("=");
-			Expression expr = ParseExpression();
 
 			// If the function has no outputs specified, use the result
 			// of the last statement as output
@@ -304,6 +303,50 @@ namespace Kerbulator {
 					outDescriptions.Add("");
 			}
 
+			Expression expr;
+
+			// Consume the next token
+			t = ConsumeWithErr(t.pos +"expected = or :");
+
+			// Test if the statement uses the solver or not
+			if(t.type == TokenType.EQUALS) {
+				// Statement is a plain variable assignment
+				expr = ParseExpression();
+			} else if(t.type == TokenType.COLON) {
+				// Statement uses the solver
+				expr = ParseExpression();
+
+				Console.WriteLine(".");
+				if(tokens.Count > 0 && tokens.Peek().type == TokenType.EQUALS) {
+					Consume();
+					expr = CallBinaryLambda(
+						"=",
+						(x,y)=> x-y, 
+						expr,
+						ParseExpression(),
+						t.pos
+					);
+				}
+
+				// Construct array of vars of interest for the solver 
+				Expression[] idExpressions = new Expression[ids.Count];
+				for(int i=0; i<ids.Count; i++)
+					idExpressions[i] = Expression.Constant(ids[0]);
+
+				// Invoke the solver
+				expr = Expression.Call(
+					typeof(Solver).GetMethod("Solve"),
+					Expression<Func<Object>>.Lambda(expr),
+					Expression.NewArrayInit(
+						typeof(string),
+						idExpressions
+					),
+					Expression.Constant(locals)
+				);
+			} else
+				throw new Exception(t.pos +"unexpected token: "+ t.val);
+
+			// Assign the result of the expression to local variables
 			if(ids.Count == 1) {
 				return Expression.Call(
 					thisExpression,
@@ -317,7 +360,7 @@ namespace Kerbulator {
 					typeof(JITFunction).GetMethod("UnpackList"),
 					expr,
 					Expression.Constant(ids),
-					Expression.Constant(eqToken.pos)
+					Expression.Constant(t.pos)
 				);
 			}
 		}
@@ -350,6 +393,9 @@ namespace Kerbulator {
 						ParseIdentifier(expr, ops);
 						break;
 					case TokenType.COMMA:
+						end = true;
+						break;
+					case TokenType.EQUALS:
 						end = true;
 						break;
 					default:

@@ -5,7 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace Kerbulator {
-	public enum TokenType { EMPTY, NUMBER, IDENTIFIER, OPERATOR, BRACE, LIST, END, COMMA, TEXT, IN, OUT};
+	public enum TokenType { EMPTY, NUMBER, IDENTIFIER, OPERATOR, BRACE, LIST, END, EQUALS, COMMA, COLON, TEXT, IN, OUT};
 	public class Token {
 		public TokenType type;
 		public string val;
@@ -203,11 +203,11 @@ namespace Kerbulator {
 					case '·':
 					case '×':
 					case '^':
-					case '=':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.OPERATOR, c.ToString(), functionName, lineno, col));
 						tok = new Token(functionName, lineno, col);
 						break;
+
 
 					// Brackets
 					case '[':
@@ -231,14 +231,22 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
-					// In: and Out: statements
+					case '=':
+						HandleToken(tok);
+						HandleToken(new Token(TokenType.EQUALS, tok.val, functionName, lineno, col));
+						tok = new Token(functionName, lineno, col);
+						break;
+
 					case ':':
+						// In: and Out: statements
 						if(tok.val == "in")
 							HandleToken(new Token(TokenType.IN, tok.val, functionName, lineno, col));
 						else if(tok.val == "out")
 							HandleToken(new Token(TokenType.OUT, tok.val, functionName, lineno, col));
-						else
-							throw new Exception(tok.pos +"expected in: or out:, but encountered "+ tok.val +":");
+						else {
+							HandleToken(tok);
+							HandleToken(new Token(TokenType.COLON, tok.val, functionName, lineno, col));
+						}
 
 						tok = new Token(functionName, lineno, col);
 						break;
