@@ -6,24 +6,24 @@ using System.Reflection;
 
 namespace Kerbulator {
 	public class JITFunction {
-		private string id;
-		private Dictionary<string, System.Object> locals = null;
-		private Kerbulator kalc;
-		private Queue<Token> tokens;
+		string id;
+		Dictionary<string, System.Object> locals = null;
+		Kerbulator kalc;
+		Solver solv;
+		Queue<Token> tokens;
 
-		private ConstantExpression thisExpression;
-		//private ConstantExpression kalcExpression;
+		ConstantExpression thisExpression;
 
 		List<string> ins;
 		List<string> outs;
 		List<string> inDescriptions;
 		List<string> outDescriptions;
 
-		private bool inError = false;
-		private string errorString = "";
+		bool inError = false;
+		string errorString = "";
 
-		private Func<Object> compiledFunction = null;
-		private static DateTime lastScan = new DateTime(0);
+		Func<Object> compiledFunction = null;
+		static DateTime lastScan = new DateTime(0);
 
 		public JITFunction(string id, string expression, Kerbulator kalc) { 
 			this.id = id;
@@ -37,6 +37,7 @@ namespace Kerbulator {
 			this.thisExpression = Expression.Constant(this);
 
 			this.kalc = kalc;
+			this.solv = new Solver(this);
 			//this.kalcExpression = Expression.Constant(kalc);
 
 			try {
@@ -254,7 +255,7 @@ namespace Kerbulator {
 		}
 
 		public Object SetLocal(string id, Object val) {
-			Console.WriteLine("Setting local "+ id +" = "+ Kerbulator.FormatVar(val));
+			Console.WriteLine("Set local "+ id +" = "+ Kerbulator.FormatVar(val));
 			if(locals.ContainsKey(id))
 				locals[id] = val;
 			else
@@ -316,7 +317,6 @@ namespace Kerbulator {
 				// Statement uses the solver
 				expr = ParseExpression();
 
-				Console.WriteLine(".");
 				if(tokens.Count > 0 && tokens.Peek().type == TokenType.EQUALS) {
 					Consume();
 					expr = CallBinaryLambda(
@@ -331,17 +331,18 @@ namespace Kerbulator {
 				// Construct array of vars of interest for the solver 
 				Expression[] idExpressions = new Expression[ids.Count];
 				for(int i=0; i<ids.Count; i++)
-					idExpressions[i] = Expression.Constant(ids[0]);
+					idExpressions[i] = Expression.Constant(ids[i]);
 
 				// Invoke the solver
 				expr = Expression.Call(
+					Expression.Constant(this.solv),
 					typeof(Solver).GetMethod("Solve"),
 					Expression<Func<Object>>.Lambda(expr),
 					Expression.NewArrayInit(
 						typeof(string),
 						idExpressions
 					),
-					Expression.Constant(locals)
+					Expression.Constant(t.pos)
 				);
 			} else
 				throw new Exception(t.pos +"unexpected token: "+ t.val);
@@ -843,6 +844,10 @@ namespace Kerbulator {
 			if(!locals.ContainsKey(id))
 				throw new Exception(pos +"variable or function '"+ id +"' is not defined.");
 			return locals[id];
+		}
+
+		public bool IsLocalDefined(string id) {
+			return locals.ContainsKey(id);
 		}
 
 		private void ParseIdentifier(Stack<Expression> expr, Stack<Operator> ops) {
