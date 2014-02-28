@@ -1,0 +1,7 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.1
+
+GM = 3.986005E14
+r = (6378.14 + 200) × 1000
+v = sqrt(GM / r)
+v = round(v, 0)

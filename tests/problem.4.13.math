@@ -1,3 +1,6 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.13
+
 a = 7500 * 1E3
 ecc = 0.1
 t_0 = 0
@@ -12,3 +15,5 @@ M = E - 0.1 * sin(E)
 
 n = sqrt( 3.986005E14 / a^3 )
 t = t_0 + (M - M_0) / n
+
+t = round(t, 1)

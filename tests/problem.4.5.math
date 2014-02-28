@@ -1,0 +1,11 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.5
+
+# Given
+GM = 3.986005E14
+Rp = (6378.14 + 200) × 1000
+Vp = 7850
+
+Ra = Rp / {2 × GM / (Rp × Vp^2) - 1}
+Ha = Ra/1000 - 6378.14
+Ha = round(Ha, 1)

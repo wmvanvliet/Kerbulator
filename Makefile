@@ -92,6 +92,7 @@ test: info
 	${MONO} Kerbulator.exe tests/functions.test
 	${MONO} Kerbulator.exe tests/userfuncs.test
 	${MONO} Kerbulator.exe tests/operators.test
+	${MONO} Kerbulator.exe tests/braeunig.test
 
 unity: 
 	cp Kerbulator.cs KerbulatorGUI.cs Function.cs Variable.cs Tokenizer.cs ~/Calculator/Assets/Standard\ Assets/

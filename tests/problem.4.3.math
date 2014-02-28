@@ -1,0 +1,8 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.3
+
+P = 86164.1
+GM = 3.986005E14
+
+r = 3√(P^2 × GM / (4 × π^2) )
+r = round(r, 0)

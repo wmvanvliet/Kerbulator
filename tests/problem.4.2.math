@@ -1,0 +1,8 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.2
+
+GM = 3.986005E14
+r = 6578140
+
+P = sqrt( 4 × pi^2 × r^3 / GM )
+P = round(P, 0)
