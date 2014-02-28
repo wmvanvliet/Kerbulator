@@ -86,18 +86,16 @@ namespace Kerbulator {
 			set { errorString = (string)value; Kerbulator.DebugLine(value); inError = true; }
 		}
 
+		public bool IsCompiled {
+			get { return compiledFunction != null; }
+			protected set {}
+		}
+
 		public static JITFunction FromFile(string filename, Kerbulator kalc) {
 			StreamReader file = File.OpenText(filename);
             string contents = file.ReadToEnd() + "\n";
             file.Close();
 			JITFunction f = new JITFunction(Path.GetFileNameWithoutExtension(filename), contents, kalc);
-			try {
-				f.Parse();
-			} catch(Exception e) {
-				f.inError = true;
-				f.errorString = e.Message;
-				//throw e;
-			}
 			return f;
 		}
 
@@ -142,7 +140,7 @@ namespace Kerbulator {
 
 				else {
 					// Function already exists
-					// Recompile only if file is newer
+					// Reload only if file is newer
 					DateTime dt = File.GetLastWriteTime(files[i]);
 					if(dt > lastScan) {
 						JITFunction f = FromFile(files[i], kalc);
@@ -154,6 +152,15 @@ namespace Kerbulator {
 			}
 
 			lastScan = DateTime.Now;
+
+			// Compile all functions that need compiling.
+			// Note that for compiling, the list of all user-functions
+			// must be known. That's why first this list is made and
+			// now all the functions in this list are compiled.
+			foreach(JITFunction f in kalc.Functions.Values) {
+				if(!f.IsCompiled)
+					f.Compile();
+			}	
 		}
 
 		virtual public List<Object> Execute() {
@@ -163,6 +170,9 @@ namespace Kerbulator {
 		public List<Object> Execute(List<Object> arguments) {
 			if(compiledFunction == null)
 				throw new Exception("Cannot execute function "+ this.id +": function is not compiled yet.");
+
+			if(ins.Count != arguments.Count)
+				throw new Exception("function "+ this.id +" takes "+ ins.Count +" arguments, but "+ arguments.Count +" were specified");
 
 			// (Re)initialize the local variable dictionary to contain just the input arguments
 			this.locals = new Dictionary<string, Object>();
@@ -193,74 +203,79 @@ namespace Kerbulator {
 			return statementResults[statementResults.Length-1];
 		}
 
-		public void Parse() {
-			// Skip leading whitespace
-			while(tokens.Peek().type == TokenType.END)
-				Consume();
+		public void Compile() {
+			try {
+				// Skip leading whitespace
+				while(tokens.Peek().type == TokenType.END)
+					Consume();
 
-			// Parse in: statements
-			while(tokens.Peek().type == TokenType.IN) {
-				Consume();
-				Token id = Consume(TokenType.IDENTIFIER);
+				// Parse in: statements
+				while(tokens.Peek().type == TokenType.IN) {
+					Consume();
+					Token id = Consume(TokenType.IDENTIFIER);
 
-				if(tokens.Peek().type == TokenType.TEXT) {
-					inDescriptions.Add( tokens.Dequeue().val );
+					if(tokens.Peek().type == TokenType.TEXT) {
+						inDescriptions.Add( tokens.Dequeue().val );
+					}
+
+					Consume(TokenType.END);
+					ins.Add(id.val);
+					Kerbulator.DebugLine("Found IN statement for "+ id.val);
 				}
 
-				Consume(TokenType.END);
-				ins.Add(id.val);
-				Kerbulator.DebugLine("Found IN statement for "+ id.val);
+				// Skip whitespace
+				while(tokens.Peek().type == TokenType.END)
+					Consume();
+
+				// Parse out: statements
+				while(tokens.Peek().type == TokenType.OUT) {
+					Consume();
+					Token id = Consume(TokenType.IDENTIFIER);
+
+					if(tokens.Peek().type == TokenType.TEXT)
+						outDescriptions.Add( tokens.Dequeue().val );
+					else
+						outDescriptions.Add("");
+
+					Consume(TokenType.END);
+					outs.Add(id.val);
+					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
+				}
+
+				Kerbulator.DebugLine("");
+
+				// Parse all other statements
+				List<Expression> statements = new List<Expression>();
+				while(tokens.Count > 0) {
+					Expression statement = ParseStatement();
+					if(statement != null)
+						statements.Add(statement);
+					Consume(TokenType.END);
+				}
+				
+				if(statements.Count == 0)
+					throw new Exception("In function "+ this.id +": function does not contain any statemtns (it's empty)");
+
+				// If no outputs are given, take last assigned variables as output
+				if(outs.Count == 0) {
+					outs = lastAssigned;
+					outDescriptions = new List<string>(outs.Count);
+					for(int i=0; i<outs.Count; i++)
+						outDescriptions.Add("");
+				}
+
+				// Create expression that will execute all the statements
+				Expression functionExpression = Expression.Call(
+					thisExpression,
+					typeof(JITFunction).GetMethod("ExecuteBlock"),
+					Expression.NewArrayInit(typeof(Object), statements)
+				);
+
+				compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
+			} catch(Exception e) {
+				this.inError = true;
+				this.errorString = e.Message;
 			}
-
-			// Skip whitespace
-			while(tokens.Peek().type == TokenType.END)
-				Consume();
-
-			// Parse out: statements
-			while(tokens.Peek().type == TokenType.OUT) {
-				Consume();
-				Token id = Consume(TokenType.IDENTIFIER);
-
-				if(tokens.Peek().type == TokenType.TEXT)
-					outDescriptions.Add( tokens.Dequeue().val );
-				else
-					outDescriptions.Add("");
-
-				Consume(TokenType.END);
-				outs.Add(id.val);
-				Kerbulator.DebugLine("Found OUT statement for "+ id.val);
-			}
-
-			Kerbulator.DebugLine("");
-
-			// Parse all other statements
-			List<Expression> statements = new List<Expression>();
-			while(tokens.Count > 0) {
-				Expression statement = ParseStatement();
-				if(statement != null)
-					statements.Add(statement);
-				Consume(TokenType.END);
-			}
-			
-			if(statements.Count == 0)
-				throw new Exception("In function "+ this.id +": function does not contain any statemtns (it's empty)");
-
-			// If no outputs are given, take last assigned variables as output
-			if(outs.Count == 0) {
-				outs = lastAssigned;
-				outDescriptions = new List<string>(outs.Count);
-				for(int i=0; i<outs.Count; i++)
-					outDescriptions.Add("");
-			}
-
-			// Create expression that will execute all the statements
-			Expression functionExpression = Expression.Call(
-				thisExpression,
-				typeof(JITFunction).GetMethod("ExecuteBlock"),
-				Expression.NewArrayInit(typeof(Object), statements)
-			);
-
-			compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
 		}
 
 		public Object SetLocal(string id, Object val) {
@@ -671,6 +686,7 @@ namespace Kerbulator {
 					break;
 				case "*":
 				case "·":
+				case "×":
 					b = expr.Pop(); a = expr.Pop();
 					opExpression = CallBinaryLambda(op.id, (x,y) => x * y, a, b, pos);
 					break;
@@ -740,7 +756,8 @@ namespace Kerbulator {
 					a = expr.Pop();
 					return ParseUserFunction(
 						kalc.Functions[(string)((ConstantExpression)a).Value],
-						args2
+						args2,
+						pos
 					);
 
 				default:
@@ -862,12 +879,10 @@ namespace Kerbulator {
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, execute function now
 					List<Expression> args = ParseArgumentList();
-					if(args.Count != f.Ins.Count)
-						throw new Exception(t.pos + "function "+ f.Id +" takes "+ f.Ins.Count +" arguments, but "+ args.Count +" were supplied");
-					expr.Push( ParseUserFunction(f, args) );
+					expr.Push( ParseUserFunction(f, args, t.pos) );
 				} else if(f.Ins.Count == 0) {
 					// Function takes no arguments, execute now
-					expr.Push( ParseUserFunction(f, new List<Expression>()) );
+					expr.Push( ParseUserFunction(f, new List<Expression>(), t.pos) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["user-function"]);
@@ -1035,7 +1050,7 @@ namespace Kerbulator {
 			return Expression.Convert(funcExpression, typeof(Object));
 		}
 
-		private Expression ParseUserFunction(JITFunction func, List<Expression> args) {
+		private Expression ParseUserFunction(JITFunction func, List<Expression> args, string pos) {
 			return Expression.Call(
 				thisExpression,
 				typeof(JITFunction).GetMethod("ExecuteUserFunction"),
@@ -1043,12 +1058,21 @@ namespace Kerbulator {
 				Expression.NewArrayInit(
 					typeof(Object),
 					args
-				)
+				),
+				Expression.Constant(pos)
 			);
 		}
 
-		public Object ExecuteUserFunction(JITFunction func, Object[] args) {
-			return func.Execute(new List<Object>(args)).ToArray();
+		public Object ExecuteUserFunction(JITFunction func, Object[] args, string pos) {
+			try {
+				List<Object> res = func.Execute(new List<Object>(args));
+				if(res.Count == 1)
+					return res[0];
+				else
+					return res.ToArray();
+			} catch(Exception e) {
+				throw new Exception(pos + e.Message);
+			}
 		}
 	}
 

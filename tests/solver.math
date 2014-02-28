@@ -1,2 +1,11 @@
+x: x + 5 - 10
+x: x + 5 = 10
+x,y: x+y - 5
 x,y: x+y = 5
-x: x = 10
+
+ecc = 0.1
+E = 2
+E: E - ecc * sin E = 2.53755
+
+x = 1
+x: tosolve(x, 0.1)

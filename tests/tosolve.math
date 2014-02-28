@@ -1,0 +1,5 @@
+in: x
+in: y
+out: z
+
+z = x - y * sin(x)
