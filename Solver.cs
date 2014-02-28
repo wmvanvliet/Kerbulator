@@ -108,6 +108,7 @@ namespace Kerbulator {
 				if(xmax <= xtol && fmax < ftol) {
 					Kerbulator.DebugLine("Stopping criterium reached. ("+ xmax +", "+ fmax +")");
 					break;
+				} else {
 					Kerbulator.DebugLine("Continue. ("+ xmax +", "+ fmax +")");
 				}
 
