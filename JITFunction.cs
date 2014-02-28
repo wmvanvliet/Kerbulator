@@ -16,6 +16,7 @@ namespace Kerbulator {
 
 		List<string> ins;
 		List<string> outs;
+		List<string> lastAssigned;
 		List<string> inDescriptions;
 		List<string> outDescriptions;
 
@@ -41,7 +42,7 @@ namespace Kerbulator {
 			//this.kalcExpression = Expression.Constant(kalc);
 
 			try {
-				Tokenizer tok = new Tokenizer("unnamed");
+				Tokenizer tok = new Tokenizer(id);
 				tok.Tokenize(expression);
 				tokens = tok.tokens;
 			} catch(Exception e) {
@@ -244,6 +245,14 @@ namespace Kerbulator {
 			if(statements.Count == 0)
 				throw new Exception("In function "+ this.id +": function does not contain any statemtns (it's empty)");
 
+			// If no outputs are given, take last assigned variables as output
+			if(outs.Count == 0) {
+				outs = lastAssigned;
+				outDescriptions = new List<string>(outs.Count);
+				for(int i=0; i<outs.Count; i++)
+					outDescriptions.Add("");
+			}
+
 			// Create expression that will execute all the statements
 			Expression functionExpression = Expression.Call(
 				thisExpression,
@@ -255,7 +264,6 @@ namespace Kerbulator {
 		}
 
 		public Object SetLocal(string id, Object val) {
-			Console.WriteLine("Set local "+ id +" = "+ Kerbulator.FormatVar(val));
 			if(locals.ContainsKey(id))
 				locals[id] = val;
 			else
@@ -297,12 +305,7 @@ namespace Kerbulator {
 
 			// If the function has no outputs specified, use the result
 			// of the last statement as output
-			if(outs.Count == 0) {
-				outs = ids;
-				outDescriptions = new List<string>(outs.Count);
-				for(int i=0; i<outs.Count; i++)
-					outDescriptions.Add("");
-			}
+			lastAssigned = ids;
 
 			Expression expr;
 

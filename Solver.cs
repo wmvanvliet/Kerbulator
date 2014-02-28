@@ -12,8 +12,8 @@ namespace Kerbulator {
 			this.func = func;
 			maxiter = 0;
 			maxfev = 0;
-			xtol = 1E-4;
-			ftol = 1E-4;
+			xtol = 1E-8;
+			ftol = 1E-8;
 		}
 
 		public Solver(JITFunction func, int maxiter, int maxfev, double xtol, double ftol) {
@@ -26,7 +26,7 @@ namespace Kerbulator {
 
 		// Nelder-Mead algorithm
 		public Object Solve(Func<Object> f, string[] vars, string pos) {
-			Console.WriteLine("Entering solver");
+			Kerbulator.DebugLine("Entering solver");
 			int N = vars.Length;
 			if(N == 0)
 				return (Object) new Object[] {};
@@ -64,12 +64,12 @@ namespace Kerbulator {
 
 			// Initialize other vertices of current simplex
 			double nonzdelt = 1.05;
-			double zdelt = 1.00025;
+			double zdelt = 0.00025;
 
 			for(int k=0; k<N; k++) {
 				double[] y = (double[]) sim[0].Clone();
 				if(y[k] == 0.0)
-					y[k] = sim[0][k] * zdelt;
+					y[k] = zdelt;
 				else
 					y[k] = sim[0][k] * nonzdelt;
 
@@ -88,7 +88,7 @@ namespace Kerbulator {
 			double[] xcc = new double[N];
 
 			while(fcalls < maxfev && iterations < maxiter) {
-				Console.WriteLine("Iteration "+ iterations);
+				Kerbulator.DebugLine("Iteration "+ iterations);
 				PrintVertices(sim, fsim);
 
 				// Test stopping criterium
@@ -106,8 +106,9 @@ namespace Kerbulator {
 				}
 
 				if(xmax <= xtol && fmax < ftol) {
-					Console.WriteLine("Stopping criterium reached.");
+					Kerbulator.DebugLine("Stopping criterium reached. ("+ xmax +", "+ fmax +")");
 					break;
+					Kerbulator.DebugLine("Continue. ("+ xmax +", "+ fmax +")");
 				}
 
 				for(int i=0; i<N; i++) {
@@ -116,12 +117,9 @@ namespace Kerbulator {
 						xbar[i] += sim[j][i];
 					xbar[i] /= N;
 				}
-				Console.WriteLine("xbar: "+ PrintVert(xbar));
 
 				for(int i=0; i<N; i++)
 					xr[i] = (1 + rho) * xbar[i] - rho * sim[sim.Length-1][i];
-
-				Console.WriteLine("xr: "+ PrintVert(xr));
 
 				double fxr = CallFunc(f, vars, xr, pos);
 				fcalls ++;
@@ -156,9 +154,7 @@ namespace Kerbulator {
 							for(int i=0; i<N; i++)
 								xc[i] = (1 + psi * rho) * xbar[i] - psi * rho * sim[sim.Length-1][i];
 
-							Console.WriteLine("xc: "+ PrintVert(xc));
 							double fxc = CallFunc(f, vars, xc, pos);
-							Console.WriteLine("fxc: "+ fxc);
 							fcalls ++;
 
 							if(fxc <= fxr) {
@@ -201,7 +197,7 @@ namespace Kerbulator {
 				iterations ++;
 			}
 			
-			Console.WriteLine("Leaving solver");
+			Kerbulator.DebugLine("Leaving solver");
 			// Copy the locals of interest to the output
 			if(vars.Length == 1)
 				return func.GetLocal(vars[0], pos);
@@ -217,21 +213,33 @@ namespace Kerbulator {
 		private void SortVertices(double[][] sim, double[] fsim) {
 			int[] ind = Enumerable.Range(0, sim.Length).ToArray();
 			Array.Sort(fsim, ind);
-			Console.WriteLine("Sorted idx:" + PrintVert(ind));
+			Kerbulator.DebugLine("Sorted idx:" + PrintVert(ind));
 
 			double[][] sim2 = new double[sim.Length][];
 			for(int i=0; i<sim.Length; i++)
 				sim2[i] = sim[ind[i]];
+
+			for(int i=0; i<sim.Length; i++)
+				sim[i] = sim2[i];
 		}
 
 		private void PrintVertices(double[][] sim, double[] fsim) {
-			Console.WriteLine("Verts:");
+			Kerbulator.DebugLine("Verts:");
 			for(int i=0; i<sim.Length; i++) {
-				Console.Write("\t"+ i +": "+ PrintVert(sim[i]) +" = "+ fsim[i] +"\n");
+				Kerbulator.Debug("\t"+ i +": "+ PrintVert(sim[i]) +" = "+ fsim[i] +"\n");
 			}
 		}
 
 		private string PrintVert(double[] sim) {
+			string r = "";
+			r = "[";
+			for(int i=0; i<sim.Length-1; i++)
+				r += sim[i] +", ";
+			r += sim[sim.Length-1] +"]";
+			return r;
+		}
+
+		private string PrintVert(int[] sim) {
 			string r = "";
 			r = "[";
 			for(int i=0; i<sim.Length-1; i++)
@@ -250,12 +258,11 @@ namespace Kerbulator {
 				// For lists, use the magnitude as value to optimize
 				try {
 					return (double) VectorMath.Mag(r, pos);
-				} catch(Exception e) {
+				} catch(Exception) {
 					throw new Exception(pos +"solver cannot optimize a function that returns a list of lists");
 				}
 			else {
 				double res = Math.Abs((double) r);
-				Console.WriteLine("Function result: "+ res);
 				return res;
 			}
 		}

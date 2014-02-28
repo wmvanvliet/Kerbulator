@@ -1,0 +1,14 @@
+a = 7500 * 1E3
+ecc = 0.1
+t_0 = 0
+v_0 = 30 * (pi/180)
+v = 90 * (pi/180)
+
+E_0 = acos((ecc + cos(v_0)) / (1 + ecc * cos(v_0)))
+E = acos((ecc + cos(v)) / (1 + ecc * cos(v)))
+
+M_0 = E_0 - 0.1 * sin(E_0)
+M = E - 0.1 * sin(E)
+
+n = sqrt( 3.986005E14 / a^3 )
+t = t_0 + (M - M_0) / n

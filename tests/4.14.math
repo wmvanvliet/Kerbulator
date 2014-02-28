@@ -1,0 +1,23 @@
+a = 7500 * 1E3
+ecc = 0.1
+t_0 = 0
+t = 20 * 60
+v_0 = 90 * (pi/180)
+
+E_0 = acos((ecc + cos(v_0)) / (1 + ecc * cos(v_0)))
+M_0 = E_0 - 0.1 * sin(E_0)
+
+n = sqrt( 3.986005E14 / a^3 )
+
+M = M_0 + n * (t - t_0)
+
+# Low accuracy estimate of v
+v = M + 2 * ecc * sin M + 1.25 * ecc^2 * sin(2*M)
+
+# Use calculated estimate as starting point for numeric iteration
+E = (e + cos v) / (1 + ecc * cos v)
+
+# Do numeric iteration to determine true E
+E: E - 0.1 * sin E = M
+
+v = acos((cos E - 0.1) / (1 - 0.1 * cos E))
