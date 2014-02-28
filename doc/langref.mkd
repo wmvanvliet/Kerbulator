@@ -201,7 +201,7 @@ Name         | Description
 `atan(x)`    | Arctangent, or tan^(-1)
 `ceil(x)`    | Round up to the nearest integer
 `cos(x)`     | Cosine
-`exp(x)`     | e to the power of x
+`exp(x)`     | `e` to the power of `x`
 `floor(x)`   | Round down to the nearest integer
 `ln(x)`      | Natural logarithm
 `log(x)`     | Same as `ln`
@@ -215,6 +215,46 @@ Name         | Description
 `sqrt(x)`    | Square root
 `tan(x)`     | Tangent
 `len(x)`     | Number of elements in list x
-`norm(x)`    | Magnitude of vector x
+`mag(x)`     | Magnitude of vector x
+`norm(x)`    | Version of vector x that has a magnitude of 1
 `dot(a,b)`   | Dot product between list a and b
-`cross(a,b)` | Cross product between list a and b
+`cross(a,b)` | Cross product between list a and b (only supports vectors with 3 elements)
+
+#### Using the solver 
+
+For values that cannot be directly computed, Kerbulator comes with a build-in implementation of the Nelder-Mead algorithm for numerical approximation. The algorithm takes as input a list of variables and an expression using those variables. By evaluating the expression many times with different values for the variables, the algorithm tries to minimize the result yielded by the expression (taken as the absolute value, so as close to 0 as possible).
+
+It can be invoked by the following language construct:
+
+    var1, var2, ... : expression
+
+For example, to solve the equation `x + 5 = 10` for `x`, one could write:
+
+    x: x + 5 - 10
+
+Kerbulator also supports the following syntax with might look better in your code:
+
+    var1, var2, ... : expression1 = expression2
+
+which is translated internally to:
+
+    var1, var2, ... : expression1 - expression2
+
+so the example becomes:
+
+    x: x + 5 = 10
+
+Another example that solves for multiple variables would be:
+
+    x,y: x + y - x * y
+
+or equivilently:
+
+    x,y: x + y = x * y
+
+The Nelder-Mead algorithm will be much faster if you supply starting values for the variables you wish to solve for. Kerbulator will take the current value of the variables (if any) as starting values. For example:
+
+    x = 4.5
+    x: x + 5 = 10
+
+will initiate `x` to 4.5 and then use numerical approximation to fine-tune it to 5.

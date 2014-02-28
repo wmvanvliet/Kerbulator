@@ -1,10 +1,11 @@
 Changelog
 ---------
 ### 0.30
-JIT Compiling.
+JIT Compiling baby!
 
 - Language features
   - Functions are now JIT-compiled and run at native .NET speed.
+  - Added Nelder-Mead solver for numeric approximation
   - Added build-in function `mag`
 
 ### 0.23
