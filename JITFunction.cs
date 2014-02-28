@@ -710,14 +710,8 @@ namespace Kerbulator {
 					else {
 						a = expr.Pop();
 						opExpression = CallBinaryMathFunction(op.id, "Pow",
-							a,
-							Expression.Convert(
-								Expression.Divide(
-									Expression.Constant(1.0),
-									Expression.Convert(b, typeof(double))
-								),
-								typeof(Object)
-							),
+							b,
+							CallUnaryLambda(op.id, x => 1 / x, a, pos),
 							pos
 						);
 					}
