@@ -129,10 +129,8 @@ namespace Kerbulator {
 		}
 
 		public Object RunExpression(string expression) {
-			JITFunction func = new JITFunction("unnamed", expression, this);
-			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(func.ParseExpression());
-			Func<Object> f = e.Compile();
-			return f();
+			JITExpression e = new JITExpression(expression, this);
+			return e.Execute();
 		}
 		
 		public static string FormatVar(Object var) {

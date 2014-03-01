@@ -1066,12 +1066,16 @@ namespace Kerbulator {
 	}
 
 	public class JITExpression: JITFunction {
+		Func<Object> expressionFunction = null;
+
 		public JITExpression(string expression, Kerbulator kalc)
 	   	:base("unnamed", expression, kalc)	{ 
+			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(ParseExpression());
+			expressionFunction = e.Compile();
 		}
 
-		override public List<Object> Execute() {
-			return null;
+		new public Object Execute() {
+			return expressionFunction();
 		}
 	}
 }

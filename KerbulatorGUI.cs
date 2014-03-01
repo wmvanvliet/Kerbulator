@@ -370,7 +370,8 @@ namespace Kerbulator {
 				Save();
 
 			glue.AddGlobals(kalc);
-			return kalc.Run(runFunction);
+			ExecutionEnvironment ex = new ExecutionEnvironment(runFunction, kalc);
+			return ex.Execute();
 		}
 
 		/// <summary>Save the current function being edited.</summary>
