@@ -9,14 +9,11 @@ r_earth = 6378.14
 GM = 3.986005E14
 r1 = (r_earth + 250) × 1000
 v1 = 7900
-y1 = 89
+y1 = 89 * (π/180) # In radians
 
 C = 2 × GM / (r1 × v1^2)
-temp = sqrt( C^2 - 4 × (1 - C) × -(sin(y1)^2) ) 
+temp = √( C^2 - 4 × (1 - C) × -(sin(y1)^2) ) 
 Rp, Ra = r1 * ([-C + temp, -C - temp] / (2 × (1 - C)))
 
-Rp = (-C + temp)  / (2 * (1-C))
-
-Rp = ((-1.927179) + sqrt( (1.927179^2) - (4 × (-0.927179) × (-(sin(89)^2))) )) / (2 × (-0.927179))
-#Rp = round(Rp/1000 - r_earth, 1)
-#Ra = round(Ra/1000 - r_earth, 1)
+Rp = round(Rp/1000 - r_earth, 1)
+Ra = round(Ra/1000 - r_earth, 1)

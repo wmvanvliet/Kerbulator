@@ -1,0 +1,24 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.12
+
+out: r "Length of position vector"
+out: Φ "Flight path angle"
+out: v "Velocity when ν = 225°"
+
+# Given
+GM = 3.986005E14
+a = 7500 * 1E3
+ecc = 0.1
+ν = 225 * (π/180) # In radians
+
+# Length of position vector
+r = a × (1 - ecc^2) / (1 + ecc × cos ν) 
+r = round(r, 0)
+
+# Flight path angle
+Φ = atan( ecc × sin ν / (1 + ecc × cos ν) )
+Φ = round(Φ × (180/π), 3) # Convert to degrees and round to 3 decimals
+
+# Velocity when ν = 225°
+v = √(GM × (2 / r - 1 / a)) 
+v = round(v, 0)

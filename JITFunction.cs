@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -506,11 +506,6 @@ namespace Kerbulator {
 					typeof(Object)
 				)
 			);
-			/*
-			expr.Push(
-				Expression.Constant(Double.Parse(t.val, System.Globalization.CultureInfo.InvariantCulture))
-			);
-			*/
 		}
 
 		private void ParseOperator(Stack<Expression>expr, Stack<Operator>ops) {

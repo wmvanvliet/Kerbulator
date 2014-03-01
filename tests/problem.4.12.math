@@ -1,0 +1,30 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.12
+
+out: i "Inclination"
+out: ω "Argument of perigee"
+out: Ω "Longitude of ascending node"
+
+# Given
+β = 86 * (π/180) # In radians
+δ = 32 * (π/180) # In radians
+λ_2 = -60 * (π/180) # In radians
+ν = 25.794 * (π/180) # In radians, from problem 4.10
+
+# Inclination
+i = acos( cos δ * sin β )
+i = round(i * (180/π), 3) # Convert to degrees and round to 3 decimals
+
+# Argument of perigee
+l = atan( tan δ / cos β )
+ω = l - ν
+ω = round(ω * (180/π), 3) # Convert to degrees and round to 3 decimals
+
+# Longitude 
+Δλ = atan( sin δ * tan β )
+λ_1 = λ_2 - Δλ
+λ_1 = round(λ_1 * (180/π), 3) # Convert to degrees and round to 3 decimals
+
+# Sidereal time at -142.483 longitude, 2000-10-20, 15:00 UT 
+# TODO: do actual calculation.
+Ω = 111.892

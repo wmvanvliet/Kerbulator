@@ -1,0 +1,11 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.11
+
+# Given
+GM = 3.986005E14
+r_earth = 6378.14
+r1 = (r_earth + 250) × 1000
+v1 = 7900
+
+a = 1 / (2 / r1 - v1^2 / GM)
+a = round(a, 0)

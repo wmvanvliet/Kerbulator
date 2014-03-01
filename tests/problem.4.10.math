@@ -1,0 +1,17 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.10
+
+# Given
+GM = 3.986005E14
+r_earth = 6378.14
+r1 = (r_earth + 250) × 1000
+v1 = 7900
+y1 = 89 * (π/180) # In radians
+
+tanν = (r1 × v1^2 / GM) × sin y1 × cos y1 / {(r1 × v1^2 / GM) × sin(y1)^2 - 1}
+ν = atan(tanν)
+
+# Convert to degrees
+ν = ν * (180/π) 
+
+ν = round(ν, 3)

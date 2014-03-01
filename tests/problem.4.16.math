@@ -1,0 +1,23 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.16
+
+out: Ω_moon "Perturbations caused by Moon to longitude of ascending node"
+out: Ω_sun "Perturbations caused by Sun to longitude of ascending node"
+out: ω_moon "Perturbations caused by Moon to argument of perigee"
+out: ω_sun "Perturbations caused by Sun to argument of perigee"
+
+# Given
+i = 51.6 * (π/180) # In radians
+n = 1436 / 92.6 # Revolutions per day
+
+Ω_moon = -0.00338 × cos(i) / n 
+Ω_moon = round(Ω_moon, 6)
+
+Ω_sun  = -0.00154 × cos(i) / n
+Ω_sun = round(Ω_sun, 6)
+
+ω_moon = 0.00169 × (4 - 5 × sin(i)^2) / n
+ω_moon = round(ω_moon, 6)
+
+ω_sun  = 0.00077 × (4 - 5 × sin(i)^2) / n
+ω_sun = round(ω_sun, 6)

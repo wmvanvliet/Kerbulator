@@ -9,8 +9,8 @@ GM = 3.986005E14
 Rp = (6378.14 + 250) × 1000
 Ra = (6378.14 + 500) × 1000
 
-Vp = sqrt( 2 × GM × Ra / (Rp × (Ra + Rp)) )
-Va = sqrt( 2 × GM × Rp / (Ra × (Ra + Rp)) )
+Vp = √( 2 × GM × Ra / (Rp × (Ra + Rp)) )
+Va = √( 2 × GM × Rp / (Ra × (Ra + Rp)) )
 
 Vp = round(Vp, 0)
 Va = round(Va, 0)

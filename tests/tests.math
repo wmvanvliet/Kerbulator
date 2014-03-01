@@ -85,14 +85,8 @@ o = 1 + [[1,1,1], [2,2,2]]
 o = [1,2] + [[1,1,1], [2,2,2]]
 o = [[1,1,1], [2,2,2]] + [1,2]
 
-# Run test on all operators
-x = operators
-
-# Run test on all functions
-x = functions
-
-# Run test on constants
-x = constants
+# Run test on solver
+x = solver
 
 # Run test on globals
 #x = globals

@@ -1,0 +1,16 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.17
+
+out: Ω_J2 "J2 perturbations in longitude of the ascending node"
+out: ω_J2 "J2 perturbations in argument of perigee"
+
+# Given
+a = 7500
+i = 28.5 * (π/180) # In radians
+ecc = 0.1
+
+Ω_J2 = -2.06474E14 × a^(-7/2) × (cos i) × (1 - e^2)^(-2)
+ω_J2 = 1.03237E14 × a^(-7/2) × (4 - 5 × sin(i)^2) × (1 - e^2)^(-2)
+
+Ω_J2 = round(Ω_J2 * (180/π), 3) 
+ω_J2 = round(ω_J2 * (180/π), 3)
