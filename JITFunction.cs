@@ -152,15 +152,6 @@ namespace Kerbulator {
 			}
 
 			lastScan = DateTime.Now;
-
-			// Compile all functions that need compiling.
-			// Note that for compiling, the list of all user-functions
-			// must be known. That's why first this list is made and
-			// now all the functions in this list are compiled.
-			foreach(JITFunction f in kalc.Functions.Values) {
-				if(!f.IsCompiled)
-					f.Compile();
-			}	
 		}
 
 		virtual public List<Object> Execute() {
@@ -169,7 +160,7 @@ namespace Kerbulator {
 
 		public List<Object> Execute(List<Object> arguments) {
 			if(compiledFunction == null)
-				throw new Exception("Cannot execute function "+ this.id +": function is not compiled yet.");
+				Compile();
 
 			if(ins.Count != arguments.Count)
 				throw new Exception("function "+ this.id +" takes "+ ins.Count +" arguments, but "+ arguments.Count +" were specified");
