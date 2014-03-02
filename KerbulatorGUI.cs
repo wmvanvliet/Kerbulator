@@ -15,46 +15,50 @@ namespace Kerbulator {
 
 	public class KerbulatorGUI {
 		// Error reporting
-		private string error = null;
+		string error = null;
 
 		// Selecting functions and getting info
-		private JITFunction selectedFunction = null;
-		private string functionDescription = "";
-		private float functionDescriptionHeight = 0;
+		JITFunction selectedFunction = null;
+		string functionDescription = "";
+		float functionDescriptionHeight = 0;
 
 		// Editing functions
-		private JITFunction editFunction = null;
-		private string editFunctionContent = "";
-		private string editFunctionName = "maneuver";
-		private string functionFile = "maneuver.math";
-		private string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
+		JITFunction editFunction = null;
+		string editFunctionContent = "";
+		string editFunctionName = "maneuver";
+		string functionFile = "maneuver.math";
+		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
-		// Ruinning functions
-		private JITFunction runFunction = null;
-		private string functionOutput = "";
+		// Running functions
+		JITFunction runFunction = null;
+		JITFunction prevRunFunction = null;
+		string functionOutput = "";
+		ExecutionEnvironment env = null;
+		List<string>arguments = new List<string>();
+
 
 		// For dragging windows
-		private Rect titleBarRect = new Rect(0,0, 10000, 20);
+		Rect titleBarRect = new Rect(0,0, 10000, 20);
 
 		// Different scrollbars
-		private Vector2 mainScrollPos = new Vector2(0, 0);
-		private Vector2 editorScrollPos = new Vector2(0, 0);
-		private Vector2 runScrollPos = new Vector2(0, 0);
+		Vector2 mainScrollPos = new Vector2(0, 0);
+		Vector2 editorScrollPos = new Vector2(0, 0);
+		Vector2 runScrollPos = new Vector2(0, 0);
 
 		// Main Kerbulator instance
-		private Kerbulator kalc;
+		Kerbulator kalc;
 
 		// Main button position
-		private bool drawMainButton = false;
-		private Rect mainButtonPos = new Rect(190, 0, 32, 32);
+		bool drawMainButton = false;
+		Rect mainButtonPos = new Rect(190, 0, 32, 32);
 
 		// Window positions
-		private Rect mainWindowPos = new Rect(0, 60, 280, 400);
-		private bool mainWindowEnabled = false;
-		private Rect editWindowPos = new Rect(280, 60, 350, 300);
-		private bool editWindowEnabled = false;
-		private Rect runWindowPos = new Rect(0, 470, 200, 200);
-		private bool runWindowEnabled = false;
+		Rect mainWindowPos = new Rect(0, 60, 280, 400);
+		bool mainWindowEnabled = false;
+		Rect editWindowPos = new Rect(280, 60, 350, 300);
+		bool editWindowEnabled = false;
+		Rect runWindowPos = new Rect(0, 470, 200, 200);
+		bool runWindowEnabled = false;
 
 		// Dictionary containing all available functions
 		Dictionary<string, JITFunction> functions = new Dictionary<string, JITFunction>();
@@ -66,12 +70,12 @@ namespace Kerbulator {
 		string[] symbols = new[] {"=","+","-","*","×","·","/","÷","%", "√","^","(",")","[","]","{","}","⌊","⌋","⌈","⌉"};
 
 		// GUI styles in use
-		private bool stylesInitiated = false;
+		bool stylesInitiated = false;
 		GUIStyle keyboard;
 		GUIStyle defaultButton;
 
-		private IGlue glue;
-		private bool inEditor = false;
+		IGlue glue;
+		bool inEditor = false;
 
 		// Icons
 		Texture2D kerbulatorIcon;
@@ -196,7 +200,7 @@ namespace Kerbulator {
 
 					// Run it
 					List<System.Object> output = Run();
-					functionOutput = FormatOutput(runFunction, output);
+					functionOutput = FormatOutput(output);
 				}
 
 				GUILayout.EndHorizontal();
@@ -270,7 +274,7 @@ namespace Kerbulator {
 
 				// Run it
 				List<System.Object> output = Run();
-				functionOutput = FormatOutput(runFunction, output);
+				functionOutput = FormatOutput(output);
 			}
 
 			GUILayout.EndHorizontal();
@@ -324,33 +328,41 @@ namespace Kerbulator {
 			} else if(runFunction.InError) {
 				GUILayout.Label("ERROR: "+ runFunction.ErrorString);
 			} else {
-				/*
+				if(prevRunFunction != runFunction) {
+					arguments = new List<string>(runFunction.Ins.Count);
+					foreach(string arg in runFunction.Ins)
+						arguments.Add("");
+					prevRunFunction = runFunction;
+				}
+
 				if(runFunction.Ins.Count == 0) {
 					GUILayout.Label("Inputs: none.");
 				} else {
 					GUILayout.Label("Inputs:");
-					for(int i=0; i<runFunction.Ins.Count; i++) {
+					for(int i=0; i<arguments.Count; i++) {
 						GUILayout.BeginHorizontal();
-						GUILayout.Label(runFunction.Ins[i]);
-						GUILayout.TextField("0");
-						GUILayout.Label(runFunction.InDescriptions[i]);
+						GUILayout.Label(runFunction.Ins[i], GUILayout.Width(50));
+						arguments[i] = GUILayout.TextField(arguments[i]);
 						GUILayout.EndHorizontal();
 					}
 
+					/*
+					Vector2 mousePos = Event.current.mousePosition;
+					GUI.Label(new Rect(mousePos.x, mousePos.y -100, 100, 20), GUI.tooltip);
+					*/
 				}
-				*/
 
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
 					List<System.Object> output = Run();
-					functionOutput = FormatOutput(runFunction, output);
+					functionOutput = FormatOutput(output);
 				}
 				
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 					List<System.Object> output = Run();
 					glue.PlaceNode(runFunction.Outs, output);
-					functionOutput = FormatOutput(runFunction, output);
+					functionOutput = FormatOutput(output);
 				}
 
 				GUILayout.EndHorizontal();
@@ -370,13 +382,15 @@ namespace Kerbulator {
 				Save();
 
 			glue.AddGlobals(kalc);
-			ExecutionEnvironment ex = new ExecutionEnvironment(runFunction, kalc);
-			return ex.Execute();
+			env = new ExecutionEnvironment(runFunction, kalc);
+			env.SetArguments(arguments);
+			return env.Execute();
 		}
 
 		/// <summary>Save the current function being edited.</summary>
 		public void Save() {
-			if(editFunction != null) {
+			if(editFunction != null && editFunction.Id != editFunctionName) {
+				// Changing function name, remove old function
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
 				if(System.IO.File.Exists(oldFunctionFile)) {
 					try {
@@ -386,21 +400,38 @@ namespace Kerbulator {
 						return;
 					}
 				}
+
 				kalc.Functions.Remove(editFunction.Id);
+
+				if(selectedFunction.Id == editFunction.Id) {
+					selectedFunction = null;
+				}
+
+				if(runFunction.Id == editFunction.Id) {
+					runFunction = null;
+					env = null;
+					runWindowEnabled = false;
+				}
 			}
 
-			functionFile = functionDir +"/"+ editFunctionName +".math";
-
+			// Save new function
 			try {
+				functionFile = functionDir +"/"+ editFunctionName +".math";
 				System.IO.File.WriteAllText(functionFile, editFunctionContent);
 			} catch(Exception e) {
 				error = "Cannot save function: "+ e.Message;
 				return;
 			}
 
+			// Compile new function
 			JITFunction f = JITFunction.FromFile(functionFile, kalc);
-			kalc.Functions.Add(editFunctionName, f);
-            editFunction = kalc.Functions[editFunctionName];
+
+			if(!kalc.Functions.ContainsKey(editFunctionName))
+				kalc.Functions.Add(editFunctionName, f);
+			else
+				kalc.Functions[editFunctionName] = f;
+
+            editFunction = f;
 		}
 
 		/// <summary>Delete the current function being edited.</summary>
@@ -415,15 +446,30 @@ namespace Kerbulator {
 						return;
 					}
 				}
+
+				if(selectedFunction != null && selectedFunction.Id == editFunction.Id) {
+					selectedFunction = null;
+				}
+
+				if(runFunction != null && runFunction.Id == editFunction.Id) {
+					runFunction = null;
+					env = null;
+					runWindowEnabled = false;
+				}
+
+				kalc.Functions.Remove(editFunction.Id);
 			}
 
-			kalc.Functions.Remove(editFunction.Id);
+			editFunction = null;
 			editWindowEnabled = false;
 		}
 
 		/// <summary>Obtain some info of a function.</summary>
 		/// <param name="f">The function to obtain the info of</param>
 		public string FunctionDescription(JITFunction f) {
+			if(f.InError)
+				return "ERROR: "+ f.ErrorString;
+
 			string desc = "";
 
 			if(f.Ins.Count == 0) {
@@ -450,27 +496,24 @@ namespace Kerbulator {
 				}
 			}
 
-			if(f.InError)
-				desc += "\nERROR: "+ f.ErrorString;
-
 			return desc;
 		}
 
 		/// <summary>Provide a string representation of the output resulting from executing a function.</summary>
 		/// <param name="f">The function that was executed</param>
 		/// <param name="output">The variables resuting from the execution</param>
-		public string FormatOutput(JITFunction f, List<System.Object> output) {
+		public string FormatOutput(List<System.Object> output) {
+			if(env.InError)
+				return "ERROR: "+ env.ErrorString;
+
 			string desc = "Outputs:\n";
 			if(output.Count == 0) {
 				desc += "None.";
 			} else {
 				for(int i=0; i<output.Count; i++) {
-					desc += f.Outs[i]+" = "+ Kerbulator.FormatVar(output[i]) +"\n";
+					desc += env.Function.Outs[i]+" = "+ Kerbulator.FormatVar(output[i]) +"\n";
 				}
 			}
-
-			if(f.InError)
-				desc += "\nERROR: "+ f.ErrorString;
 
 			return desc;
 		}
@@ -522,10 +565,11 @@ namespace Kerbulator {
 			}
 
 			if(runFunction != null) {
-				if(functions.ContainsKey(runFunction.Id))
+				if(functions.ContainsKey(runFunction.Id)) {
 					runFunction = functions[runFunction.Id];
-				else {
+				} else {
 					runFunction = null;
+					arguments = new List<string>();
 					runWindowEnabled = false;
 				}
 				functionOutput = "";

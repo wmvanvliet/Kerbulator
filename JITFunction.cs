@@ -21,7 +21,7 @@ namespace Kerbulator {
 		List<string> outDescriptions;
 
 		bool inError = false;
-		string errorString = "";
+		Exception error = null;
 
 		Func<Object> compiledFunction = null;
 		static DateTime lastScan = new DateTime(0);
@@ -39,7 +39,6 @@ namespace Kerbulator {
 
 			this.kalc = kalc;
 			this.solv = new Solver(this);
-			//this.kalcExpression = Expression.Constant(kalc);
 
 			try {
 				Tokenizer tok = new Tokenizer(id);
@@ -47,7 +46,7 @@ namespace Kerbulator {
 				tokens = tok.tokens;
 			} catch(Exception e) {
 				inError = true;
-				errorString = e.Message;
+				error = e;
 			}
 		}
 
@@ -78,12 +77,12 @@ namespace Kerbulator {
 
 		public bool InError {
 			get { return inError; }
-			set { inError = value; if(!value) errorString = ""; }
+			set { inError = value; if(!value) error = null; }
 		}
 
 		public string ErrorString {
-			get { return errorString; }
-			set { errorString = (string)value; Kerbulator.DebugLine(value); inError = true; }
+			get { return error.Message; }
+			protected set { }
 		}
 
 		public bool IsCompiled {
@@ -195,78 +194,73 @@ namespace Kerbulator {
 		}
 
 		public void Compile() {
-			try {
-				// Skip leading whitespace
-				while(tokens.Peek().type == TokenType.END)
-					Consume();
+			// Skip leading whitespace
+			while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
+				Consume();
 
-				// Parse in: statements
-				while(tokens.Peek().type == TokenType.IN) {
-					Consume();
-					Token id = Consume(TokenType.IDENTIFIER);
+			// Parse in: statements
+			while(tokens.Count > 0 && tokens.Peek().type == TokenType.IN) {
+				Consume();
+				Token id = Consume(TokenType.IDENTIFIER);
 
-					if(tokens.Peek().type == TokenType.TEXT) {
-						inDescriptions.Add( tokens.Dequeue().val );
-					}
-
-					Consume(TokenType.END);
-					ins.Add(id.val);
-					Kerbulator.DebugLine("Found IN statement for "+ id.val);
+				if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+					inDescriptions.Add( tokens.Dequeue().val );
 				}
 
-				// Skip whitespace
-				while(tokens.Peek().type == TokenType.END)
-					Consume();
-
-				// Parse out: statements
-				while(tokens.Peek().type == TokenType.OUT) {
-					Consume();
-					Token id = Consume(TokenType.IDENTIFIER);
-
-					if(tokens.Peek().type == TokenType.TEXT)
-						outDescriptions.Add( tokens.Dequeue().val );
-					else
-						outDescriptions.Add("");
-
-					Consume(TokenType.END);
-					outs.Add(id.val);
-					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
-				}
-
-				Kerbulator.DebugLine("");
-
-				// Parse all other statements
-				List<Expression> statements = new List<Expression>();
-				while(tokens.Count > 0) {
-					Expression statement = ParseStatement();
-					if(statement != null)
-						statements.Add(statement);
-					Consume(TokenType.END);
-				}
-				
-				if(statements.Count == 0)
-					throw new Exception("In function "+ this.id +": function does not contain any statemtns (it's empty)");
-
-				// If no outputs are given, take last assigned variables as output
-				if(outs.Count == 0) {
-					outs = lastAssigned;
-					outDescriptions = new List<string>(outs.Count);
-					for(int i=0; i<outs.Count; i++)
-						outDescriptions.Add("");
-				}
-
-				// Create expression that will execute all the statements
-				Expression functionExpression = Expression.Call(
-					thisExpression,
-					typeof(JITFunction).GetMethod("ExecuteBlock"),
-					Expression.NewArrayInit(typeof(Object), statements)
-				);
-
-				compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
-			} catch(Exception e) {
-				this.inError = true;
-				this.errorString = e.Message;
+				Consume(TokenType.END);
+				ins.Add(id.val);
+				Kerbulator.DebugLine("Found IN statement for "+ id.val);
 			}
+
+			// Skip whitespace
+			while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
+				Consume();
+
+			// Parse out: statements
+			while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
+				Consume();
+				Token id = Consume(TokenType.IDENTIFIER);
+
+				if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
+					outDescriptions.Add( tokens.Dequeue().val );
+				else
+					outDescriptions.Add("");
+
+				Consume(TokenType.END);
+				outs.Add(id.val);
+				Kerbulator.DebugLine("Found OUT statement for "+ id.val);
+			}
+
+			Kerbulator.DebugLine("");
+
+			// Parse all other statements
+			List<Expression> statements = new List<Expression>();
+			while(tokens.Count > 0) {
+				Expression statement = ParseStatement();
+				if(statement != null)
+					statements.Add(statement);
+				Consume(TokenType.END);
+			}
+			
+			if(statements.Count == 0)
+				throw new Exception("In function "+ this.id +": function does not contain any statements (it's empty)");
+
+			// If no outputs are given, take last assigned variables as output
+			if(outs.Count == 0) {
+				outs = lastAssigned;
+				outDescriptions = new List<string>(outs.Count);
+				for(int i=0; i<outs.Count; i++)
+					outDescriptions.Add("");
+			}
+
+			// Create expression that will execute all the statements
+			Expression functionExpression = Expression.Call(
+				thisExpression,
+				typeof(JITFunction).GetMethod("ExecuteBlock"),
+				Expression.NewArrayInit(typeof(Object), statements)
+			);
+
+			compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
 		}
 
 		public Object SetLocal(string id, Object val) {
@@ -380,6 +374,9 @@ namespace Kerbulator {
 			Stack<Operator> ops = new Stack<Operator>();
 
 			bool end = false; // If ever set to true, this is the end of the expression
+
+			if(tokens.Count == 0)
+				throw new Exception("empty expression");
 
 			Token t = tokens.Peek();
 			while(!end && tokens.Count > 0 && tokens.Peek().type != TokenType.END) {
