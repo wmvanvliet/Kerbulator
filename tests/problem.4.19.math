@@ -1,0 +1,27 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.19
+
+out: ΔV_T "Δv required to execute Hohmann transfer"
+
+# Given
+GM = 3.986005E14
+r_A = (6378.14 + 200) × 1000
+r_B = 42164170 # From problem.4.3
+
+a_tx = (r_A + r_B) / 2
+
+Vi_A = √(GM / r_A)
+Vi_A = round(Vi_A, 0)
+
+Vf_B = √(GM / r_B)
+Vf_B = round(Vf_B, 0)
+
+Vtx_A = √(GM × (2 / r_A - 1 / a_tx))
+Vtx_A = round(Vtx_A, 0)
+
+Vtx_B = √(GM × (2 / r_B - 1 / a_tx))
+Vtx_B = round(Vtx_B, 0)
+
+ΔV_A = Vtx_A - Vi_A
+ΔV_B = Vf_B - Vtx_B
+ΔV_T = ΔV_A + ΔV_B

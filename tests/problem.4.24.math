@@ -1,0 +1,30 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.24
+
+out: lat_1 "Latitude of intersect point 1"
+out: long_1 "Longitude of intersect point 1"
+out: lat_2 "Latitude of intersect point 2"
+out: long_2 "Longitude of intersect point 2"
+
+# From problem.4.21
+
+a1 = 0.129410
+a2 = 0.482963
+a3 = 0.866025
+b1 = 0.0920195
+b2 = 0.521869
+b3 = 0.848048
+
+c1 = a2 × b3 - a3 × b2
+c2 = a3 × b1 - a1 × b3
+c3 = a1 × b2 - a2 × b1
+
+lat_1 = atan(c3 / (c1^2 + c2^2)^(1/2))
+long_1 = atan(c2 / c1) + π/2 # π/2 = 90 degrees in radians
+
+# Convert to degrees and round to 3 decimal places
+lat_1 = round(lat_1 * 180/π, 3)
+long_1 = round(long_1 * 180/π, 3)
+
+lat_2 = -23.965
+long_2 = 125.346 + 180

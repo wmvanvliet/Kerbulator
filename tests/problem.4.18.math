@@ -1,0 +1,28 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.19
+
+out: Δa_rev "Perturbations to semi-major axis caused by drag"
+out: ΔP_rev "Perturbations to orbital period caused by drag"
+out: ΔV_rev "Perturbations to orbital velocity caused by drag"
+out: L "Lifetime of satellite"
+
+# Given
+GM = 3.986005E14
+a = (6378.14 + 400) × 1000
+A = 2 × 4
+m = 1000
+C_D = 2.67
+ρ = 2.62E-12
+H = 58.2
+
+V = √(GM/a)
+
+Δa_rev = (-2 × π × C_D × A × ρ × a^2) / m
+ΔP_rev = (-6 × π^2 × C_D × A × ρ × a^2) / (m × V)
+ΔV_rev = (π × C_D × A × ρ × a × V) / m
+L = -H * 1000 / Δa_rev 
+
+Δa_rev = round(Δa_rev, 1)
+ΔP_rev = round(ΔP_rev, 4)
+ΔV_rev = round(ΔV_rev, 5)
+L = round(L, 0)
