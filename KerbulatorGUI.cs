@@ -575,5 +575,35 @@ namespace Kerbulator {
 				functionOutput = "";
 			}
 		}
+
+		JITFunction RunFunction {
+			get { return runFunction; }
+			set {
+				if(value == prevRunFunction)
+					return;
+
+				if(value == null) {
+					arguments = new List<string>();
+					runWindowEnabled = false;
+				} else {
+					if(value.InError)
+						arguments = new List<string>();
+					else {
+						arguments = new List<string>(value.Ins.Count);
+						foreach(string arg in value.Ins)
+							arguments.Add("");
+					}
+				}
+
+				runFunction = value;
+			}
+		}
+
+		JITFunction EditFunction {
+			get { return editFunction; }
+			set {
+				editFunction = value;
+			}
+		}
 	}
 }
