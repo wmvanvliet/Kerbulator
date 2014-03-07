@@ -120,6 +120,7 @@ namespace Kerbulator {
 				else if(j >= compiledFunctions.Count) {
 					// Added function
 					JITFunction f = FromFile(files[i], kalc);
+					f.Compile();
 					kalc.Functions[f.Id] = f;
 					i++;
 				}
@@ -133,6 +134,7 @@ namespace Kerbulator {
 				else if(string.Compare(files[i], compiledFunctions[j]) == -1) {
 					// Added function
 					JITFunction f = FromFile(files[i], kalc);
+					f.Compile();
 					kalc.Functions[f.Id] = f;
 					j++;
 				}
@@ -143,6 +145,7 @@ namespace Kerbulator {
 					DateTime dt = File.GetLastWriteTime(files[i]);
 					if(dt > lastScan) {
 						JITFunction f = FromFile(files[i], kalc);
+						f.Compile();
 						kalc.Functions[f.Id] = f;
 					}
 
@@ -260,7 +263,13 @@ namespace Kerbulator {
 				Expression.NewArrayInit(typeof(Object), statements)
 			);
 
-			compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
+			try {
+				compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
+			} catch(Exception e) {
+				compiledFunction = null;
+				inError = true;
+				error = e;
+			}
 		}
 
 		public Object SetLocal(string id, Object val) {

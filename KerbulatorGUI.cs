@@ -157,7 +157,7 @@ namespace Kerbulator {
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ runFunction.Id, GUILayout.ExpandHeight(false));
+				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id, GUILayout.ExpandHeight(false));
 			}
 		}
 
@@ -194,8 +194,7 @@ namespace Kerbulator {
 
 				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 					// Load the function to be run
-					functionOutput = "";
-					runFunction = f.Value;
+					RunFunction = f.Value;
 					runWindowEnabled = true;
 
 					// Run it
@@ -268,8 +267,7 @@ namespace Kerbulator {
 				Save();
 
 				// Load the function to be run
-				functionOutput = "";
-				runFunction = editFunction;
+				RunFunction = editFunction;
 				runWindowEnabled = true;
 
 				// Run it
@@ -322,27 +320,19 @@ namespace Kerbulator {
 		public void DrawRunWindow(int id) {
 			// Close button
 			runWindowEnabled = !GUI.Toggle(new Rect(runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
+			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(170));
 
-			if(runFunction == null) {
+			if(RunFunction == null) {
 				GUILayout.Label("ERROR: no function selected.");
-			} else if(runFunction.InError) {
-				GUILayout.Label("ERROR: "+ runFunction.ErrorString);
+			} else if(RunFunction.InError) {
+				GUILayout.Label("ERROR: "+ RunFunction.ErrorString);
 			} else {
-				if(prevRunFunction != runFunction) {
-					arguments = new List<string>(runFunction.Ins.Count);
-					foreach(string arg in runFunction.Ins)
-						arguments.Add("");
-					prevRunFunction = runFunction;
-				}
-
-				if(runFunction.Ins.Count == 0) {
-					GUILayout.Label("Inputs: none.");
-				} else {
+				if(RunFunction.Ins.Count > 0) {
 					GUILayout.Label("Inputs:");
 					for(int i=0; i<arguments.Count; i++) {
 						GUILayout.BeginHorizontal();
-						GUILayout.Label(runFunction.Ins[i], GUILayout.Width(50));
-						arguments[i] = GUILayout.TextField(arguments[i]);
+						GUILayout.Label(RunFunction.Ins[i]);
+						arguments[i] = GUILayout.TextField(arguments[i], GUILayout.Width(150));
 						GUILayout.EndHorizontal();
 					}
 
@@ -361,28 +351,32 @@ namespace Kerbulator {
 				
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 					List<System.Object> output = Run();
-					glue.PlaceNode(runFunction.Outs, output);
+					glue.PlaceNode(RunFunction.Outs, output);
 					functionOutput = FormatOutput(output);
 				}
 
 				GUILayout.EndHorizontal();
 
-				runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(150));
 				GUILayout.Label(functionOutput);
-				GUILayout.EndScrollView();
 			}
 
+			GUILayout.EndScrollView();
 			GUI.DragWindow(titleBarRect);
 		}
 
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
 		public List<System.Object> Run() {
-			if(runFunction == editFunction)
+			if(RunFunction == editFunction)
 				Save();
 
+			foreach(string arg in arguments) {
+				if(arg == "")
+					return null;
+			}
+
 			glue.AddGlobals(kalc);
-			env = new ExecutionEnvironment(runFunction, kalc);
+			env = new ExecutionEnvironment(RunFunction, kalc);
 			env.SetArguments(arguments);
 			return env.Execute();
 		}
@@ -403,15 +397,12 @@ namespace Kerbulator {
 
 				kalc.Functions.Remove(editFunction.Id);
 
-				if(selectedFunction.Id == editFunction.Id) {
+				if(selectedFunction != null && selectedFunction.Id == editFunction.Id) {
 					selectedFunction = null;
 				}
 
-				if(runFunction.Id == editFunction.Id) {
-					runFunction = null;
-					env = null;
-					runWindowEnabled = false;
-				}
+				if(RunFunction != null && RunFunction.Id == editFunction.Id)
+					RunFunction = null;
 			}
 
 			// Save new function
@@ -425,6 +416,9 @@ namespace Kerbulator {
 
 			// Compile new function
 			JITFunction f = JITFunction.FromFile(functionFile, kalc);
+			f.Compile();
+			if(RunFunction != null && RunFunction.Id == f.Id)
+				RunFunction = f;
 
 			if(!kalc.Functions.ContainsKey(editFunctionName))
 				kalc.Functions.Add(editFunctionName, f);
@@ -451,11 +445,8 @@ namespace Kerbulator {
 					selectedFunction = null;
 				}
 
-				if(runFunction != null && runFunction.Id == editFunction.Id) {
-					runFunction = null;
-					env = null;
-					runWindowEnabled = false;
-				}
+				if(RunFunction != null && RunFunction.Id == editFunction.Id)
+					RunFunction = null;
 
 				kalc.Functions.Remove(editFunction.Id);
 			}
@@ -503,8 +494,14 @@ namespace Kerbulator {
 		/// <param name="f">The function that was executed</param>
 		/// <param name="output">The variables resuting from the execution</param>
 		public string FormatOutput(List<System.Object> output) {
+			if(env == null)
+				return "";
+
 			if(env.InError)
 				return "ERROR: "+ env.ErrorString;
+
+			if(output == null)
+				return "";
 
 			string desc = "Outputs:\n";
 			if(output.Count == 0) {
@@ -565,13 +562,11 @@ namespace Kerbulator {
 			}
 
 			if(runFunction != null) {
-				if(functions.ContainsKey(runFunction.Id)) {
+				if(functions.ContainsKey(runFunction.Id))
 					runFunction = functions[runFunction.Id];
-				} else {
+				else
 					runFunction = null;
-					arguments = new List<string>();
-					runWindowEnabled = false;
-				}
+
 				functionOutput = "";
 			}
 		}
@@ -579,19 +574,34 @@ namespace Kerbulator {
 		JITFunction RunFunction {
 			get { return runFunction; }
 			set {
-				if(value == prevRunFunction)
+				if(value == prevRunFunction) {
+					Debug.Log("Not setting run function");
 					return;
+				} else {
+					prevRunFunction = value;
+				}
 
 				if(value == null) {
+					Debug.Log("Resetting run function");
 					arguments = new List<string>();
 					runWindowEnabled = false;
+					env = null;
 				} else {
+					Debug.Log("Setting run function to "+ value.Id +" with "+ value.Ins.Count +" inputs.");
 					if(value.InError)
 						arguments = new List<string>();
 					else {
+						float maxWidth = 0; 
 						arguments = new List<string>(value.Ins.Count);
-						foreach(string arg in value.Ins)
+						foreach(string arg in value.Ins) {
 							arguments.Add("");
+							Vector2 size = GUI.skin.GetStyle("label").CalcSize(new GUIContent(arg));
+							Debug.Log(size);
+							if(size.x > maxWidth)
+								maxWidth = size.x;
+						}
+						runWindowPos = new Rect(runWindowPos.x, runWindowPos.y, maxWidth + 200, runWindowPos.height);
+						Debug.Log("Setting args: "+ arguments.Count);
 					}
 				}
 
