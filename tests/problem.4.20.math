@@ -1,0 +1,40 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.20
+
+out: ΔV_T "Δv required to execute the transfer"
+out: TOF "Time required to complete the transfer"
+
+# Given
+GM = 3.986005E14
+r_A = (6378.14 + 200) × 1000
+r_B = 42164170 # From problem.4.3
+a_tx = 30000 × 1000
+
+ecc = 1 - r_A / a_tx
+ν = acos((a_tx × (1 - ecc^2) / r_B - 1) / ecc)
+Φ = atan(ecc × sin ν / (1 + ecc × cos ν))
+
+Vi_A = √(GM / r_A)
+Vi_A = round(Vi_A, 0)
+
+Vf_B = √(GM / r_B)
+Vf_B = round(Vf_B, 0)
+
+Vtx_A = √(GM × (2 / r_A - 1 / a_tx))
+Vtx_A = round(Vtx_A, 0)
+
+Vtx_B = √(GM × (2 / r_B - 1 / a_tx))
+Vtx_B = round(Vtx_B, 0)
+
+ΔV_A = Vtx_A - Vi_A
+
+ΔV_B = √(Vtx_B^2 + Vf_B^2 - 2 × Vtx_B × Vf_B × cos Φ)
+ΔV_B = round(ΔV_B, 0)
+
+ΔV_T = ΔV_A + ΔV_B
+
+E = atan( (1 - ecc^2)^(1/2) × sin ν / (ecc + cos ν))
+E = E + π # Wrap around to obtain positive radians
+
+TOF = (E - ecc × sin E) × √(a_tx^3 / GM)
+TOF = round(TOF / 3600, 3) # Convert seconds to hours, round to 3 decimal places

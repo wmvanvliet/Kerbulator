@@ -1,0 +1,21 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.23
+
+out: θ "Required angle change"
+
+# Given
+i_i = 30 × π/180 # In radians 
+Ω_i = 75 × π/180 # In radians 
+i_f = 32 × π/180 # In radians 
+Ω_f = 80 × π/180 # In radians 
+
+a1 = sin(i_i) × cos(Ω_i)
+a2 = sin(i_i) × sin(Ω_i)
+a3 = cos(i_i)
+
+b1 = sin(i_f) × cos(Ω_f)
+b2 = sin(i_f) × sin(Ω_f)
+b3 = cos(i_f)
+
+θ = acos(a1 × b1 + a2 × b2 + a3 × b3)
+θ = round(θ × 180/π, 3) # Convert to degrees, round to 3 decimal places

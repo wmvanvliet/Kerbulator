@@ -1,0 +1,19 @@
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.22
+
+out: ΔV_T "Δv required to execute the Hohmann transfer"
+
+# Given
+r_A = (6378.14 + 200) × 1000
+r_B = 42164170
+θ = 28 × π/180 # In radians 
+
+# From problem.4.19
+Vf_B = 3075
+Vtx_B = 1597
+ΔV_A = 2455
+
+ΔV_B = √(Vtx_B^2 + Vf_B^2 - 2 × Vtx_B × Vf_B × cos θ)
+ΔV_T = ΔV_A + ΔV_B
+
+ΔV_T = round(ΔV_T, 0)
