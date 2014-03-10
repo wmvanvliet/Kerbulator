@@ -51,7 +51,7 @@ namespace Kerbulator {
 			sim[0] = new double[N];
 			for(int i=0; i<N; i++) {
 				if(func.IsLocalDefined(vars[i])) {
-					Object o = func.GetLocal(vars[i], pos);
+					Object o = func.GetVar(vars[i], pos);
 					if(o.GetType() != typeof(double))
 						throw new Exception(pos +"solver cannot optimize variables of type list");
 					sim[0][i] = (double) o;
@@ -201,11 +201,11 @@ namespace Kerbulator {
 			Kerbulator.DebugLine("Leaving solver");
 			// Copy the locals of interest to the output
 			if(vars.Length == 1)
-				return func.GetLocal(vars[0], pos);
+				return func.GetVar(vars[0], pos);
 			else {
 				List<Object> outs = new List<Object>(vars.Length);
 				foreach(string id in vars)
-					outs.Add(func.GetLocal(id, pos));
+					outs.Add(func.GetVar(id, pos));
 
 				return (Object) outs.ToArray();
 			}

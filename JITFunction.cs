@@ -120,7 +120,6 @@ namespace Kerbulator {
 				else if(j >= compiledFunctions.Count) {
 					// Added function
 					JITFunction f = FromFile(files[i], kalc);
-					f.Compile();
 					kalc.Functions[f.Id] = f;
 					i++;
 				}
@@ -134,7 +133,6 @@ namespace Kerbulator {
 				else if(string.Compare(files[i], compiledFunctions[j]) == -1) {
 					// Added function
 					JITFunction f = FromFile(files[i], kalc);
-					f.Compile();
 					kalc.Functions[f.Id] = f;
 					j++;
 				}
@@ -145,11 +143,19 @@ namespace Kerbulator {
 					DateTime dt = File.GetLastWriteTime(files[i]);
 					if(dt > lastScan) {
 						JITFunction f = FromFile(files[i], kalc);
-						f.Compile();
 						kalc.Functions[f.Id] = f;
 					}
 
 					i++; j++;
+				}
+			}
+
+			foreach(JITFunction f in kalc.Functions.Values) {
+				try {
+					f.Compile();
+				} catch(Exception e) {
+					f.error = e;
+					f.inError = true;
 				}
 			}
 
@@ -197,6 +203,9 @@ namespace Kerbulator {
 		}
 
 		public void Compile() {
+			if(compiledFunction != null)
+				return; // Already compiled
+
 			// Skip leading whitespace
 			while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
 				Consume();
@@ -846,10 +855,13 @@ namespace Kerbulator {
 			return false;
 		}
 
-		public Object GetLocal(string id, string pos) {
-			if(!locals.ContainsKey(id))
+		public Object GetVar(string id, string pos) {
+			if(locals.ContainsKey(id))
+				return locals[id];
+			else if(kalc.Globals.ContainsKey(id))
+				return kalc.Globals[id];
+			else
 				throw new Exception(pos +"variable or function '"+ id +"' is not defined.");
-			return locals[id];
 		}
 
 		public bool IsLocalDefined(string id) {
@@ -892,10 +904,8 @@ namespace Kerbulator {
 					ops.Push(kalc.Operators["buildin-function"]);
 					expr.Push(Expression.Constant(t.val));
 				}
-			} else if(kalc.Globals.ContainsKey(t.val)) {
-				expr.Push(Expression.Constant( kalc.Globals[t.val], typeof(Object) ));
 			} else {
-				// Local identifier
+				// Variable identifier
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, but function doesn't exist
 					throw new Exception(t.pos +"function "+ t.val +" does not exist");
@@ -904,7 +914,7 @@ namespace Kerbulator {
 				expr.Push(
 					Expression.Call(
 						thisExpression,
-						typeof(JITFunction).GetMethod("GetLocal"),
+						typeof(JITFunction).GetMethod("GetVar"),
 						Expression.Constant(t.val),
 						Expression.Constant(t.pos)
 					)
