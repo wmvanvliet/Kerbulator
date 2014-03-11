@@ -82,6 +82,7 @@ namespace Kerbulator {
 		Texture2D kerbulatorIcon;
 		Texture2D editIcon;
 		Texture2D runIcon;
+		Texture2D repeatIcon;
 		Texture2D saveIcon;
 		Texture2D deleteIcon;
 		Texture2D nodeIcon;
@@ -117,6 +118,7 @@ namespace Kerbulator {
 			kerbulatorIcon = glue.GetTexture("kerbulator");
 			editIcon = glue.GetTexture("edit");
 			runIcon = glue.GetTexture("run");
+			repeatIcon = glue.GetTexture("repeat");
 			nodeIcon = glue.GetTexture("node");
 			saveIcon = glue.GetTexture("save");
 			deleteIcon = glue.GetTexture("delete");
@@ -366,6 +368,11 @@ namespace Kerbulator {
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
+					List<System.Object> output = Run();
+					functionOutput = FormatOutput(output);
+				}
+
+				if(GUILayout.Button(repeatIcon, defaultButton, GUILayout.Height(32))) {
 					List<System.Object> output = Run();
 					functionOutput = FormatOutput(output);
 				}
