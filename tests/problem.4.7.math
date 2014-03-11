@@ -7,10 +7,10 @@ out: Ra "Altitude at apogee"
 # Given
 r_earth = 6378.14
 a = 6700
-ecc = 0.01
+e = 0.01
 
-Rp = a × (1 - ecc)
-Ra = a × (1 + ecc)
+Rp = a × (1 - e)
+Ra = a × (1 + e)
 
 Rp = round(Rp - r_earth, 1)
 Ra = round(Ra - r_earth, 1)

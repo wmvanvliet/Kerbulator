@@ -2,13 +2,13 @@
 # http://www.braeunig.us/space/problem.htm#4.13
 
 a = 7500 * 1E3
-ecc = 0.1
+e = 0.1
 t_0 = 0
 v_0 = 30 * (π/180)
 v = 90 * (π/180)
 
-E_0 = acos((ecc + cos(v_0)) / (1 + ecc * cos(v_0)))
-E = acos((ecc + cos(v)) / (1 + ecc * cos(v)))
+E_0 = acos((e + cos(v_0)) / (1 + e * cos(v_0)))
+E = acos((e + cos(v)) / (1 + e * cos(v)))
 
 M_0 = E_0 - 0.1 * sin(E_0)
 M = E - 0.1 * sin(E)

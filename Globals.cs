@@ -131,8 +131,10 @@ namespace Kerbulator {
 		}
 
 		public static void AddDouble(Kerbulator kalc, string id, double v) {
-			Variable g = new Variable(id, VarType.NUMBER, v);
-			kalc.Globals.Add(id, g);
+			if(kalc.Globals.ContainsKey(id))
+				kalc.Globals[id] = (System.Object) v; 
+			else
+				kalc.Globals.Add(id, (System.Object) v);
 		}
 
 		public static void AddBool(Kerbulator kalc, string id, bool v) {
@@ -150,8 +152,10 @@ namespace Kerbulator {
 			elements.Add(y);
 			elements.Add(z);
 
-			Variable g = new Variable(id, VarType.LIST, elements);
-			kalc.Globals.Add(id, g);
+			if(kalc.Globals.ContainsKey(id))
+				kalc.Globals[id] = (System.Object) elements.ToArray();
+			else
+				kalc.Globals.Add(id, (System.Object) elements.ToArray());
 		}
 
 		public static void AddVector3(Kerbulator kalc, string id, Vector3 v) {
@@ -164,8 +168,7 @@ namespace Kerbulator {
 			elements.Add(y);
 			elements.Add(z);
 
-			Variable g = new Variable(id, VarType.LIST, elements);
-			kalc.Globals.Add(id, g);
+			kalc.Globals.Add(id, (System.Object) elements.ToArray());
 		}
 	}
 }

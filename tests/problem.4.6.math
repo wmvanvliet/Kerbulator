@@ -6,5 +6,5 @@ GM = 3.986005E14
 Rp = (6378.14 + 200) × 1000
 Vp = 7850
 
-ecc = Rp × Vp^2 / GM - 1
-ecc = round(ecc, 5)
+e = Rp × Vp^2 / GM - 1
+e = round(e, 5)

@@ -6,7 +6,7 @@ namespace Kerbulator {
 			if(a.GetType() != typeof(Object[]))
 				throw new Exception(pos +"function len() can only be called with a list as argument");
 
-			return (Object) ((Object[]) a).Length;
+			return (Object) (double) ((Object[]) a).Length;
 		}
 
 		public static Object Dot(Object a, Object b, string pos) {

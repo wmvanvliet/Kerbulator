@@ -36,7 +36,6 @@ namespace Kerbulator {
 		ExecutionEnvironment env = null;
 		List<string>arguments = new List<string>();
 
-
 		// For dragging windows
 		Rect titleBarRect = new Rect(0,0, 10000, 20);
 
@@ -63,6 +62,8 @@ namespace Kerbulator {
 		// Dictionary containing all available functions
 		Dictionary<string, JITFunction> functions = new Dictionary<string, JITFunction>();
 		string functionDir = "";
+
+		bool reload = false;
 
 		// Math symbols
         string[] greekLetters = new[] {"α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ","υ","φ","χ","ψ","ω"};
@@ -104,7 +105,7 @@ namespace Kerbulator {
 				functionDir = homePath +"/KerbulatorFunctions";
 			}
 
-			Debug.Log("Function dir: "+ functionDir);
+			Debug.Log("Kerbulator function dir: "+ functionDir);
 
 			editFunctionContent = maneuverTemplate;
 
@@ -147,6 +148,17 @@ namespace Kerbulator {
 				}
 			}
 
+			if(reload) {
+				// Rebuild the list of functions. It could be that they were edited outside of KSP
+				JITFunction.Scan(functionDir, kalc);
+
+				// Reload the function being edited
+				if(editFunction != null)
+					editFunctionContent = System.IO.File.ReadAllText(functionFile);
+
+				reload = false;
+			}
+
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
 				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
@@ -174,6 +186,8 @@ namespace Kerbulator {
 
 			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(300));
 
+			bool runSomething = false;
+
 			foreach(KeyValuePair<string, JITFunction> f in kalc.Functions) {
 				GUILayout.BeginHorizontal();
 
@@ -197,9 +211,10 @@ namespace Kerbulator {
 					RunFunction = f.Value;
 					runWindowEnabled = true;
 
-					// Run it
-					List<System.Object> output = Run();
-					functionOutput = FormatOutput(output);
+					// Run it, but only after this loop finishes.
+					// Run() calls Scan(), which updates the dictionary we're currently
+					// enumerating over, which is not allowed.
+					runSomething = true;
 				}
 
 				GUILayout.EndHorizontal();
@@ -239,6 +254,12 @@ namespace Kerbulator {
 			GUILayout.EndHorizontal();
 
 			GUI.DragWindow(titleBarRect);
+
+			// Run button was pressed, run the function
+			if(runSomething) {
+				List<System.Object> output = Run();
+				functionOutput = FormatOutput(output);
+			}
 		}
 		
 		/// <summary>Draws the edit window that allows basic text editing.</summary>
@@ -367,6 +388,8 @@ namespace Kerbulator {
 		/// <summary>Run a function.</summary>
 		/// <param name="f">The function to run</param>
 		public List<System.Object> Run() {
+			Debug.Log("Running "+ RunFunction.Id);
+
 			if(RunFunction == editFunction)
 				Save();
 
@@ -376,8 +399,12 @@ namespace Kerbulator {
 			}
 
 			glue.AddGlobals(kalc);
+
+			Debug.Log("Creating new env");
 			env = new ExecutionEnvironment(RunFunction, kalc);
+			Debug.Log("Setting args");
 			env.SetArguments(arguments);
+			Debug.Log("Execute()!");
 			return env.Execute();
 		}
 
@@ -519,12 +546,9 @@ namespace Kerbulator {
 		/// <param name="focused">True when the game gained focues, otherwise false</summary>
 		public void OnApplicationFocus(bool focused) {
 			if(focused) {
-				// Rebuild the list of functions. It could be that they were edited outside of KSP
-				JITFunction.Scan(functionDir, kalc);
-
-				// Reload the function being edited
-				if(editFunction != null)
-					editFunctionContent = System.IO.File.ReadAllText(functionFile);
+				// Coming back from another app.
+				// Rebuild the list of functions, but do this later, in the GUI thread.
+				reload = true;
 			} else {
 				Save();
 			}
@@ -575,37 +599,33 @@ namespace Kerbulator {
 			get { return runFunction; }
 			set {
 				if(value == prevRunFunction) {
-					Debug.Log("Not setting run function");
 					return;
 				} else {
 					prevRunFunction = value;
 				}
 
 				if(value == null) {
-					Debug.Log("Resetting run function");
 					arguments = new List<string>();
 					runWindowEnabled = false;
 					env = null;
 				} else {
-					Debug.Log("Setting run function to "+ value.Id +" with "+ value.Ins.Count +" inputs.");
 					if(value.InError)
 						arguments = new List<string>();
-					else {
+					else if(value.Id != prevRunFunction.Id || arguments.Count != prevRunFunction.Ins.Count) {
 						float maxWidth = 0; 
 						arguments = new List<string>(value.Ins.Count);
 						foreach(string arg in value.Ins) {
 							arguments.Add("");
 							Vector2 size = GUI.skin.GetStyle("label").CalcSize(new GUIContent(arg));
-							Debug.Log(size);
 							if(size.x > maxWidth)
 								maxWidth = size.x;
 						}
 						runWindowPos = new Rect(runWindowPos.x, runWindowPos.y, maxWidth + 200, runWindowPos.height);
-						Debug.Log("Setting args: "+ arguments.Count);
 					}
 				}
 
 				runFunction = value;
+				functionOutput = "";
 			}
 		}
 

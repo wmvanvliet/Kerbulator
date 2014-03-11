@@ -42,7 +42,9 @@ namespace Kerbulator {
 
 		/// <summary>Add/Update some useful globals</summary>
 		public void AddGlobals(Kerbulator kalc) {
+			Debug.Log("Adding globals");
 			Globals.Add(kalc); // UNITY
+			Debug.Log("Done.");
 		}
 		public void PlaceNode(List<string> ids, List<System.Object> output) { 
 			double dr = 0, dn = 0, dp = 0;

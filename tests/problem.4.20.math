@@ -10,9 +10,9 @@ r_A = (6378.14 + 200) × 1000
 r_B = 42164170 # From problem.4.3
 a_tx = 30000 × 1000
 
-ecc = 1 - r_A / a_tx
-ν = acos((a_tx × (1 - ecc^2) / r_B - 1) / ecc)
-Φ = atan(ecc × sin ν / (1 + ecc × cos ν))
+e = 1 - r_A / a_tx
+ν = acos((a_tx × (1 - e^2) / r_B - 1) / e)
+Φ = atan(e × sin ν / (1 + e × cos ν))
 
 Vi_A = √(GM / r_A)
 Vi_A = round(Vi_A, 0)
@@ -33,8 +33,8 @@ Vtx_B = round(Vtx_B, 0)
 
 ΔV_T = ΔV_A + ΔV_B
 
-E = atan( (1 - ecc^2)^(1/2) × sin ν / (ecc + cos ν))
+E = atan( (1 - e^2)^(1/2) × sin ν / (e + cos ν))
 E = E + π # Wrap around to obtain positive radians
 
-TOF = (E - ecc × sin E) × √(a_tx^3 / GM)
+TOF = (E - e × sin E) × √(a_tx^3 / GM)
 TOF = round(TOF / 3600, 3) # Convert seconds to hours, round to 3 decimal places
