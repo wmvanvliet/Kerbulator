@@ -26,6 +26,8 @@ namespace Kerbulator {
 		Func<Object> compiledFunction = null;
 		static DateTime lastScan = new DateTime(0);
 
+		static Random random = new Random();
+
 		public JITFunction(string id, string expression, Kerbulator kalc) { 
 			this.id = id;
 
@@ -988,6 +990,13 @@ namespace Kerbulator {
 					break;
 				case "pow":
 						funcExpression = CallBinaryMathFunction(func.id, "Pow", arguments[0], arguments[1], pos);
+					break;
+				case "rand":
+					funcExpression = Expression.Call(
+						Expression.Constant(random, typeof(Random)),
+						typeof(Random).GetMethod("NextDouble"),
+						new Expression[] {}
+					);
 					break;
 				case "round":
 					funcExpression = CallBinaryLambda(func.id, (a,b) => Math.Round(a, (int)b), arguments[0], arguments[1], pos);

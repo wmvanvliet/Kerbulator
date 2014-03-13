@@ -58,6 +58,7 @@ namespace Kerbulator {
 			buildInFunctions.Add("max", new BuildInFunction("max", 2));
 			buildInFunctions.Add("min", new BuildInFunction("min", 2));
 			buildInFunctions.Add("pow", new BuildInFunction("pow", 2));
+			buildInFunctions.Add("rand", new BuildInFunction("rand", 0));
 			buildInFunctions.Add("round", new BuildInFunction("round", 2));
 			buildInFunctions.Add("sign", new BuildInFunction("sign", 1));
 			buildInFunctions.Add("sin", new BuildInFunction("sin", 1));
