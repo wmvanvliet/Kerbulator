@@ -209,6 +209,7 @@ Name         | Description
 `max(a,b)`   | `a` if `a >= b` otherwise `b`
 `min(a,b)`   | `a` if `a <= b` otherwise `b`
 `pow(a,b)`   | a to the power of b
+`rand()`     | Generate a random number between 0 and 1
 `round(a,b)` | Round a to b decimal places
 `sign(x)`    | `-1` if `a < 0` otherwise 1
 `sin(x)`     | Sine
