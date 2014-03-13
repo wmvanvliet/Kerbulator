@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.IO;
 using System;
+using UnityEngine;
 
 namespace Kerbulator {
 	public class ExecutionEnvironment {
@@ -11,6 +13,11 @@ namespace Kerbulator {
 
 		Exception error;
 		bool inError = false;
+
+		List<System.Object> output = null;
+		public Rect windowPos = new Rect(0, 0, 200, 100);
+		public Vector2 scrollPos = new Vector2(0, 0);
+		public bool enabled = false;
 
 		public ExecutionEnvironment(JITFunction func, Kerbulator kalc) {
 			this.func = func;
@@ -33,27 +40,42 @@ namespace Kerbulator {
 			protected set { }
 		}
 
-		public List<Object> Execute() {
-			if(inError)
+		public List<System.Object> Output {
+			get { return output; }
+			protected set { }
+		}
+
+		public List<System.Object> Execute() {
+			if(inError) {
+				output = null;
 				return null;
+			}
 				
 			if(func.InError)
 				throw new Exception("Tried to execute a function that is in error state: "+ func.ErrorString);
 
 			try {
 				// Evaluate input expressions to yield the input arguments
-				List<Object> inputArguments = new List<Object>(func.Ins.Count);
+				List<System.Object> inputArguments = new List<System.Object>(func.Ins.Count);
 				foreach(JITExpression e in inputExpressions)
 					inputArguments.Add( e.Execute() );
 
 				// Call function using input arguments
-				List<Object> r = func.Execute(inputArguments);
-				return r;
+				output = func.Execute(inputArguments);
+				return output;
 
 			} catch(Exception e) {
 				inError = true;
 				error = e;
+				output = null;
 				return null;
+			}
+		}
+
+		public IEnumerator RepeatedExecute() {
+			while(enabled) {
+				output = Execute();
+				yield return new WaitForSeconds(0.2F);
 			}
 		}
 

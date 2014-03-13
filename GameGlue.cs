@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using System;
 using UnityEngine;
 using KSP.IO;
@@ -42,9 +43,7 @@ namespace Kerbulator {
 
 		/// <summary>Add/Update some useful globals</summary>
 		public void AddGlobals(Kerbulator kalc) {
-			Debug.Log("Adding globals");
 			Globals.Add(kalc); // UNITY
-			Debug.Log("Done.");
 		}
 		public void PlaceNode(List<string> ids, List<System.Object> output) { 
 			double dr = 0, dn = 0, dp = 0;
@@ -105,10 +104,16 @@ namespace Kerbulator {
 		/// <summary>Called by Unity when plugin is unloaded</summary>
 		public void OnDestroy() {
 			mainButton.Destroy();
+			if(gui != null)
+				gui.OnDestroy();
 		}
 
 		public void ChangeState(bool open) {
             mainWindowEnabled = open;
+		}
+
+		public void RunAsCoroutine(IEnumerator f) {
+			StartCoroutine(f);
 		}
 	}
 }

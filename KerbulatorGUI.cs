@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 namespace Kerbulator {
@@ -11,11 +12,15 @@ namespace Kerbulator {
 		void AddGlobals(Kerbulator kalc);
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
+		void RunAsCoroutine(IEnumerator f);
 	}
 
 	public class KerbulatorGUI {
 		// Error reporting
 		string error = null;
+
+		// Tooltips
+		string tooltip = "";
 
 		// Selecting functions and getting info
 		JITFunction selectedFunction = null;
@@ -35,9 +40,18 @@ namespace Kerbulator {
 		string functionOutput = "";
 		ExecutionEnvironment env = null;
 		List<string>arguments = new List<string>();
+		Dictionary<int, ExecutionEnvironment> envs = new Dictionary<int, ExecutionEnvironment>();
+
+		// Unique window id
+		int windowId = 93841;
 
 		// For dragging windows
 		Rect titleBarRect = new Rect(0,0, 10000, 20);
+
+		// For resizing windows
+		int resizing = 0;
+		Rect resizeStart = new Rect();
+		GUIContent gcDrag = new GUIContent("////", "Drag to resize window");
 
 		// Different scrollbars
 		Vector2 mainScrollPos = new Vector2(0, 0);
@@ -53,11 +67,19 @@ namespace Kerbulator {
 
 		// Window positions
 		Rect mainWindowPos = new Rect(0, 60, 280, 400);
+		Vector2 minMainWindowSize = new Vector2(280, 400);
 		bool mainWindowEnabled = false;
+
 		Rect editWindowPos = new Rect(280, 60, 350, 300);
+		Vector2 minEditWindowSize = new Vector2(300, 200);
 		bool editWindowEnabled = false;
+
 		Rect runWindowPos = new Rect(0, 470, 200, 200);
+		Vector2 minRunWindowSize = new Vector2(100, 100);
 		bool runWindowEnabled = false;
+
+		Rect repeatWindowPos = new Rect(200, 470, 200, 100);
+		Vector2 minRepeatWindowSize = new Vector2(75, 75);
 
 		// Dictionary containing all available functions
 		Dictionary<string, JITFunction> functions = new Dictionary<string, JITFunction>();
@@ -161,18 +183,26 @@ namespace Kerbulator {
 				reload = false;
 			}
 
+
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
-				mainWindowPos = GUILayout.Window(93841, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
+				mainWindowPos = GUILayout.Window(windowId, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
 			}
 
 			if(editWindowEnabled) {
-				editWindowPos = GUILayout.Window(93842, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(false));
+				editWindowPos = GUILayout.Window(windowId + 1, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(false));
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUILayout.Window(93843, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id, GUILayout.ExpandHeight(false));
+				runWindowPos = GUILayout.Window(windowId + 2, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id, GUILayout.ExpandHeight(false));
 			}
+
+			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
+				if(pair.Value.enabled)
+					pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.Function.Id, GUILayout.ExpandHeight(false));
+			}
+
+			DrawToolTip();
 		}
 
 		/// <summary>Draws the main window that displays a list of available functions</summary>
@@ -186,7 +216,7 @@ namespace Kerbulator {
 
 			GUILayout.Label("Available functions:");
 
-			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(300));
+			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(mainWindowPos.height - 110));
 
 			bool runSomething = false;
 
@@ -255,13 +285,20 @@ namespace Kerbulator {
 
 			GUILayout.EndHorizontal();
 
+			mainWindowPos = ResizeWindow(id, mainWindowPos, minMainWindowSize);
 			GUI.DragWindow(titleBarRect);
+
+
+			if(Event.current.type == EventType.Repaint)
+				tooltip = GUI.tooltip;
 
 			// Run button was pressed, run the function
 			if(runSomething) {
-				List<System.Object> output = Run();
-				functionOutput = FormatOutput(output);
+				Run();
+				functionOutput = FormatOutput(env);
+				GUI.FocusWindow(windowId + 2);
 			}
+
 		}
 		
 		/// <summary>Draws the edit window that allows basic text editing.</summary>
@@ -294,13 +331,13 @@ namespace Kerbulator {
 				runWindowEnabled = true;
 
 				// Run it
-				List<System.Object> output = Run();
-				functionOutput = FormatOutput(output);
+				Run();
+				functionOutput = FormatOutput(env);
 			}
 
 			GUILayout.EndHorizontal();
 
-			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(200), GUILayout.Width(460));
+			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(editWindowPos.height - 140)); //, GUILayout.Width(460));
 			editFunctionContent = GUILayout.TextArea(editFunctionContent, GUILayout.ExpandWidth(true));
 			TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			GUILayout.EndScrollView();
@@ -335,7 +372,11 @@ namespace Kerbulator {
 			}
 			GUILayout.EndHorizontal();
 
+			editWindowPos = ResizeWindow(id, editWindowPos, minEditWindowSize);
 			GUI.DragWindow(titleBarRect);
+
+			if(Event.current.type == EventType.Repaint)
+				tooltip = GUI.tooltip;
 		}
 
 		/// <summary>Draws the run window that allows execution of a function.</summary>
@@ -343,7 +384,7 @@ namespace Kerbulator {
 		public void DrawRunWindow(int id) {
 			// Close button
 			runWindowEnabled = !GUI.Toggle(new Rect(runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
-			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(170));
+			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(runWindowPos.height - 40));
 
 			if(RunFunction == null) {
 				GUILayout.Label("ERROR: no function selected.");
@@ -351,36 +392,34 @@ namespace Kerbulator {
 				GUILayout.Label("ERROR: "+ RunFunction.ErrorString);
 			} else {
 				if(RunFunction.Ins.Count > 0) {
-					GUILayout.Label("Inputs:");
-					for(int i=0; i<arguments.Count; i++) {
+					for(int i=0; i<arguments.Count && i < RunFunction.Ins.Count; i++) {
 						GUILayout.BeginHorizontal();
-						GUILayout.Label(RunFunction.Ins[i]);
+
+						if(i < RunFunction.InDescriptions.Count)
+							GUILayout.Label(new GUIContent(RunFunction.Ins[i], RunFunction.InDescriptions[i]));
+						else
+							GUILayout.Label(RunFunction.Ins[i]);
+
 						arguments[i] = GUILayout.TextField(arguments[i], GUILayout.Width(150));
 						GUILayout.EndHorizontal();
 					}
-
-					/*
-					Vector2 mousePos = Event.current.mousePosition;
-					GUI.Label(new Rect(mousePos.x, mousePos.y -100, 100, 20), GUI.tooltip);
-					*/
 				}
 
 				GUILayout.BeginHorizontal();
 
 				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
-					List<System.Object> output = Run();
-					functionOutput = FormatOutput(output);
+					Run();
+					functionOutput = FormatOutput(env);
 				}
 
 				if(GUILayout.Button(repeatIcon, defaultButton, GUILayout.Height(32))) {
-					List<System.Object> output = Run();
-					functionOutput = FormatOutput(output);
+					RunRepeated();
 				}
 				
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 					List<System.Object> output = Run();
 					glue.PlaceNode(RunFunction.Outs, output);
-					functionOutput = FormatOutput(output);
+					functionOutput = FormatOutput(env);
 				}
 
 				GUILayout.EndHorizontal();
@@ -389,14 +428,42 @@ namespace Kerbulator {
 			}
 
 			GUILayout.EndScrollView();
+
+			runWindowPos = ResizeWindow(id, runWindowPos, minRunWindowSize);
 			GUI.DragWindow(titleBarRect);
+
+			if(Event.current.type == EventType.Repaint)
+				tooltip = GUI.tooltip;
+		}
+
+		public void DrawRepeatedWindow(int id) {
+			ExecutionEnvironment e = envs[id];
+
+			// Close button
+			e.enabled = !GUI.Toggle(new Rect(e.windowPos.width - 25, 0, 20, 20), !e.enabled, "");
+			if(!e.enabled) {
+				envs.Remove(id);
+				return;
+			}
+
+			mainScrollPos = GUILayout.BeginScrollView(e.scrollPos, false, false, GUILayout.Height(e.windowPos.height - 35));
+
+			if(e.InError)
+				GUILayout.Label("ERROR: "+ e.ErrorString);
+			else
+				GUILayout.Label(FormatOutput(e));
+
+			GUILayout.EndScrollView();
+
+			e.windowPos = ResizeWindow(id, e.windowPos, minRepeatWindowSize);
+			GUI.DragWindow(titleBarRect);
+
+			if(Event.current.type == EventType.Repaint)
+				tooltip = GUI.tooltip;
 		}
 
 		/// <summary>Run a function.</summary>
-		/// <param name="f">The function to run</param>
 		public List<System.Object> Run() {
-			Debug.Log("Running "+ RunFunction.Id);
-
 			if(RunFunction == editFunction)
 				Save();
 
@@ -405,14 +472,46 @@ namespace Kerbulator {
 					return null;
 			}
 
-			glue.AddGlobals(kalc);
 
-			Debug.Log("Creating new env");
 			env = new ExecutionEnvironment(RunFunction, kalc);
-			Debug.Log("Setting args");
 			env.SetArguments(arguments);
-			Debug.Log("Execute()!");
+
+			glue.AddGlobals(kalc);
 			return env.Execute();
+		}
+
+		/// <summary>Run a function in a separate window.</summary>
+		public void RunRepeated() {
+			if(RunFunction == editFunction)
+				Save();
+
+			foreach(string arg in arguments) {
+				if(arg == "")
+					return;
+			}
+
+			Rect pos = repeatWindowPos;
+
+			// Stop the function if already running, and remove from the list
+			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
+				if(pair.Value.Function.Id == RunFunction.Id) {
+					pair.Value.enabled = false;
+					envs.Remove(pair.Key);
+					pos = pair.Value.windowPos;
+					break;
+				}
+			}
+
+			ExecutionEnvironment e = new ExecutionEnvironment(RunFunction, kalc);
+			e.SetArguments(arguments);
+			e.windowPos = pos;
+
+			// Add the ExecutionEnvironment to the list
+			envs.Add(windowId + 4 + envs.Count, e);
+
+			// Start executing it
+			e.enabled = true;
+			glue.RunAsCoroutine(e.RepeatedExecute());
 		}
 
 		/// <summary>Save the current function being edited.</summary>
@@ -498,24 +597,24 @@ namespace Kerbulator {
 			string desc = "";
 
 			if(f.Ins.Count == 0) {
-				desc += "Inputs: none.";
+				desc += "Inputs:\nnone\n";
 			} else {
 				desc += "Inputs:\n";
 				for(int i=0; i<f.Ins.Count; i++) {
 					desc += f.Ins[i];
-					if(i < f.InDescriptions.Count)
+					if(i < f.InDescriptions.Count && f.InDescriptions[i] != "")
 						desc += ": "+ f.InDescriptions[i];
 					desc += "\n";
 				}
 			}
 
 			if(f.Outs.Count == 0) {
-				desc += "\nOutputs: none.";
+				desc += "\nOutputs:\nnone\n";
 			} else {
 				desc += "\nOutputs:\n";
 				for(int i=0; i<f.Outs.Count; i++) {
 					desc += f.Outs[i];
-					if(i < f.OutDescriptions.Count)
+					if(i < f.OutDescriptions.Count && f.OutDescriptions[i] != "")
 						desc += ": "+ f.OutDescriptions[i];
 					desc += "\n";
 				}
@@ -527,22 +626,22 @@ namespace Kerbulator {
 		/// <summary>Provide a string representation of the output resulting from executing a function.</summary>
 		/// <param name="f">The function that was executed</param>
 		/// <param name="output">The variables resuting from the execution</param>
-		public string FormatOutput(List<System.Object> output) {
+		public string FormatOutput(ExecutionEnvironment env) {
 			if(env == null)
 				return "";
 
 			if(env.InError)
 				return "ERROR: "+ env.ErrorString;
 
-			if(output == null)
+			if(env.Output == null)
 				return "";
 
-			string desc = "Outputs:\n";
-			if(output.Count == 0) {
+			string desc = "";
+			if(env.Output.Count == 0) {
 				desc += "None.";
 			} else {
-				for(int i=0; i<output.Count; i++) {
-					desc += env.Function.Outs[i]+" = "+ Kerbulator.FormatVar(output[i]) +"\n";
+				for(int i=0; i<env.Output.Count; i++) {
+					desc += env.Function.Outs[i]+" = "+ Kerbulator.FormatVar(env.Output[i]) +"\n";
 				}
 			}
 
@@ -641,6 +740,55 @@ namespace Kerbulator {
 			set {
 				editFunction = value;
 			}
+		}
+
+		void DrawToolTip() {
+			if(tooltip == "")
+				return;
+
+			Rect pos = new Rect();
+			pos.x = Event.current.mousePosition.x + 10;
+			pos.y = Event.current.mousePosition.y + 20;
+			Vector2 size = GUI.skin.box.CalcSize(new GUIContent(tooltip));
+			pos.width = size.x;
+			pos.height= size.y;
+
+			GUI.Window(windowId + 3, pos, DrawToolTipWindow, "", GUI.skin.box);
+		}
+
+		void DrawToolTipWindow(int id) {
+			GUILayout.Label(tooltip);
+			GUI.BringWindowToFront(id);
+		}
+
+		public void OnDestroy() {
+			foreach(ExecutionEnvironment e in envs.Values)
+				e.enabled = false;
+		}
+
+		Rect ResizeWindow(int id, Rect windowRect, Vector2 minWindowSize) {
+			Vector2 mouse = GUIUtility.ScreenToGUIPoint(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
+			//Rect r = GUILayoutUtility.GetRect(gcDrag, GUI.skin.window);
+			Rect r = new Rect(windowRect.width-20, windowRect.height-20, 20, 20);
+
+			if(Event.current.type == EventType.mouseDown && r.Contains(mouse))
+			{
+				resizing = id;
+				resizeStart = new Rect( mouse.x, mouse.y, windowRect.width, windowRect.height );
+			} else if(Event.current.type == EventType.mouseUp && resizing == id)
+				resizing = 0;
+			else if(!Input.GetMouseButton(0))
+				resizing = 0;
+			else if(resizing == id) {
+				windowRect.width = Mathf.Max(minWindowSize.x, resizeStart.width + (mouse.x - resizeStart.x));
+				windowRect.height = Mathf.Max(minWindowSize.y, resizeStart.height + (mouse.y - resizeStart.y));
+				windowRect.xMax = Mathf.Min(Screen.width, windowRect.xMax);  // modifying xMax affects width, not x
+				windowRect.yMax = Mathf.Min(Screen.height, windowRect.yMax);  // modifying yMax affects height, not y
+			}
+		 
+			GUI.Button(r, gcDrag, GUI.skin.label);
+
+			return windowRect;
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 namespace Kerbulator {
@@ -33,6 +34,15 @@ namespace Kerbulator {
 		}
 
 		public void ChangeState(bool open) {
+		}
+
+		public void RunAsCoroutine(IEnumerator f) {
+			StartCoroutine(f);
+		}
+
+		public void OnDestroy() {
+			if(gui != null)
+				gui.OnDestroy();
 		}
 	}
 }
