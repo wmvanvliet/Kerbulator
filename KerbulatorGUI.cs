@@ -35,6 +35,7 @@ namespace Kerbulator {
 		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
 		// Running functions
+		bool running = true;
 		JITFunction runFunction = null;
 		JITFunction prevRunFunction = null;
 		string functionOutput = "";
@@ -511,7 +512,17 @@ namespace Kerbulator {
 
 			// Start executing it
 			e.enabled = true;
-			glue.RunAsCoroutine(e.RepeatedExecute());
+			glue.RunAsCoroutine(RepeatedExecute());
+		}
+
+		public IEnumerator RepeatedExecute() {
+			while(running) {
+				glue.AddGlobals(kalc);
+				foreach(ExecutionEnvironment e in envs.Values)
+					e.Execute();
+
+				yield return new WaitForSeconds(0.2F);
+			}
 		}
 
 		/// <summary>Save the current function being edited.</summary>
@@ -762,8 +773,8 @@ namespace Kerbulator {
 		}
 
 		public void OnDestroy() {
-			foreach(ExecutionEnvironment e in envs.Values)
-				e.enabled = false;
+			envs.Clear();
+			running = false;
 		}
 
 		Rect ResizeWindow(int id, Rect windowRect, Vector2 minWindowSize) {

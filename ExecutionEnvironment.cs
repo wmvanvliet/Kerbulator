@@ -72,13 +72,6 @@ namespace Kerbulator {
 			}
 		}
 
-		public IEnumerator RepeatedExecute() {
-			while(enabled) {
-				output = Execute();
-				yield return new WaitForSeconds(0.2F);
-			}
-		}
-
 		public void SetArguments(List<string> args) {
 			if(args.Count != func.Ins.Count) {
 				inError = true;
