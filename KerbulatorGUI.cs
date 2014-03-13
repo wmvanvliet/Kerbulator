@@ -35,7 +35,7 @@ namespace Kerbulator {
 		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
 		// Running functions
-		bool running = true;
+		bool running = false;
 		JITFunction runFunction = null;
 		JITFunction prevRunFunction = null;
 		string functionOutput = "";
@@ -206,8 +206,7 @@ namespace Kerbulator {
 			}
 
 			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
-				if(pair.Value.enabled)
-					pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.Function.Id, GUILayout.ExpandHeight(false));
+				pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id, GUILayout.ExpandHeight(false));
 			}
 
 			DrawToolTip();
@@ -501,13 +500,10 @@ namespace Kerbulator {
 			Rect pos = repeatWindowPos;
 
 			// Stop the function if already running, and remove from the list
-			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
-				if(pair.Value.Function.Id == RunFunction.Id) {
-					pair.Value.enabled = false;
-					envs.Remove(pair.Key);
-					pos = pair.Value.windowPos;
-					break;
-				}
+			int id = WindowIdOfRepeatingFunction(RunFunction.Id);
+			if(id != -1) {
+				pos = envs[id].windowPos;
+				envs.Remove(id);
 			}
 
 			ExecutionEnvironment e = new ExecutionEnvironment(RunFunction, kalc);
@@ -518,8 +514,10 @@ namespace Kerbulator {
 			envs.Add(windowId + 4 + envs.Count, e);
 
 			// Start executing it
-			e.enabled = true;
-			glue.RunAsCoroutine(RepeatedExecute());
+			if(!running) {
+				running = true;
+				glue.RunAsCoroutine(RepeatedExecute());
+			}
 		}
 
 		public IEnumerator RepeatedExecute() {
@@ -534,6 +532,7 @@ namespace Kerbulator {
 
 		/// <summary>Save the current function being edited.</summary>
 		public void Save() {
+			int id;
 			if(editFunction != null && editFunction.Id != editFunctionName) {
 				// Changing function name, remove old function
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
@@ -554,6 +553,10 @@ namespace Kerbulator {
 
 				if(RunFunction != null && RunFunction.Id == editFunction.Id)
 					RunFunction = null;
+
+				id = WindowIdOfRepeatingFunction(editFunction.Id);
+				if(id != -1)
+					envs.Remove(id);
 			}
 
 			// Save new function
@@ -570,6 +573,10 @@ namespace Kerbulator {
 			f.Compile();
 			if(RunFunction != null && RunFunction.Id == f.Id)
 				RunFunction = f;
+
+			id = WindowIdOfRepeatingFunction(f.Id);
+			if(id != -1)
+				envs[id].func = f;
 
 			if(!kalc.Functions.ContainsKey(editFunctionName))
 				kalc.Functions.Add(editFunctionName, f);
@@ -659,9 +666,9 @@ namespace Kerbulator {
 				desc += "None.";
 			} else {
 				for(int i=0; i<env.Output.Count-1; i++)
-					desc += env.Function.Outs[i]+" = "+ Kerbulator.FormatVar(env.Output[i]) +"\n";
+					desc += env.func.Outs[i]+" = "+ Kerbulator.FormatVar(env.Output[i]) +"\n";
 				if(env.Output.Count > 0)
-					desc += env.Function.Outs[env.Function.Outs.Count-1]+" = "+ Kerbulator.FormatVar(env.Output[env.Output.Count-1]);
+					desc += env.func.Outs[env.func.Outs.Count-1]+" = "+ Kerbulator.FormatVar(env.Output[env.Output.Count-1]);
 			}
 
 			return desc;
@@ -718,6 +725,16 @@ namespace Kerbulator {
 
 				functionOutput = "";
 			}
+
+			List<int> envsToRemove = new List<int>();
+			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs)  {
+				if(functions.ContainsKey(pair.Value.func.Id))
+					pair.Value.func = functions[pair.Value.func.Id];
+				else
+					envsToRemove.Add(pair.Key);
+			}
+			foreach(int id in envsToRemove)
+				envs.Remove(id);
 		}
 
 		JITFunction RunFunction {
@@ -808,6 +825,16 @@ namespace Kerbulator {
 			GUI.Button(r, gcDrag, GUI.skin.label);
 
 			return windowRect;
+		}
+
+		int WindowIdOfRepeatingFunction(string functionName) {
+			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
+				if(pair.Value.func.Id == functionName) {
+					return pair.Key;
+				}
+			}
+
+			return -1;
 		}
 	}
 }

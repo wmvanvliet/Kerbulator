@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Kerbulator {
 	public class ExecutionEnvironment {
-		JITFunction func;
+		public JITFunction func;
 		Kerbulator kalc;
 		List<JITExpression> inputExpressions;
 
@@ -17,17 +17,12 @@ namespace Kerbulator {
 		List<System.Object> output = null;
 		public Rect windowPos = new Rect(0, 0, 200, 100);
 		public Vector2 scrollPos = new Vector2(0, 0);
-		public bool enabled = false;
+		public bool enabled = true;
 
 		public ExecutionEnvironment(JITFunction func, Kerbulator kalc) {
 			this.func = func;
 			this.kalc = kalc;
 			inputExpressions = new List<JITExpression>(func.Ins.Count);
-		}
-
-		public JITFunction Function {
-			get { return func; }
-			protected set { }
 		}
 
 		public bool InError {
