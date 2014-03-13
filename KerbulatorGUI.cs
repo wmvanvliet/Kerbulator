@@ -97,6 +97,7 @@ namespace Kerbulator {
 		bool stylesInitiated = false;
 		GUIStyle keyboard;
 		GUIStyle defaultButton;
+		GUIStyle tooltipStyle;
 
 		IGlue glue;
 		bool inEditor = false;
@@ -164,6 +165,12 @@ namespace Kerbulator {
 
 				defaultButton = new GUIStyle(GUI.skin.GetStyle("button"));
 				defaultButton.padding = new RectOffset(4,4,4,4);
+
+				tooltipStyle = new GUIStyle(GUI.skin.GetStyle("label"));
+				Texture2D texBack = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+				texBack.SetPixel(0, 0, new Color(0.0f, 0.0f, 0.0f, 1f));
+				texBack.Apply();
+				tooltipStyle.normal.background = texBack;
 			}
 
 			if(drawMainButton) {
@@ -765,7 +772,7 @@ namespace Kerbulator {
 			pos.width = size.x;
 			pos.height= size.y;
 
-			GUI.Window(windowId + 3, pos, DrawToolTipWindow, "", GUI.skin.box);
+			GUI.Window(windowId + 3, pos, DrawToolTipWindow, "", tooltipStyle);
 		}
 
 		void DrawToolTipWindow(int id) {
