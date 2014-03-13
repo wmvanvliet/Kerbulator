@@ -447,7 +447,7 @@ namespace Kerbulator {
 				return;
 			}
 
-			mainScrollPos = GUILayout.BeginScrollView(e.scrollPos, false, false, GUILayout.Height(e.windowPos.height - 35));
+			mainScrollPos = GUILayout.BeginScrollView(e.scrollPos, false, false, GUILayout.Height(e.windowPos.height - 30));
 
 			if(e.InError)
 				GUILayout.Label("ERROR: "+ e.ErrorString);
@@ -651,9 +651,10 @@ namespace Kerbulator {
 			if(env.Output.Count == 0) {
 				desc += "None.";
 			} else {
-				for(int i=0; i<env.Output.Count; i++) {
+				for(int i=0; i<env.Output.Count-1; i++)
 					desc += env.Function.Outs[i]+" = "+ Kerbulator.FormatVar(env.Output[i]) +"\n";
-				}
+				if(env.Output.Count > 0)
+					desc += env.Function.Outs[env.Function.Outs.Count-1]+" = "+ Kerbulator.FormatVar(env.Output[env.Output.Count-1]);
 			}
 
 			return desc;
