@@ -752,7 +752,7 @@ namespace Kerbulator {
 					args2.Add(expr.Pop());
 					a = expr.Pop();
 					return ParseUserFunction(
-						kalc.Functions[(string)((ConstantExpression)a).Value],
+						(string)((ConstantExpression)a).Value,
 						args2,
 						pos
 					);
@@ -879,10 +879,10 @@ namespace Kerbulator {
 				if(tokens.Count > 0 && tokens.Peek().val == "(") {
 					// Parameter list supplied, execute function now
 					List<Expression> args = ParseArgumentList();
-					expr.Push( ParseUserFunction(f, args, t.pos) );
+					expr.Push( ParseUserFunction(t.val, args, t.pos) );
 				} else if(f.Ins.Count == 0) {
 					// Function takes no arguments, execute now
-					expr.Push( ParseUserFunction(f, new List<Expression>(), t.pos) );
+					expr.Push( ParseUserFunction(t.val, new List<Expression>(), t.pos) );
 				} else {
 					// Do function call later, when parameters are known
 					ops.Push(kalc.Operators["user-function"]);
@@ -1055,11 +1055,11 @@ namespace Kerbulator {
 			return Expression.Convert(funcExpression, typeof(Object));
 		}
 
-		private Expression ParseUserFunction(JITFunction func, List<Expression> args, string pos) {
+		private Expression ParseUserFunction(string id, List<Expression> args, string pos) {
 			return Expression.Call(
 				thisExpression,
 				typeof(JITFunction).GetMethod("ExecuteUserFunction"),
-				Expression.Constant(func),
+				Expression.Constant(id),
 				Expression.NewArrayInit(
 					typeof(Object),
 					args
@@ -1068,9 +1068,12 @@ namespace Kerbulator {
 			);
 		}
 
-		public Object ExecuteUserFunction(JITFunction func, Object[] args, string pos) {
+		public Object ExecuteUserFunction(string id, Object[] args, string pos) {
 			try {
-				List<Object> res = func.Execute(new List<Object>(args));
+				if(!kalc.Functions.ContainsKey(id))
+					throw new Exception(pos + "unknown function "+ id);
+
+				List<Object> res = kalc.Functions[id].Execute(new List<Object>(args));
 				if(res.Count == 1)
 					return res[0];
 				else
