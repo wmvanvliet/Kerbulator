@@ -295,7 +295,6 @@ namespace Kerbulator {
 			mainWindowPos = ResizeWindow(id, mainWindowPos, minMainWindowSize);
 			GUI.DragWindow(titleBarRect);
 
-
 			if(Event.current.type == EventType.Repaint)
 				tooltip = GUI.tooltip;
 
@@ -304,8 +303,8 @@ namespace Kerbulator {
 				Run();
 				functionOutput = FormatOutput(env);
 				GUI.FocusWindow(windowId + 2);
+				runSomething = false;
 			}
-
 		}
 		
 		/// <summary>Draws the edit window that allows basic text editing.</summary>
@@ -453,7 +452,7 @@ namespace Kerbulator {
 				return;
 			}
 
-			mainScrollPos = GUILayout.BeginScrollView(e.scrollPos, false, false, GUILayout.Height(e.windowPos.height - 30));
+			e.scrollPos = GUILayout.BeginScrollView(e.scrollPos, false, false, GUILayout.Height(e.windowPos.height - 30));
 
 			if(e.InError)
 				GUILayout.Label("ERROR: "+ e.ErrorString);
