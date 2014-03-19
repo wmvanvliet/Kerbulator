@@ -152,14 +152,8 @@ namespace Kerbulator {
 				}
 			}
 
-			foreach(JITFunction f in kalc.Functions.Values) {
-				try {
-					f.Compile();
-				} catch(Exception e) {
-					f.error = e;
-					f.inError = true;
-				}
-			}
+			foreach(JITFunction f in kalc.Functions.Values)
+				f.Compile();
 
 			lastScan = DateTime.Now;
 		}
@@ -208,73 +202,73 @@ namespace Kerbulator {
 			if(compiledFunction != null)
 				return; // Already compiled
 
-			// Skip leading whitespace
-			while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
-				Consume();
+			try {
+				// Skip leading whitespace
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
+					Consume();
 
-			// Parse in: statements
-			while(tokens.Count > 0 && tokens.Peek().type == TokenType.IN) {
-				Consume();
-				Token id = Consume(TokenType.IDENTIFIER);
+				// Parse in: statements
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.IN) {
+					Consume();
+					Token id = Consume(TokenType.IDENTIFIER);
 
-				if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
-					inDescriptions.Add( tokens.Dequeue().val );
+					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+						inDescriptions.Add( tokens.Dequeue().val );
+					}
+
+					Consume(TokenType.END);
+					ins.Add(id.val);
+					Kerbulator.DebugLine("Found IN statement for "+ id.val);
 				}
 
-				Consume(TokenType.END);
-				ins.Add(id.val);
-				Kerbulator.DebugLine("Found IN statement for "+ id.val);
-			}
+				// Skip whitespace
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
+					Consume();
 
-			// Skip whitespace
-			while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
-				Consume();
+				// Parse out: statements
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
+					Consume();
+					Token id = Consume(TokenType.IDENTIFIER);
 
-			// Parse out: statements
-			while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
-				Consume();
-				Token id = Consume(TokenType.IDENTIFIER);
+					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
+						outDescriptions.Add( tokens.Dequeue().val );
+					else
+						outDescriptions.Add("");
 
-				if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
-					outDescriptions.Add( tokens.Dequeue().val );
-				else
-					outDescriptions.Add("");
+					Consume(TokenType.END);
+					outs.Add(id.val);
+					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
+				}
 
-				Consume(TokenType.END);
-				outs.Add(id.val);
-				Kerbulator.DebugLine("Found OUT statement for "+ id.val);
-			}
+				Kerbulator.DebugLine("");
 
-			Kerbulator.DebugLine("");
+				// Parse all other statements
+				List<Expression> statements = new List<Expression>();
+				while(tokens.Count > 0) {
+					Expression statement = ParseStatement();
+					if(statement != null)
+						statements.Add(statement);
+					Consume(TokenType.END);
+				}
+				
+				if(statements.Count == 0)
+					throw new Exception("In function "+ this.id +": function does not contain any statements (it's empty)");
 
-			// Parse all other statements
-			List<Expression> statements = new List<Expression>();
-			while(tokens.Count > 0) {
-				Expression statement = ParseStatement();
-				if(statement != null)
-					statements.Add(statement);
-				Consume(TokenType.END);
-			}
-			
-			if(statements.Count == 0)
-				throw new Exception("In function "+ this.id +": function does not contain any statements (it's empty)");
+				// If no outputs are given, take last assigned variables as output
+				if(outs.Count == 0) {
+					outs = lastAssigned;
+					outDescriptions = new List<string>(outs.Count);
+					for(int i=0; i<outs.Count; i++)
+						outDescriptions.Add("");
+				}
 
-			// If no outputs are given, take last assigned variables as output
-			if(outs.Count == 0) {
-				outs = lastAssigned;
-				outDescriptions = new List<string>(outs.Count);
-				for(int i=0; i<outs.Count; i++)
-					outDescriptions.Add("");
-			}
+				// Create expression that will execute all the statements
+				Expression functionExpression = Expression.Call(
+					thisExpression,
+					typeof(JITFunction).GetMethod("ExecuteBlock"),
+					Expression.NewArrayInit(typeof(Object), statements)
+				);
 
-			// Create expression that will execute all the statements
-			Expression functionExpression = Expression.Call(
-				thisExpression,
-				typeof(JITFunction).GetMethod("ExecuteBlock"),
-				Expression.NewArrayInit(typeof(Object), statements)
-			);
-
-			try {
 				compiledFunction = Expression.Lambda<Func<Object>>(functionExpression).Compile();
 			} catch(Exception e) {
 				compiledFunction = null;
