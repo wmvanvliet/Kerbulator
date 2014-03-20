@@ -9,16 +9,19 @@ namespace Kerbulator {
 			// Planets
 			foreach(CelestialBody b in FlightGlobals.Bodies) {
 				if(b.name == "Sun")
-					Globals.AddCelestialBody(kalc, b, "Kerbol");
+					AddCelestialBody(kalc, b, "Kerbol");
 				else
-					Globals.AddCelestialBody(kalc, b, b.name);
+					AddCelestialBody(kalc, b, b.name);
 			}
 				
 			Vessel v = FlightGlobals.ActiveVessel;
 			Orbit orbit1 = v.orbit;
 			if(v != null) {
 				// Current orbit
-				Globals.AddOrbit(kalc, orbit1, "Craft");
+				AddOrbit(kalc, orbit1, "Craft");
+
+				// Current position in carthesian coordinates
+				AddVector3d(kalc, "Craft.Pos", v.GetWorldPos3D());
 				
 				// Navball (thank you MechJeb source)
 				Vector3d CoM = v.findWorldCenterOfMass();
@@ -29,19 +32,19 @@ namespace Kerbulator {
             	Vector3d velocityVesselOrbit = v.orbit.GetVel();
 				Vector3d velocityVesselSurface = velocityVesselOrbit - v.mainBody.getRFrmVel(CoM);
 
-            	Globals.AddDouble(kalc, "Navball.Heading", rotationVesselSurface.eulerAngles.y);
-            	Globals.AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
-            	Globals.AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
-            	Globals.AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
-            	Globals.AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
-            	Globals.AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
+            	AddDouble(kalc, "Navball.Heading", rotationVesselSurface.eulerAngles.y);
+            	AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
+            	AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
+            	AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
+            	AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
+            	AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
 
 				// Current time
 				double UT = (double)Planetarium.GetUniversalTime();
-				Globals.AddDouble(kalc, "UT", UT);
+				AddDouble(kalc, "UT", UT);
 
 				// Reference body
-				Globals.AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
+				AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
 
 				// Target
 				if(FlightGlobals.fetch.VesselTarget != null) {
@@ -49,7 +52,7 @@ namespace Kerbulator {
 					Orbit orbit2 = target.GetOrbit();
 
 					// Target Orbit
-					Globals.AddOrbit(kalc, orbit2, "Target");
+					AddOrbit(kalc, orbit2, "Target");
 
 					// Intersection with target orbit
 					double CD = 0.0;
@@ -62,16 +65,16 @@ namespace Kerbulator {
 					Orbit.FindClosestPoints(orbit1, orbit2, ref CD, ref CCD, ref FFp, ref FFs, ref SFp, ref SFs, 0.0, 100, ref iterationCount);
 					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
 					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
-					Globals.AddDouble(kalc, "Craft.Inter1.dt", T1);
-					Globals.AddDouble(kalc, "Craft.Inter1.Δt", T1);
-					Globals.AddDouble(kalc, "Craft.Inter1.Sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
-					Globals.AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT));
-					Globals.AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT));
-					Globals.AddDouble(kalc, "Craft.Inter2.dt", T2);
-					Globals.AddDouble(kalc, "Craft.Inter2.Δt", T2);
-					Globals.AddDouble(kalc, "Craft.Inter2.Sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
-					Globals.AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT));
-					Globals.AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT));
+					AddDouble(kalc, "Craft.Inter1.dt", T1);
+					AddDouble(kalc, "Craft.Inter1.Δt", T1);
+					AddDouble(kalc, "Craft.Inter1.Sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
+					AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT));
+					AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT));
+					AddDouble(kalc, "Craft.Inter2.dt", T2);
+					AddDouble(kalc, "Craft.Inter2.Δt", T2);
+					AddDouble(kalc, "Craft.Inter2.Sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
+					AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT));
+					AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT));
 				}
 			}
 		}
@@ -143,9 +146,9 @@ namespace Kerbulator {
 		}
 
 		public static void AddVector3d(Kerbulator kalc, string id, Vector3d v) {
-			Variable x = new Variable("x", VarType.NUMBER, v.x);
-			Variable y = new Variable("y", VarType.NUMBER, v.y);
-			Variable z = new Variable("z", VarType.NUMBER, v.z);
+			Variable x = new Variable(id +".x", VarType.NUMBER, v.x);
+			Variable y = new Variable(id +".y", VarType.NUMBER, v.y);
+			Variable z = new Variable(id +".z", VarType.NUMBER, v.z);
 
 			List<Variable> elements = new List<Variable>(3);
 			elements.Add(x);
@@ -159,9 +162,9 @@ namespace Kerbulator {
 		}
 
 		public static void AddVector3(Kerbulator kalc, string id, Vector3 v) {
-			Variable x = new Variable("x", VarType.NUMBER, (double)v.x);
-			Variable y = new Variable("y", VarType.NUMBER, (double)v.y);
-			Variable z = new Variable("z", VarType.NUMBER, (double)v.z);
+			Variable x = new Variable(id +".x", VarType.NUMBER, (double)v.x);
+			Variable y = new Variable(id +".y", VarType.NUMBER, (double)v.y);
+			Variable z = new Variable(id +".z", VarType.NUMBER, (double)v.z);
 
 			List<Variable> elements = new List<Variable>(3);
 			elements.Add(x);
