@@ -30,8 +30,8 @@ namespace Kerbulator {
 		// Editing functions
 		JITFunction editFunction = null;
 		string editFunctionContent = "";
-		string editFunctionName = "maneuver";
-		string functionFile = "maneuver.math";
+		string editFunctionName = "unnamed";
+		string functionFile = "unnamed.math";
 		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
 		
 		// Running functions
@@ -148,7 +148,6 @@ namespace Kerbulator {
 			deleteIcon = glue.GetTexture("delete");
 
 			kalc = new Kerbulator(functionDir);
-			Scan();
 		}
 
         public void ChangeState(bool open) {
@@ -589,14 +588,8 @@ namespace Kerbulator {
 		public void Delete() {
 			if(editFunction != null) {
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
-				if(System.IO.File.Exists(oldFunctionFile)) {
-					try {
-						System.IO.File.Delete(oldFunctionFile);
-					} catch(Exception e) {
-						error = "Cannot save function: "+ e.Message;
-						return;
-					}
-				}
+				if(System.IO.File.Exists(oldFunctionFile)) 
+					System.IO.File.Delete(oldFunctionFile);
 
 				if(selectedFunction != null && selectedFunction.Id == editFunction.Id) {
 					selectedFunction = null;
@@ -610,6 +603,8 @@ namespace Kerbulator {
 
 			editFunction = null;
 			editWindowEnabled = false;
+			editFunctionContent = "";
+			editFunctionName = "unnamed";
 		}
 
 		/// <summary>Obtain some info of a function.</summary>

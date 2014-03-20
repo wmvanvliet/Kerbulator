@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Kerbulator {
 	public class JITFunction {
 		string id;
-		Dictionary<string, System.Object> locals = null;
+		Dictionary<string, Object> locals = null;
 		Kerbulator kalc;
 		Solver solv;
 		Queue<Token> tokens;
@@ -102,7 +102,6 @@ namespace Kerbulator {
 
 		public static void Scan(string dir, Kerbulator kalc) {
 			// This function is called pretty often, so I went through some lengths to ensure that only new or updated functions are compiled.
-			
 			List<string> files = new List<string>(Directory.GetFiles(dir, "*.math"));
 			List<string> compiledFunctions = new List<string>(kalc.Functions.Keys);
 
@@ -126,13 +125,13 @@ namespace Kerbulator {
 					i++;
 				}
 
-				else if(string.Compare(files[i], compiledFunctions[j]) == 1) {
+				else if(string.Compare(Path.GetFileNameWithoutExtension(files[i]), compiledFunctions[j]) == 1) {
 					// Deleted function
 					kalc.Functions.Remove(compiledFunctions[j]);
 					i++;
 				}
 
-				else if(string.Compare(files[i], compiledFunctions[j]) == -1) {
+				else if(string.Compare(Path.GetFileNameWithoutExtension(files[i]), compiledFunctions[j]) == -1) {
 					// Added function
 					JITFunction f = FromFile(files[i], kalc);
 					kalc.Functions[f.Id] = f;
