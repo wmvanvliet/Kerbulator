@@ -5,7 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace Kerbulator {
-	public enum TokenType { EMPTY, NUMBER, IDENTIFIER, OPERATOR, BRACE, LIST, END, EQUALS, COMMA, COLON, TEXT, IN, OUT};
+	public enum TokenType { EMPTY, NUMBER, IDENTIFIER, OPERATOR, BRACE, LIST, END, EQUALS, COMMA, COLON, TEXT, IN, OUT, SKIP_NEWLINE};
 	public class Token {
 		public TokenType type;
 		public string val;
@@ -91,14 +91,18 @@ namespace Kerbulator {
 					case ' ':
 					case '\t':
 					case '\r':
-						HandleToken(tok);
-						tok = new Token(functionName, lineno, col);
+						if(tok.type != TokenType.SKIP_NEWLINE) {
+							HandleToken(tok);
+							tok = new Token(functionName, lineno, col);
+						}
 						break;
 
 					// End of statement
 					case '\n':
-						HandleToken(tok);
-						HandleToken(new Token(TokenType.END, "\n", functionName, lineno, col));
+						if(tok.type != TokenType.SKIP_NEWLINE) {
+							HandleToken(tok);
+							HandleToken(new Token(TokenType.END, "\n", functionName, lineno, col));
+						}
 						lineno ++;
 						tok = new Token(functionName, lineno, col);
 						break;
@@ -255,6 +259,11 @@ namespace Kerbulator {
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.COMMA, c.ToString(), functionName, lineno, col));
 						tok = new Token(functionName, lineno, col);
+						break;
+
+					case '\\':
+						HandleToken(tok);
+						tok = new Token(TokenType.SKIP_NEWLINE, c.ToString(), functionName, lineno, col);
 						break;
 
 					default:
