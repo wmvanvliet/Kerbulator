@@ -201,6 +201,7 @@ Name         | Description
 `atan(x)`    | Arctangent, or tan^(-1)
 `ceil(x)`    | Round up to the nearest integer
 `cos(x)`     | Cosine
+`cosh(x)`    | Hyperbolic cosine
 `exp(x)`     | `e` to the power of `x`
 `floor(x)`   | Round down to the nearest integer
 `ln(x)`      | Natural logarithm
@@ -213,8 +214,10 @@ Name         | Description
 `round(a,b)` | Round a to b decimal places
 `sign(x)`    | `-1` if `a < 0` otherwise 1
 `sin(x)`     | Sine
+`sinh(x)`    | Hyperbolic sine
 `sqrt(x)`    | Square root
 `tan(x)`     | Tangent
+`tanh(x)`    | Hyperbolic tangent
 `len(x)`     | Number of elements in list x
 `mag(x)`     | Magnitude of vector x
 `norm(x)`    | Version of vector x that has a magnitude of 1

@@ -963,6 +963,9 @@ namespace Kerbulator {
 				case "cos":
 					funcExpression = CallUnaryMathFunction(func.id, "Cos", arguments[0], pos);
 					break;
+				case "cosh":
+					funcExpression = CallUnaryMathFunction(func.id, "Cosh", arguments[0], pos);
+					break;
 				case "exp":
 					funcExpression = CallUnaryMathFunction(func.id, "Exp", arguments[0], pos);
 					break;
@@ -1001,11 +1004,17 @@ namespace Kerbulator {
 				case "sin":
 					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0], pos);
 					break;
+				case "sinh":
+					funcExpression = CallUnaryMathFunction(func.id, "Sinh", arguments[0], pos);
+					break;
 				case "sqrt":
 					funcExpression = CallUnaryMathFunction(func.id, "Sqrt", arguments[0], pos);
 					break;
 				case "tan":
 					funcExpression = CallUnaryMathFunction(func.id, "Tan", arguments[0], pos);
+					break;
+				case "tanh":
+					funcExpression = CallUnaryMathFunction(func.id, "Tanh", arguments[0], pos);
 					break;
 				case "len":
 					funcExpression = Expression.Call(

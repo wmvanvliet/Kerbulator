@@ -50,6 +50,7 @@ namespace Kerbulator {
 			buildInFunctions.Add("atan", new BuildInFunction("atan", 1));
 			buildInFunctions.Add("ceil", new BuildInFunction("ceil", 1));
 			buildInFunctions.Add("cos", new BuildInFunction("cos", 1));
+			buildInFunctions.Add("cosh", new BuildInFunction("cosh", 1));
 			buildInFunctions.Add("exp", new BuildInFunction("exp", 1));
 			buildInFunctions.Add("floor", new BuildInFunction("floor", 1));
 			buildInFunctions.Add("ln", new BuildInFunction("ln", 1));
@@ -62,8 +63,10 @@ namespace Kerbulator {
 			buildInFunctions.Add("round", new BuildInFunction("round", 2));
 			buildInFunctions.Add("sign", new BuildInFunction("sign", 1));
 			buildInFunctions.Add("sin", new BuildInFunction("sin", 1));
+			buildInFunctions.Add("sinh", new BuildInFunction("sinh", 1));
 			buildInFunctions.Add("sqrt", new BuildInFunction("sqrt", 1));
 			buildInFunctions.Add("tan", new BuildInFunction("tan", 1));
+			buildInFunctions.Add("tanh", new BuildInFunction("tanh", 1));
 			buildInFunctions.Add("len", new BuildInFunction("len", 1));
 			buildInFunctions.Add("mag", new BuildInFunction("mag", 1));
 			buildInFunctions.Add("norm", new BuildInFunction("norm", 1));

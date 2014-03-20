@@ -7,6 +7,9 @@ JIT Compiling baby!
   - Functions are now JIT-compiled and run at native .NET speed.
   - Added Nelder-Mead solver for numeric approximation
   - Added build-in function `mag`
+  - Added build-in function `cosh`
+  - Added build-in function `sinh`
+  - Added build-in function `tanh`
 
 ### 0.23
 Bugfix. Thanks to Bas Cornelissen to patiently work it out with me.
