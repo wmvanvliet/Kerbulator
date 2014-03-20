@@ -1,7 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Kerbulator {
 	public class VectorMath {
+		private enum DotType {ERROR, UNKNOWN, VECTOR, MATRIX};
+
+		static bool IsVector(Object a) {
+			if(a.GetType() != typeof(Object[]))
+				return false;
+
+			foreach(Object x in (Object[]) a) {
+				if(x.GetType() != typeof(double))
+				   return false;	
+			}
+
+			return true;
+		}
+
+		static bool IsMatrix(Object a) {
+			if(a.GetType() != typeof(Object[]))
+				return false;
+
+			int ncols = -1;
+			foreach(Object x in (Object[]) a) {
+				if(x.GetType() != typeof(Object[]))
+				   return false;	
+
+				if(ncols == -1)
+					ncols = ((Object[])x).Length;
+				if(((Object[])x).Length != ncols)
+					return false;
+
+				foreach(Object y in (Object[]) x) {
+					if(y.GetType() != typeof(double))
+					   return false;	
+				}
+			}
+
+			return true;
+		}
+
+		static int NRows(Object a) {
+			return ((Object[])a).Length;
+		}
+
+		static int NCols(Object a) {
+			return ((Object[])((Object[])a)[0]).Length;
+		}
+
 		public static Object Len(Object a, string pos) {
 			if(a.GetType() != typeof(Object[]))
 				throw new Exception(pos +"function len() can only be called with a list as argument");
@@ -10,24 +56,83 @@ namespace Kerbulator {
 		}
 
 		public static Object Dot(Object a, Object b, string pos) {
-			if(a.GetType() != typeof(Object[]) || b.GetType() != typeof(Object[]))
-				throw new Exception(pos +"arguments to function dot() must both be lists");
+			DotType type = DotType.UNKNOWN;
+			bool convertToVectorAfterwards = false;
+
+			if(IsVector(a) && IsVector(b)) {
+				type = DotType.VECTOR;
+				if(NRows(a) != NRows(b))
+					throw new Exception(pos +"dot(): vector dimension mismatch");
+			}
+			else if(IsMatrix(a) && IsMatrix(b)) {
+				type = DotType.MATRIX;
+				if(NRows(a) != NCols(b) && NRows(b) != NCols(a))
+					throw new Exception(pos +"dot(): matrix dimension mismatch");
+			}
+			else if(IsVector(a) && IsMatrix(b)) {
+				// Convert a to row vector
+				a = new[] {a};
+				type = DotType.MATRIX;
+				if(NRows(a) != NCols(b) && NRows(b) != NCols(a))
+					throw new Exception(pos +"dot(): matrix dimension mismatch");
+				convertToVectorAfterwards = true;
+			}
+			else if(IsMatrix(a) && IsVector(b)) {
+				// Convert b to column vector
+				Object[] temp = (Object[]) b;
+				List<Object[]> matrixB = new List<Object[]>(temp.Length);
+				foreach(Object x in temp)
+					matrixB.Add(new[] {x});
+				b = (Object) matrixB.ToArray();
+
+				type = DotType.MATRIX;
+				if(NRows(a) != NCols(b) && NRows(b) != NCols(a))
+					throw new Exception(pos +"dot(): matrix dimension mismatch");
+				convertToVectorAfterwards = true;
+			}
+			else
+				throw new Exception(pos +"dot() was called with in valid arguments");
 
 			Object[] listA = (Object[]) a;
 			Object[] listB = (Object[]) b;
 
-			if(listA.Length != listB.Length)
-				throw new Exception(pos +"arguments to function dot() must be lists of equal length");
+			switch(type) {
+				case DotType.VECTOR:
+					double dotProduct = 0.0;
+					for(int i=0; i<listA.Length; i++)
+						dotProduct += ((double)listA[i]) * ((double)listB[i]);
+					return (Object) dotProduct;
 
-			double res = 0.0;
+				case DotType.MATRIX:
+					List<Object> matrix = new List<Object>(NRows(a));
+					for(int i=0; i<NRows(a); i++) {
+						List<Object> row = new List<Object>(NCols(b));
+						for(int j=0; j<NCols(b); j++) {
+							double res2 = 0.0;
+							for(int k=0; k<NCols(a); k++)
+								res2 += ((double)((Object[])listA[i])[k]) * ((double)((Object[])listB[k])[j]);
+							row.Add((Object)res2);
+						}
+						matrix.Add((Object)row.ToArray());
+					}
 
-			for(int i=0; i<listA.Length; i++) {
-				if(listA[i].GetType() != typeof(double) || listB[i].GetType() != typeof(double))
-					throw new Exception(pos +"arguments to function dot() must be lists that contain only numbers");
 
-				res += (double)listA[i] * (double)listB[i];
+					if(convertToVectorAfterwards) {
+						List<Object> vector = new List<Object>();
+
+						foreach(Object row in matrix) {
+							foreach(Object x in ((Object[])row))
+								vector.Add(x);
+						}
+
+						return (Object) vector.ToArray();
+					} else {
+						return (Object) matrix.ToArray();
+					}
+
+				default:
+					throw new Exception(pos +"dot(): dimension mismatch");
 			}
-			return (Object) res;
 		}
 
 		public static Object Mag(Object a, string pos) {
