@@ -91,6 +91,7 @@ test: info
 	${MONO} Kerbulator.exe tests/constants.test
 	${MONO} Kerbulator.exe tests/expressions.test
 	${MONO} Kerbulator.exe tests/lists.test
+	${MONO} Kerbulator.exe tests/matrix.test
 	${MONO} Kerbulator.exe tests/functions.test
 	${MONO} Kerbulator.exe tests/userfuncs.test
 	${MONO} Kerbulator.exe tests/operators.test
