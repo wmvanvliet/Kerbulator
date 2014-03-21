@@ -22,7 +22,7 @@ v = M + 2 * e * sin M + 1.25 * e^2 * sin(2*M)
 v_low = round(v, 5)
 
 # Use calculated estimate as starting point for numeric iteration
-E = (e + cos v) / (1 + e * cos v)
+E = acos((e + cos v) / (1 + e * cos v))
 
 # Do numeric iteration to determine true E
 E: E - 0.1 * sin E = M

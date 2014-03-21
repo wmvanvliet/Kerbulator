@@ -1,0 +1,29 @@
+out: v1
+out: v2
+
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#4.13
+
+# Given
+v_r1 = [0.473265, -0.899215, 0] # position of earth
+v_r2 = [0.066842, 1.561256, 0.030948] # position of mars
+r1 = 1.016153 # AU
+r2 = 1.562993 # AU
+p = 1.250633 # AU
+a = 1.320971 # AU
+dnu = 149.770967 * (pi/180) # In radians
+GM = 3.964016E-14 # AU^3/s^2, GM of Sun
+
+f = 1 - r2 / p × (1 - cos dnu)
+g = r1 × r2 × sin dnu / √(GM × p)
+
+f_dot = √(GM / p) × tan(dnu/2) × ((1 - cos dnu) / p - 1/r1 - 1/r2)
+g_dot = 1 - r1 / p × (1 - cos dnu)
+
+debug = f_dot
+
+v1 = (v_r2 - f × v_r1)  / g
+v2 = (f_dot × v_r1 + g_dot × v1)
+
+v1 = round(v1 × 149.597870E9, 1)
+v2 = round(v2 × 149.597870E9, 1)

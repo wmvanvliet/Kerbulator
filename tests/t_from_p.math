@@ -1,0 +1,21 @@
+in: r1
+in: r2
+in: dnu
+in: k
+in: l
+in: m
+in: p
+out: t
+
+# Given
+GM = 3.964016E-14 # AU^3/s^2, GM of Sun
+
+a = m × k × p / ((2 × m - l^2) × p^2 + 2 × k × l × p - k^2)
+
+f = 1 - r2 / p × (1 - cos dnu)
+g = r1 × r2 × sin dnu / √(GM × p)
+f_dot =  √(GM × p) × tan(dnu/2) × ((1 - cos dnu) / p - 1/r1 - 1/r2)
+
+dE = acos(1 - r1 / a × (1 - f))
+
+t = g + √(a^3 / GM) × (dE - sin dE)

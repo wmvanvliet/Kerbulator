@@ -1,0 +1,41 @@
+out: p "Parameter of transfer orbit"
+out: a "Semi-major axis of transfer orbit"
+out: t "Time of flight"
+
+# Implementation of:
+# http://www.braeunig.us/space/problem.htm#5.3
+
+# Given
+t = 207 * 24 * 60 * 60 # In seconds
+v_r1 = [0.473265, -0.899215, 0] # position of earth
+v_r2 = [0.066842, 1.561256, 0.030948] # position of mars
+
+r1 = |v_r1|
+r2 = |v_r2|
+
+dnu = acos( dot(v_r1, v_r2) / (r1 * r2) )
+
+k = r1 * r2 * (1 - cos dnu)
+l = r1 + r2
+m = r1 * r2 * (1 + cos dnu)
+
+p_i = k / (l + √(2*m))
+p_ii = k / (l - √(2*m))
+
+# First guess for p
+p = (p_i + p_ii) / 2
+
+# Use helper function in order to do numerical approximation of p
+# Read the code of that function to continue with the problem
+p: t_from_p(r1, r2, dnu, k, l, m, p) = t
+
+# Calculate a and t from the estimated p parameter
+a = m × k × p / ((2 × m - l^2) × p^2 + 2 × k × l × p - k^2)
+t = t_from_p(r1, r2, dnu, k, l, m, p)
+
+# Round numbers to correspond with given problem solution.
+# Actually, our result is slightly more accurate, because we
+# continued our numerical approximation algorithm longer.
+p = round(p, 6)
+a = round(a, 6)
+t = round(t / (24 * 60 * 60), 4) # Convert to days
