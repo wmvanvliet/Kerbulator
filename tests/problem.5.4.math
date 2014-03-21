@@ -20,8 +20,6 @@ g = r1 × r2 × sin dnu / √(GM × p)
 f_dot = √(GM / p) × tan(dnu/2) × ((1 - cos dnu) / p - 1/r1 - 1/r2)
 g_dot = 1 - r1 / p × (1 - cos dnu)
 
-debug = f_dot
-
 v1 = (v_r2 - f × v_r1)  / g
 v2 = (f_dot × v_r1 + g_dot × v1)
 
