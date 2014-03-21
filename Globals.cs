@@ -145,33 +145,16 @@ namespace Kerbulator {
 			AddDouble(kalc, id, val);
 		}
 
-		public static void AddVector3d(Kerbulator kalc, string id, Vector3d v) {
-			Variable x = new Variable(id +".x", VarType.NUMBER, v.x);
-			Variable y = new Variable(id +".y", VarType.NUMBER, v.y);
-			Variable z = new Variable(id +".z", VarType.NUMBER, v.z);
-
-			List<Variable> elements = new List<Variable>(3);
-			elements.Add(x);
-			elements.Add(y);
-			elements.Add(z);
-
-			if(kalc.Globals.ContainsKey(id))
-				kalc.Globals[id] = (System.Object) elements.ToArray();
-			else
-				kalc.Globals.Add(id, (System.Object) elements.ToArray());
+		public static void AddVector3d(Kerbulator kalc, string prefix, Vector3d v) {
+			AddDouble(kalc, prefix +".x", v.x);
+			AddDouble(kalc, prefix +".y", v.y);
+			AddDouble(kalc, prefix +".z", v.z);
 		}
 
-		public static void AddVector3(Kerbulator kalc, string id, Vector3 v) {
-			Variable x = new Variable(id +".x", VarType.NUMBER, (double)v.x);
-			Variable y = new Variable(id +".y", VarType.NUMBER, (double)v.y);
-			Variable z = new Variable(id +".z", VarType.NUMBER, (double)v.z);
-
-			List<Variable> elements = new List<Variable>(3);
-			elements.Add(x);
-			elements.Add(y);
-			elements.Add(z);
-
-			kalc.Globals.Add(id, (System.Object) elements.ToArray());
+		public static void AddVector3(Kerbulator kalc, string prefix, Vector3 v) {
+			AddDouble(kalc, prefix +".x", (double) v.x);
+			AddDouble(kalc, prefix +".y", (double) v.y);
+			AddDouble(kalc, prefix +".z", (double) v.z);
 		}
 	}
 }
