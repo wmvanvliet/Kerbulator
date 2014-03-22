@@ -3,6 +3,10 @@ Changelog
 ### 0.30
 JIT Compiling baby!
 
+- GUI features
+  - Added GUI for calling functions that require inputs
+  - Added ability to run functions continuously and pin the output to the HUD
+
 - Language features
   - Functions are now JIT-compiled and run at native .NET speed.
   - Added Nelder-Mead solver for numeric approximation
