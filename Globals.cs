@@ -127,6 +127,7 @@ namespace Kerbulator {
 			AddDouble(kalc, prefix +".M", (double)body.Mass);
 			AddDouble(kalc, prefix +".mu", (double)body.gravParameter);
             AddDouble(kalc, prefix +".μ", (double)body.gravParameter);
+            AddDouble(kalc, prefix +".µ", (double)body.gravParameter);
 			AddDouble(kalc, prefix +".day", (double)body.rotationPeriod);
 			AddDouble(kalc, prefix +".SOI", (double)body.sphereOfInfluence);
 			AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
