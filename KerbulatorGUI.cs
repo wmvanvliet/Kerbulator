@@ -170,6 +170,8 @@ namespace Kerbulator {
 				texBack.SetPixel(0, 0, new Color(0.0f, 0.0f, 0.0f, 1f));
 				texBack.Apply();
 				tooltipStyle.normal.background = texBack;
+
+				stylesInitiated = true;
 			}
 
 			if(drawMainButton) {
@@ -180,14 +182,14 @@ namespace Kerbulator {
 			}
 
 			if(reload) {
+				reload = false;
+
 				// Rebuild the list of functions. It could be that they were edited outside of KSP
 				JITFunction.Scan(functionDir, kalc);
 
 				// Reload the function being edited
 				if(editFunction != null)
 					editFunctionContent = System.IO.File.ReadAllText(functionFile);
-
-				reload = false;
 			}
 
 
@@ -204,8 +206,10 @@ namespace Kerbulator {
 				runWindowPos = GUILayout.Window(windowId + 2, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id, GUILayout.ExpandHeight(false));
 			}
 
-			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
-				pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id, GUILayout.ExpandHeight(false));
+			if(running) {
+				foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
+					pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id, GUILayout.ExpandHeight(false));
+				}
 			}
 
 			DrawToolTip();
