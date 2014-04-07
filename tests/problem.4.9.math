@@ -6,7 +6,7 @@ GM = 3.986005E14
 r_earth = 6378.14
 r1 = (r_earth + 250) × 1000
 v1 = 7900
-y1 = 89 * (π/180) # In radians
+y1 = 89
 
 e = √( (r1 × v1^2 / GM - 1)^2 × sin(y1)^2  + cos(y1)^2 ) 
 e = round(e, 7)

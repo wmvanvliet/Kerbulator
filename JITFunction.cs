@@ -940,6 +940,14 @@ namespace Kerbulator {
 			return arguments;
 		}
 
+		private Expression ToRad(string id, Expression a, string pos) {
+			return CallUnaryLambda(id, x => x * (Math.PI / 180), a, pos);
+		}
+
+		private Expression ToDeg(string id, Expression a, string pos) {
+			return CallUnaryLambda(id, x => x * (180 / Math.PI), a, pos);
+		}
+
 		private Expression ParseBuildInFunction(BuildInFunction func, List<Expression> arguments, string pos) {
 			Expression funcExpression;
 
@@ -948,22 +956,22 @@ namespace Kerbulator {
 					funcExpression = CallUnaryMathFunction(func.id, "Abs", arguments[0], pos);
 					break;
 				case "acos":
-					funcExpression = CallUnaryMathFunction(func.id, "Acos", arguments[0], pos);
+					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Acos", arguments[0], pos), pos);
 					break;
 				case "asin":
-					funcExpression = CallUnaryMathFunction(func.id, "Asin", arguments[0], pos);
+					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Asin", arguments[0], pos), pos);
 					break;
 				case "atan":
-					funcExpression = CallUnaryMathFunction(func.id, "Atan", arguments[0], pos);
+					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Atan", arguments[0], pos), pos);
 					break;
 				case "ceil":
 					funcExpression = CallUnaryMathFunction(func.id, "Ceiling", arguments[0], pos);
 					break;
 				case "cos":
-					funcExpression = CallUnaryMathFunction(func.id, "Cos", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Cos", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "cosh":
-					funcExpression = CallUnaryMathFunction(func.id, "Cosh", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Cosh", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "exp":
 					funcExpression = CallUnaryMathFunction(func.id, "Exp", arguments[0], pos);
@@ -1001,19 +1009,19 @@ namespace Kerbulator {
 					funcExpression = CallUnaryLambda(func.id, a => (int)Math.Sign(a), arguments[0], pos);
 					break;
 				case "sin":
-					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Sin", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "sinh":
-					funcExpression = CallUnaryMathFunction(func.id, "Sinh", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Sinh", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "sqrt":
 					funcExpression = CallUnaryMathFunction(func.id, "Sqrt", arguments[0], pos);
 					break;
 				case "tan":
-					funcExpression = CallUnaryMathFunction(func.id, "Tan", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Tan", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "tanh":
-					funcExpression = CallUnaryMathFunction(func.id, "Tanh", arguments[0], pos);
+					funcExpression = CallUnaryMathFunction(func.id, "Tanh", ToRad(func.id, arguments[0], pos), pos);
 					break;
 				case "len":
 					funcExpression = Expression.Call(
