@@ -6,7 +6,7 @@ out: ω_J2 "J2 perturbations in argument of perigee"
 
 # Given
 a = 7500
-i = 28.5 * (π/180) # In radians
+i = 28.5
 e = 0.1
 
 Ω_J2 = -2.06474E14 × a^(-7/2) × (cos i) × (1 - e^2)^(-2)

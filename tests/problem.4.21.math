@@ -6,7 +6,7 @@ out: ΔV "Δv required to execute the transfer"
 # Given
 GM = 3.986005E14
 r = (6378.14 + 600) × 1000
-θ = (28 - 20) × π/180 # In radians 
+θ = (28 - 20)
 
 Vi = √(GM / r)
 ΔV = 2 × Vi × sin(θ/2)

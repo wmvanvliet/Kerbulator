@@ -5,14 +5,14 @@
 a = 7500 * 1E3
 e = 0.1
 t_0 = 0
-v_0 = 30
-v = 90
+v_0 = 30 * pi/180 # In radians
+v = 90 * pi/180 # In radians
 
-E_0 = acos((e + cos(v_0)) / (1 + e * cos(v_0))) * 180/pi
-E = acos((e + cos(v)) / (1 + e * cos(v))) * 180/pi
+E_0 = acos_rad((e + cos_rad(v_0)) / (1 + e * cos_rad(v_0)))
+E = acos_rad((e + cos_rad(v)) / (1 + e * cos_rad(v)))
 
-M_0 = E_0 - 0.1 * sin(E_0)
-M = E - 0.1 * sin(E)
+M_0 = E_0 - 0.1 * sin_rad(E_0)
+M = E - 0.1 * sin_rad(E)
 
 n = √( 3.986005E14 / a^3 )
 t = t_0 + (M - M_0) / n

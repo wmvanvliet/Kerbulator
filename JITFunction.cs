@@ -958,11 +958,20 @@ namespace Kerbulator {
 				case "acos":
 					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Acos", arguments[0], pos), pos);
 					break;
+				case "acos_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Acos", arguments[0], pos);
+					break;
 				case "asin":
 					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Asin", arguments[0], pos), pos);
 					break;
+				case "asin_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Asin", arguments[0], pos);
+					break;
 				case "atan":
 					funcExpression = ToDeg(func.id, CallUnaryMathFunction(func.id, "Atan", arguments[0], pos), pos);
+					break;
+				case "atan_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Atan", arguments[0], pos);
 					break;
 				case "ceil":
 					funcExpression = CallUnaryMathFunction(func.id, "Ceiling", arguments[0], pos);
@@ -970,8 +979,14 @@ namespace Kerbulator {
 				case "cos":
 					funcExpression = CallUnaryMathFunction(func.id, "Cos", ToRad(func.id, arguments[0], pos), pos);
 					break;
+				case "cos_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Cos", arguments[0], pos);
+					break;
 				case "cosh":
 					funcExpression = CallUnaryMathFunction(func.id, "Cosh", ToRad(func.id, arguments[0], pos), pos);
+					break;
+				case "cosh_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Cosh", arguments[0], pos);
 					break;
 				case "exp":
 					funcExpression = CallUnaryMathFunction(func.id, "Exp", arguments[0], pos);
@@ -1011,8 +1026,14 @@ namespace Kerbulator {
 				case "sin":
 					funcExpression = CallUnaryMathFunction(func.id, "Sin", ToRad(func.id, arguments[0], pos), pos);
 					break;
+				case "sin_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Sin", arguments[0], pos);
+					break;
 				case "sinh":
 					funcExpression = CallUnaryMathFunction(func.id, "Sinh", ToRad(func.id, arguments[0], pos), pos);
+					break;
+				case "sinh_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Sinh", arguments[0], pos);
 					break;
 				case "sqrt":
 					funcExpression = CallUnaryMathFunction(func.id, "Sqrt", arguments[0], pos);
@@ -1020,8 +1041,14 @@ namespace Kerbulator {
 				case "tan":
 					funcExpression = CallUnaryMathFunction(func.id, "Tan", ToRad(func.id, arguments[0], pos), pos);
 					break;
+				case "tan_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Tan", arguments[0], pos);
+					break;
 				case "tanh":
 					funcExpression = CallUnaryMathFunction(func.id, "Tanh", ToRad(func.id, arguments[0], pos), pos);
+					break;
+				case "tanh_rad":
+					funcExpression = CallUnaryMathFunction(func.id, "Tanh", arguments[0], pos);
 					break;
 				case "len":
 					funcExpression = Expression.Call(

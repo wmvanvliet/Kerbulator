@@ -14,6 +14,9 @@ JIT Compiling baby!
   - Added build-in function `cosh`
   - Added build-in function `sinh`
   - Added build-in function `tanh`
+  - Geometric functions now work in degrees by default
+  - *_rad function added that work in radians
+  - Build-in function `dot` can now also perform matrix multiplication
 
 ### 0.23
 Bugfix. Thanks to Bas Cornelissen to patiently work it out with me.

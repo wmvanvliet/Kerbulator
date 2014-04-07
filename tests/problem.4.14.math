@@ -1,6 +1,5 @@
 # Implementation of:
 # http://www.braeunig.us/space/problem.htm#4.14
-
 out: v_low  "Low accuracy estimate"
 out: v_high "High accuracy estimate"
 
@@ -8,25 +7,25 @@ a = 7500 * 1E3
 e = 0.1
 t_0 = 0
 t = 20 * 60
-v_0 = 90
+v_0 = 90 * pi/180
 
-E_0 = acos((e + cos(v_0)) / (1 + e * cos(v_0)))
-M_0 = E_0 - 0.1 * sin(E_0)
+E_0 = acos_rad((e + cos_rad(v_0)) / (1 + e * cos_rad(v_0)))
+M_0 = E_0 - 0.1 * sin_rad(E_0)
 
 n = sqrt( 3.986005E14 / a^3 )
 
 M = M_0 + n * (t - t_0)
 
 # Low accuracy estimate of v
-v = M + 2 * e * sin M + 1.25 * e^2 * sin(2*M)
+v = M + 2 * e * sin_rad M + 1.25 * e^2 * sin_rad(2*M)
 v_low = round(v, 5)
 
 # Use calculated estimate as starting point for numeric iteration
-E = acos((e + cos v) / (1 + e * cos v))
+E = acos_rad((e + cos_rad v) / (1 + e * cos_rad v))
 
 # Do numeric iteration to determine true E
-E: E - 0.1 * sin E = M
+E: E - 0.1 * sin_rad E = M
 
 # Use proper E to get a high accuracy estimate of v
-v = acos((cos E - 0.1) / (1 - 0.1 * cos E))
+v = acos_rad((cos_rad E - 0.1) / (1 - 0.1 * cos_rad E))
 v_high = round(v, 5)

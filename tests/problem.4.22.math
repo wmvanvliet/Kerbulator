@@ -6,7 +6,7 @@ out: ΔV_T "Δv required to execute the Hohmann transfer"
 # Given
 r_A = (6378.14 + 200) × 1000
 r_B = 42164170
-θ = 28 × π/180 # In radians 
+θ = 28
 
 # From problem.4.19
 Vf_B = 3075

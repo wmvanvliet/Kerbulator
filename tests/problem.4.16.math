@@ -7,7 +7,7 @@ out: ω_moon "Perturbations caused by Moon to argument of perigee"
 out: ω_sun "Perturbations caused by Sun to argument of perigee"
 
 # Given
-i = 51.6 * (π/180) # In radians
+i = 51.6
 n = 1436 / 92.6 # Revolutions per day
 
 Ω_moon = -0.00338 × cos(i) / n 

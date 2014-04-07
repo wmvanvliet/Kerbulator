@@ -4,10 +4,10 @@
 out: θ "Required angle change"
 
 # Given
-i_i = 30 × π/180 # In radians 
-Ω_i = 75 × π/180 # In radians 
-i_f = 32 × π/180 # In radians 
-Ω_f = 80 × π/180 # In radians 
+i_i = 30
+Ω_i = 75
+i_f = 32
+Ω_f = 80
 
 a1 = sin(i_i) × cos(Ω_i)
 a2 = sin(i_i) × sin(Ω_i)
@@ -18,4 +18,4 @@ b2 = sin(i_f) × sin(Ω_f)
 b3 = cos(i_f)
 
 θ = acos(a1 × b1 + a2 × b2 + a3 × b3)
-θ = round(θ × 180/π, 3) # Convert to degrees, round to 3 decimal places
+θ = round(θ, 3)

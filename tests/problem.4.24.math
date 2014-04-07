@@ -20,11 +20,10 @@ c2 = a3 × b1 - a1 × b3
 c3 = a1 × b2 - a2 × b1
 
 lat_1 = atan(c3 / (c1^2 + c2^2)^(1/2))
-long_1 = atan(c2 / c1) + π/2 # π/2 = 90 degrees in radians
+long_1 = atan(c2 / c1) + 90
 
-# Convert to degrees and round to 3 decimal places
-lat_1 = round(lat_1 * 180/π, 3)
-long_1 = round(long_1 * 180/π, 3)
+lat_1 = round(lat_1, 3)
+long_1 = round(long_1, 3)
 
 lat_2 = -23.965
 long_2 = 125.346 + 180

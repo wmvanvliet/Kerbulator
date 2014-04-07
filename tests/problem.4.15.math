@@ -9,7 +9,7 @@ out: v "Velocity when ν = 225°"
 GM = 3.986005E14
 a = 7500 * 1E3
 e = 0.1
-ν = 225 * (π/180) # In radians
+ν = 225
 
 # Length of position vector
 r = a × (1 - e^2) / (1 + e × cos ν) 
@@ -17,7 +17,7 @@ r = round(r, 0)
 
 # Flight path angle
 Φ = atan( e × sin ν / (1 + e × cos ν) )
-Φ = round(Φ × (180/π), 3) # Convert to degrees and round to 3 decimals
+Φ = round(Φ, 3)
 
 # Velocity when ν = 225°
 v = √(GM × (2 / r - 1 / a)) 

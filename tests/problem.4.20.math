@@ -33,8 +33,8 @@ Vtx_B = round(Vtx_B, 0)
 
 ΔV_T = ΔV_A + ΔV_B
 
-E = atan( (1 - e^2)^(1/2) × sin ν / (e + cos ν))
-E = E + π # Wrap around to obtain positive radians
+E = atan_rad( (1 - e^2)^(1/2) × sin ν / (e + cos ν))
+E = E + pi # Wrap around to obtain positive radians
 
-TOF = (E - e × sin E) × √(a_tx^3 / GM)
+TOF = (E - e × sin_rad E) × √(a_tx^3 / GM)
 TOF = round(TOF / 3600, 3) # Convert seconds to hours, round to 3 decimal places
