@@ -38,6 +38,11 @@ When the expression yields a list, the elements of the list can be assigned to s
 
     a, b = [1, 2]
 
+A statement can span multiple lines by using the `\` symbol:
+
+    A = [[1,2,3], \
+         [4,5,6]]
+
 #### Identifiers
 An identifier is used to denote a variable or function name. It can be any unicode string that does not contain the comment mark `#`, an operator `+ - / ÷ * × · ^ √ %`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
 
