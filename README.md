@@ -11,7 +11,8 @@ What you get is access to all the numbers you can read off the various displays 
 The installation of Kerbulator is the same as for most other mods. Install Kerbulator by downloading the [zip file](https://dl.dropboxusercontent.com/u/79303435/Kerbulator/Kerbulator-0.1-1-gcab968f.zip) from Kerbal Space Port and unzipping it into the `GameData` folder of your KSP installation. The `GameData` folder should now contain a subfolder called `Kerbulator`. Start KSP and you're good to go!
 
 ## Download latest release
-[Kerbulator on Kerbal Space Port](http://kerbalspaceport.com/kerbulator)
+[Hosted on Github](https://github.com/wmvanvliet/Kerbulator/releases/download/0.3/Kerbulator-0.3.zip)
+[Kerbulator on Curse](http://www.curse.com/ksp-mods/kerbal/220266-kerbulator)
 
 ## Usage
 [Manual](doc/manual.mkd) <br/>
