@@ -63,8 +63,11 @@ namespace Kerbulator {
 					double SFs = 0.0;
 					int iterationCount = 0;
 					Orbit.FindClosestPoints(orbit1, orbit2, ref CD, ref CCD, ref FFp, ref FFs, ref SFp, ref SFs, 0.0, 100, ref iterationCount);
-					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
-					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
+					double t1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
+					double t2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
+					double T1 = Math.Min(t1, t2);
+					double T2 = Math.Max(t1, t2);
+
 					AddDouble(kalc, "Craft.Inter1.dt", T1);
 					AddDouble(kalc, "Craft.Inter1.Δt", T1);
 					AddDouble(kalc, "Craft.Inter1.Sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
