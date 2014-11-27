@@ -5,8 +5,8 @@ using UnityEngine;
 using KSP.IO;
 
 namespace Kerbulator {
-	// Register plugin with KSP. Indicate that it only needs to be active during flight
-	[KSPAddon(KSPAddon.Startup.Flight, false)]
+	// Register plugin with KSP. Indicate that it should be loaded at every scene
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 
 	/// <summary>Glue code when plugin is loaded in KSP and game
 	/// assembly is available.</summary>
@@ -45,6 +45,7 @@ namespace Kerbulator {
 		public void AddGlobals(Kerbulator kalc) {
 			Globals.Add(kalc); // UNITY
 		}
+
 		public void PlaceNode(List<string> ids, List<System.Object> output) { 
 			double dr = 0, dn = 0, dp = 0;
 			double UT = 0;
