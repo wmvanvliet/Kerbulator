@@ -6,6 +6,7 @@ JIT Compiling baby!
 - GUI features
   - Added GUI for calling functions that require inputs
   - Added ability to run functions continuously and pin the output to the HUD
+  - Windows can be resized
 
 - Language features
   - Functions are now JIT-compiled and run at native .NET speed.
@@ -14,9 +15,19 @@ JIT Compiling baby!
   - Added build-in function `cosh`
   - Added build-in function `sinh`
   - Added build-in function `tanh`
-  - Geometric functions now work in degrees by default
+  - Geometric build-in functions now work in degrees by default
   - *_rad function added that work in radians
   - Build-in function `dot` can now also perform matrix multiplication
+
+- Globals
+  - Craft.Inter1.TrueAnomaly is now in degrees instead of radians
+  - Craft.Inter1.θ is now in degrees instead of radians
+  - Craft.Inter2.TrueAnomaly is now in degrees instead of radians
+  - Craft.Inter2.θ is now in degrees instead of radians
+
+!! Breaking backwards compatability
+  - Geometric build-in functions now work in degrees instead of radians.
+    Use the `*_rad` functions to get the versions that work in radians.
 
 ### 0.23
 Bugfix. Thanks to Bas Cornelissen to patiently work it out with me.
