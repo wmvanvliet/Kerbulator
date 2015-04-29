@@ -13,16 +13,20 @@ namespace Kerbulator {
 				else
 					AddCelestialBody(kalc, b, b.name);
 			}
+
+			// Current time
+			double UT = (double)Planetarium.GetUniversalTime();
+			AddDouble(kalc, "UT", UT);
 				
 			Vessel v = FlightGlobals.ActiveVessel;
 			Orbit orbit1 = v.orbit;
 			if(v != null) {
+				// Mission time
+				AddDouble(kalc, "MissionTime", v.missionTime);
+
 				// Current orbit
 				AddOrbit(kalc, orbit1, "Craft");
 
-				// Current position in carthesian coordinates
-				AddVector3d(kalc, "Craft.Pos", v.GetWorldPos3D());
-				
 				// Navball (thank you MechJeb source)
 				Vector3d CoM = v.findWorldCenterOfMass();
 				Vector3d up = (CoM - v.mainBody.position).normalized;
@@ -38,10 +42,6 @@ namespace Kerbulator {
             	AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
             	AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
             	AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
-
-				// Current time
-				double UT = (double)Planetarium.GetUniversalTime();
-				AddDouble(kalc, "UT", UT);
 
 				// Reference body
 				AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
@@ -63,18 +63,21 @@ namespace Kerbulator {
 					double SFs = 0.0;
 					int iterationCount = 0;
 					Orbit.FindClosestPoints(orbit1, orbit2, ref CD, ref CCD, ref FFp, ref FFs, ref SFp, ref SFs, 0.0, 100, ref iterationCount);
-					double T1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
-					double T2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
+					double t1 = orbit1.GetDTforTrueAnomaly(FFp, 0.0);
+					double t2 = orbit1.GetDTforTrueAnomaly(SFp, 0.0);
+					double T1 = Math.Min(t1, t2);
+					double T2 = Math.Max(t1, t2);
+
 					AddDouble(kalc, "Craft.Inter1.dt", T1);
 					AddDouble(kalc, "Craft.Inter1.Δt", T1);
 					AddDouble(kalc, "Craft.Inter1.Sep", (orbit1.getPositionAtUT(T1+UT) - orbit2.getPositionAtUT(T1+UT)).magnitude);
-					AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT));
-					AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT));
+					AddDouble(kalc, "Craft.Inter1.TrueAnomaly", orbit1.TrueAnomalyAtUT(T1+UT) * (180/Math.PI));
+					AddDouble(kalc, "Craft.Inter1.θ", orbit1.TrueAnomalyAtUT(T1+UT) * (180/Math.PI));
 					AddDouble(kalc, "Craft.Inter2.dt", T2);
 					AddDouble(kalc, "Craft.Inter2.Δt", T2);
 					AddDouble(kalc, "Craft.Inter2.Sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
-					AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT));
-					AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT));
+					AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
+					AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
 				}
 			}
 		}
@@ -104,6 +107,13 @@ namespace Kerbulator {
 				AddDouble(kalc, prefix +".SOI.TrueAnomaly", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
 				AddDouble(kalc, prefix +".SOI.θ", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
 			}
+
+			// Current position in carthesian coordinates
+			double UT = (double)Planetarium.GetUniversalTime();
+			Vector3d relPos = orbit.getRelativePositionAtUT(UT);
+			Vector3d relVel = orbit.getOrbitalVelocityAtUT(UT);
+			AddVector3d(kalc, prefix +".RelPos", new Vector3d(relPos.x, relPos.z, relPos.y));
+			AddVector3d(kalc, prefix +".RelVel", new Vector3d(relVel.x, relVel.z, relVel.y));
 		}
 
 		public static void AddCelestialBody(Kerbulator kalc, CelestialBody body) {
@@ -130,8 +140,8 @@ namespace Kerbulator {
             AddDouble(kalc, prefix +".µ", (double)body.gravParameter);
 			AddDouble(kalc, prefix +".day", (double)body.rotationPeriod);
 			AddDouble(kalc, prefix +".SOI", (double)body.sphereOfInfluence);
-			AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
-			AddDouble(kalc, prefix +".AtmosPress", (double)body.atmosphereMultiplier * 101325.0);
+			//AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
+			//AddDouble(kalc, prefix +".AtmosPress", (double)body.atmosphereMultiplier * 101325.0);
 		}
 
 		public static void AddDouble(Kerbulator kalc, string id, double v) {

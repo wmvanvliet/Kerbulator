@@ -29,11 +29,12 @@ pi              | Mathematical constant Pi: 3.14159265359
 e               | Mathematical constant e: 2.71828182846
 G               | Graviational constant: 6.67384 × 10^(-11)
 
-### Information about the world state
+### Information about the world
 
 Name            | Description
 --------------- | -------------------------------------------------------
-UT              | The number of seconds since epoch, AKA the current time
+UT              | Seconds since epoch (AKA universal time)
+MissionTime     | Seconds since vehicle launch (AKA mission time)
 
 ### Information about various orbits
 
