@@ -192,7 +192,6 @@ namespace Kerbulator {
 					editFunctionContent = System.IO.File.ReadAllText(functionFile);
 			}
 
-
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
 				mainWindowPos = GUILayout.Window(windowId, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
@@ -219,7 +218,8 @@ namespace Kerbulator {
 		/// <param name="id">An unique number indentifying the window</param>
 		public void DrawMainWindow(int id) {
 			// Close button at the top right corner
-			ChangeState(!GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
+			if(drawMainButton)
+				ChangeState(!GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
 
 			if(error != null)
 				GUILayout.Label(error);

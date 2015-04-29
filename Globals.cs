@@ -140,8 +140,8 @@ namespace Kerbulator {
             AddDouble(kalc, prefix +".µ", (double)body.gravParameter);
 			AddDouble(kalc, prefix +".day", (double)body.rotationPeriod);
 			AddDouble(kalc, prefix +".SOI", (double)body.sphereOfInfluence);
-			AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
-			AddDouble(kalc, prefix +".AtmosPress", (double)body.atmosphereMultiplier * 101325.0);
+			//AddDouble(kalc, prefix +".AtmosHeight", (double)body.maxAtmosphereAltitude);
+			//AddDouble(kalc, prefix +".AtmosPress", (double)body.atmosphereMultiplier * 101325.0);
 		}
 
 		public static void AddDouble(Kerbulator kalc, string id, double v) {

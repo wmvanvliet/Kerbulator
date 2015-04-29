@@ -2,41 +2,108 @@
 using System.Collections;
 using System;
 using UnityEngine;
+using KSP;
 using KSP.IO;
 
 namespace Kerbulator {
-	// Register plugin with KSP. Indicate that it should be loaded at every scene
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 
 	/// <summary>Glue code when plugin is loaded in KSP and game
 	/// assembly is available.</summary>
 	public class GameGlue : MonoBehaviour, IGlue {
 		private KerbulatorGUI gui = null;
-		private IButton mainButton;
-		private bool mainWindowEnabled = true;
+		private ApplicationLauncherButton mainButton = null;
+		private IButton blizzyButton = null;
+		private bool mainWindowEnabled = false;
 
-		/// <summary>Called by Unity when the Plugin is started</summary>
-		void Start() {
-			if(ToolbarManager.ToolbarAvailable) {
-                mainWindowEnabled = false;
-				mainButton = ToolbarManager.Instance.add("Kerbulator", "Kerbulator");
-				mainButton.TexturePath = "Kerbulator/Textures/kerbulator";
-				mainButton.ToolTip = "Open a powerful calculator";
-                mainButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-				mainButton.OnClick += (e) => {
-                    gui.ChangeState(!mainWindowEnabled);
-				};
+		/// <summary>Called by Unity when the Plugin is loaded</summary>
+		void Awake() {
+			Debug.Log("[Kerbulator] Start");
+			gui = new KerbulatorGUI(this, false, false);
+
+			if(!ToolbarManager.ToolbarAvailable) {
+				GameEvents.onGUIApplicationLauncherReady.Add(InitToolbarButton);
+				GameEvents.onGameSceneLoadRequested.Add(RemoveToolbarButton);
 			}
 
-			gui = new KerbulatorGUI(this, false, !ToolbarManager.ToolbarAvailable);
+			Debug.Log("[Kerbulator] Start done");
 		}
+
+		void Start() {
+			if(!ToolbarManager.ToolbarAvailable && mainButton == null) {
+				InitToolbarButton();
+			} else {
+				InitBlizzyButton();
+			}
+		}
+
+		/// <summary>Creates a toolbar button for KSP's toolbar</summary>
+		void InitToolbarButton() {
+			Debug.Log("[Kerbulator] InitToolbarButton");
+			if(!ApplicationLauncher.Ready || mainButton != null)
+				return;
+
+			Debug.Log("[Kerbulator] AddModApplication");
+			mainButton = ApplicationLauncher.Instance.AddModApplication(
+				// Callback when enabled
+				() => {
+					gui.ChangeState(true);
+				},
+
+				// Callback when disabled
+				() => {
+					gui.ChangeState(false);
+				},
+
+				// Unused callbacks
+				null,
+				null,
+				null,
+				null,
+
+				// Visible in these scenes
+				ApplicationLauncher.AppScenes.ALWAYS,
+
+				// Button texture
+				GetTexture("kerbulator")
+			);
+
+			Debug.Log("[Kerbulator] Done!");
+
+			//ApplicationLancher.Instance.AddOnShowCallback(() => {gui.ChangeState(true);});
+			//ApplicationLancher.Instance.AddOnHideCallback(() => {gui.ChangeState(false);});
+		}
+
+		/// <summary>Creates a toolbar button for Blizzy's toolbar</summary>
+		void InitBlizzyButton() {
+			mainWindowEnabled = false;
+			blizzyButton = ToolbarManager.Instance.add("Kerbulator", "Kerbulator");
+			blizzyButton.TexturePath = "Kerbulator/Textures/kerbulator";
+			blizzyButton.ToolTip = "Open a powerful calculator";
+			blizzyButton.Visibility = new GameScenesVisibility(
+				GameScenes.FLIGHT | GameScenes.SPACECENTER | GameScenes.EDITOR | GameScenes.TRACKSTATION
+			);
+			blizzyButton.OnClick += (e) => { gui.ChangeState(!mainWindowEnabled); };
+		}
+
+		public void RemoveToolbarButton(GameScenes SceneToLoad) {
+			Debug.Log("[Kerbulator] RemoveToolbarButton");
+			if(mainButton != null)
+        		ApplicationLauncher.Instance.RemoveModApplication(mainButton);
+			mainButton = null;
+			if(gui != null)
+				gui.ChangeState(false);
+		}			
 
 		/// <summary>Called by Unity to draw the GUI</summary>
 		public void OnGUI() {
-			gui.OnGUI();
+			//Debug.Log("[Kerbulator] OnGUI");
+			if(gui != null)
+				gui.OnGUI();
 		}
 
         public void OnApplicationFocus(bool focused) {
+			Debug.Log("[Kerbulator] OnApplicationFocus");
 			if(gui != null)
 				gui.OnApplicationFocus(focused);
         }
@@ -104,9 +171,22 @@ namespace Kerbulator {
 
 		/// <summary>Called by Unity when plugin is unloaded</summary>
 		public void OnDestroy() {
-			mainButton.Destroy();
+			Debug.Log("[Kerbulator] Destroy");
 			if(gui != null)
 				gui.OnDestroy();
+			gui = null;
+
+			if(!ToolbarManager.ToolbarAvailable) {
+				GameEvents.onGUIApplicationLauncherReady.Remove(InitToolbarButton);
+				if(mainButton != null)
+					ApplicationLauncher.Instance.RemoveModApplication(mainButton);
+				mainButton = null;
+			} else {
+				if(blizzyButton != null) {
+					blizzyButton.Destroy();
+					blizzyButton = null;
+				}
+			}
 		}
 
 		public void ChangeState(bool open) {
