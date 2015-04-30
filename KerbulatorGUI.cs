@@ -13,6 +13,8 @@ namespace Kerbulator {
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
 		void RunAsCoroutine(IEnumerator f);
+		void AddAlarm(string name, List<string> ids, List<System.Object> output);
+		bool HasKAC();
 	}
 
 	public class KerbulatorGUI {
@@ -110,6 +112,7 @@ namespace Kerbulator {
 		Texture2D saveIcon;
 		Texture2D deleteIcon;
 		Texture2D nodeIcon;
+		Texture2D alarmIcon;
 
 		public KerbulatorGUI(IGlue glue, bool inEditor, bool drawMainButton) {
 			this.glue = glue;
@@ -144,6 +147,7 @@ namespace Kerbulator {
 			runIcon = glue.GetTexture("run");
 			repeatIcon = glue.GetTexture("repeat");
 			nodeIcon = glue.GetTexture("node");
+			alarmIcon = glue.GetTexture("alarm");
 			saveIcon = glue.GetTexture("save");
 			deleteIcon = glue.GetTexture("delete");
 
@@ -429,6 +433,15 @@ namespace Kerbulator {
 					List<System.Object> output = Run();
 					glue.PlaceNode(RunFunction.Outs, output);
 					functionOutput = FormatOutput(env);
+				}
+
+				if(glue.HasKAC()) {
+					if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
+						Debug.Log("[Kerbulator] Adding alarm");
+						List<System.Object> output = Run();
+						glue.AddAlarm(RunFunction.Id, RunFunction.Outs, output);
+						functionOutput = FormatOutput(env);
+					}
 				}
 
 				GUILayout.EndHorizontal();

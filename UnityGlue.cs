@@ -44,5 +44,12 @@ namespace Kerbulator {
 			if(gui != null)
 				gui.OnDestroy();
 		}
+
+		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+		}
+
+		public bool HasKAC() {
+			return true;
+		}
 	}
 }
