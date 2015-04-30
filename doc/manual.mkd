@@ -224,7 +224,7 @@ Everytime you switch from KSP to some other window, Kerbulator makes sure the fi
 
 ### Using the numeric solver
 
-In orbital mechanics, lots of problems crop up where no analytical solution is possible. One such example is the calculation of the true anomaly of an object. Kerbulator whips with an algorithm to approximate a solution in this case (see also the [language reference](langref.mkd)). It is invoked like this:
+In orbital mechanics, lots of problems crop up where no analytical solution is possible. One such example is the calculation of the true anomaly of an object. Kerbulator ships with an algorithm to approximate a solution in this case (see also the [language reference](langref.mkd)). It is invoked like this:
 
     x: x + 5 = 10
 
