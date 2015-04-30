@@ -1,5 +1,25 @@
 Changelog
 ---------
+### 0.32
+Kerbal Alarm Clock integration
+
+- GUI features
+  - maneuver node button hides when not in flight
+  - Added button to add alarm
+
+- Language features
+  - Added ability to add alarm when KAC is installed
+
+### 0.31
+KSP 1.0 Compatibility
+
+- GUI features
+  - Added support for the stock application toolbar
+  - Kerbulator now available in all scenes, not just in flight
+
+- Globals
+  - *.AtmosHeight and *.AtmosPress currently disabled as KSP 1.0 changed things
+
 ### 0.30
 JIT Compiling baby!
 
