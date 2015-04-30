@@ -14,7 +14,8 @@ namespace Kerbulator {
 		void ChangeState(bool open);
 		void RunAsCoroutine(IEnumerator f);
 		void AddAlarm(string name, List<string> ids, List<System.Object> output);
-		bool HasKAC();
+		bool CanAddAlarm();
+		bool CanAddNode();
 	}
 
 	public class KerbulatorGUI {
@@ -429,13 +430,15 @@ namespace Kerbulator {
 					RunRepeated();
 				}
 				
-				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
-					List<System.Object> output = Run();
-					glue.PlaceNode(RunFunction.Outs, output);
-					functionOutput = FormatOutput(env);
+				if(glue.CanAddNode()) {
+					if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
+						List<System.Object> output = Run();
+						glue.PlaceNode(RunFunction.Outs, output);
+						functionOutput = FormatOutput(env);
+					}
 				}
 
-				if(glue.HasKAC()) {
+				if(glue.CanAddAlarm()) {
 					if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
 						Debug.Log("[Kerbulator] Adding alarm");
 						List<System.Object> output = Run();

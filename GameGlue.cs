@@ -234,7 +234,11 @@ namespace Kerbulator {
 			}
 		}
 
-		public bool HasKAC() {
+		public bool CanAddNode() {
+			return HighLogic.LoadedScene == GameScenes.FLIGHT;
+		}
+
+		public bool CanAddAlarm() {
 			return KACWrapper.APIReady;
 		}
 	}

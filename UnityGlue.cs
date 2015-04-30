@@ -48,7 +48,11 @@ namespace Kerbulator {
 		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
 		}
 
-		public bool HasKAC() {
+		public bool CanAddAlarm() {
+			return true;
+		}
+
+		public bool CanAddNode() {
 			return true;
 		}
 	}
