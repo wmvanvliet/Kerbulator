@@ -18,7 +18,7 @@ He would like to calculate at which time to turn on his engines and how much Δv
 ### Starting Kerbulator
 
 Bob notices, when he's flying, the Kerbulator button (+ - × ÷ in a square) in the left hand corner of the screen. Therefore he knows his Kerbulator was installed properly. He presses this button and window appears with a list of all the available functions. As this is his first time running Kerbulator, the list is empty. Bob wouldn't have it any other way. He will program his own mathematical equations into the thing. Encouragingly, there are two buttons at the bottom of this list: `New function` and `New maneuver`. Both buttons will create new functions, although the `New function` button will create an empty function and the `New maneuver` button will create a function that already has a bit of programming code: the code required to be able to place a maneuver node using the function. Bob dives in and creates his first function.
-k
+
 ### Writing functions
 
 Functions are the bread and butter of Kerbulator. A function is a piece of programming code that performs a calculation to produce some result, called the output. Often, a function not only has an output, but also an input. Sometimes a function has multiple inputs and sometimes even multiple outputs! If we want to do any computation with Kerbulator, we have to create a function to do it in. Then, we write a little piece of programming code (that looks a lot like math) to perform the calculation we want.
