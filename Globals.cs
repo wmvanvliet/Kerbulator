@@ -19,12 +19,12 @@ namespace Kerbulator {
 			AddDouble(kalc, "UT", UT);
 				
 			Vessel v = FlightGlobals.ActiveVessel;
-			Orbit orbit1 = v.orbit;
 			if(v != null) {
 				// Mission time
 				AddDouble(kalc, "MissionTime", v.missionTime);
 
 				// Current orbit
+				Orbit orbit1 = v.orbit;
 				AddOrbit(kalc, orbit1, "Craft");
 
 				// Navball (thank you MechJeb source)
