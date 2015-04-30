@@ -28,9 +28,9 @@ SOURCEFILES := $(wildcard *.cs)
 RESGEN2 := $(PREFIX)/bin/resgen2
 MCS    := $(PREFIX)/bin/mcs
 MONO    := $(PREFIX)/bin/mono
-GIT     := $(PREFIX)/bin/git
+GIT     := /usr/bin/git
 TAR     := $(PREFIX)/tar
-ZIP     := $(PREFIX)/bin/zip
+ZIP     := /usr/bin/zip
 PDFLATEX   := $(PREFIX)/bin/pdflatex
 
 all: build
@@ -98,9 +98,9 @@ test: info
 	${MONO} Kerbulator.exe tests/braeunig.test
 
 unity: 
-	cp Kerbulator.cs KerbulatorGUI.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs ExecutionEnvironment.cs ../Calculator/Assets/Standard\ Assets/
-	cp UnityGlue.cs ../Calculator/Assets/
-	cp icons/*.png ../Calculator/Assets/Resources
+	cp Kerbulator.cs KerbulatorGUI.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs ExecutionEnvironment.cs KerbulatorUnity/Assets/Standard\ Assets/
+	cp UnityGlue.cs KerbulatorUnity/Assets/
+	cp icons/*.png KerbulatorUnity/Assets/Resources
 
 release: zip tar.gz
 	cp Kerbulator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kerbulator

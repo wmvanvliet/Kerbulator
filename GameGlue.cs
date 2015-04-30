@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using System;
 using UnityEngine;
 using KSP;
@@ -35,6 +36,8 @@ namespace Kerbulator {
 			} else {
 				InitBlizzyButton();
 			}
+
+			KACWrapper.InitKACWrapper();
 		}
 
 		/// <summary>Creates a toolbar button for KSP's toolbar</summary>
@@ -195,6 +198,48 @@ namespace Kerbulator {
 
 		public void RunAsCoroutine(IEnumerator f) {
 			StartCoroutine(f);
+		}
+
+		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+			Debug.Log("[Kerbulator] AddAlarm " + name);
+			if(KACWrapper.APIReady) {
+				double UT = 0;
+
+				// Look at the resulting variables and create an alarm with them
+				for(int i=0; i<ids.Count; i++) {
+					if(output[i].GetType() != typeof(double))
+						continue;
+
+					string id = ids[i];
+					double val = (double) output[i];
+					if(id == "Δt" || id == "dt")
+						UT = val + Planetarium.GetUniversalTime();
+					else if(id == "UT")
+						UT = val;
+				}
+
+				// Create a raw alarm 
+				String aID = KACWrapper.KAC.CreateAlarm(
+					KACWrapper.KACAPI.AlarmTypeEnum.Raw, name, UT
+				);
+				 
+				if(aID !="") {
+					// If the alarm was made get the object so we can update it
+					KACWrapper.KACAPI.KACAlarm a = KACWrapper.KAC.Alarms.First(z=>z.ID==aID);
+					 
+					// Now update some of the other properties
+					a.Notes = "This alarm was placed by the Kerbulator function "+ name;
+					a.AlarmAction = KACWrapper.KACAPI.AlarmActionEnum.KillWarp;
+				}
+			}
+		}
+
+		public bool CanAddNode() {
+			return HighLogic.LoadedScene == GameScenes.FLIGHT;
+		}
+
+		public bool CanAddAlarm() {
+			return KACWrapper.APIReady;
 		}
 	}
 }
