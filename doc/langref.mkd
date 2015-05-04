@@ -150,7 +150,7 @@ A list can be operated on by operators, in which case they are applied element-w
     [1,2,3] * [1,2,3] # = [1,2,9]
     [a,b,c] - [d,e,f] # = [a-d, b-e, c-f]
     -[1,2,3]          # = [-1,-2,-3]
-    ⌊[1.1, 2.1, 3.1]⌋  # = [1,2,3]
+    ⌊[1.1, 2.1, 3.1]⌋ # = [1,2,3]
     5 * [1,2,3]       # = [5,10,15]
 
 An exception are the `|...|` brackets. They treat the list as a vector and calculate the length:
