@@ -44,7 +44,7 @@ A statement can span multiple lines by using the `\` symbol:
          [4,5,6]]
 
 #### Identifiers
-An identifier is used to denote a variable or function name. It can be any unicode string that does not contain the comment mark `#`, an operator `+ - / ÷ * × · ^ √ %`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
+An identifier is used to denote a variable or function name. It can be any unicode string that does not contain spaces, the comment mark `#`, an operator `+ - / ÷ * × · ^ √ %`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
 
     a
     aaaa
