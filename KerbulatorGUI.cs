@@ -121,18 +121,9 @@ namespace Kerbulator {
 			this.drawMainButton = drawMainButton;
 			ChangeState(false);
 
-			functionDir = Application.persistentDataPath + "/Kerbulator";
-
-			// Sometimes, Application.persistentDataPath returns an empty string.
-			// To not completely crash, create a KerbulatorFunctions directory in the users home dir
-			if(functionDir == "/Kerbulator") {
-				string homePath =
-                    (Environment.OSVersion.Platform == PlatformID.Unix || 
-                     Environment.OSVersion.Platform == PlatformID.MacOSX)
-					 ? Environment.GetEnvironmentVariable("HOME")
-					 : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
-				functionDir = homePath +"/KerbulatorFunctions";
-			}
+			// Use the game base directory + PluginData as base folder for plugin data
+			functionDir = KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
+			functionDir = functionDir.Replace("\\", "/");
 
 			Debug.Log("Kerbulator function dir: "+ functionDir);
 
