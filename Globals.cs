@@ -36,12 +36,22 @@ namespace Kerbulator {
             	Vector3d velocityVesselOrbit = v.orbit.GetVel();
 				Vector3d velocityVesselSurface = velocityVesselOrbit - v.mainBody.getRFrmVel(CoM);
 
+				Quaternion orbitVesselSurface = Quaternion.Inverse(Quaternion.Euler(90, 0, 0) * Quaternion.Inverse(Quaternion.Euler(velocityVesselOrbit)) * rotationSurface);
+
             	AddDouble(kalc, "Navball.Heading", rotationVesselSurface.eulerAngles.y);
             	AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
             	AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
             	AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
             	AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
             	AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
+            	AddDouble(kalc, "Navball.Prograde.Heading", orbitVesselSurface.eulerAngles.y);
+            	//AddDouble(kalc, "Navball.Prograde.Pitch",  (prograde.x > 180) ? (360.0 - prograde.x) : -prograde.x);
+				//AddDouble(kalc, "Navball.Retrograde.Heading", retrograde.y);
+				//AddDouble(kalc, "Navball.Retrograde.Pitch",  (retrograde.x > 180) ? (360.0 - retrograde.x) : -retrograde.x);
+				//AddDouble(kalc, "Navball.SurfacePrograde.Heading", surfacePrograde.y);
+				//AddDouble(kalc, "Navball.SurfacePrograde.Pitch",  (surfacePrograde.x > 180) ? (360.0 - surfacePrograde.x) : -surfacePrograde.x);
+				//AddDouble(kalc, "Navball.SurfaceRetrograde.Heading", surfaceRetrograde.y);
+				//AddDouble(kalc, "Navball.SurfaceRetrograde.Pitch",  (surfaceRetrograde.x > 180) ? (360.0 - surfaceRetrograde.x) : -surfaceRetrograde.x);
 
 				// Reference body
 				AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
