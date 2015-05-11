@@ -131,7 +131,7 @@ Inputs are values that are not defined in the function itself and are not global
     c = √(a^2 + b^2)
     in: b
 
-Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. However, pressing the run button gives an error. The `orbital_velocity` function needs values as input, but currently Kerbulator doesn't provide a GUI to specify them (I'll add this in the near future, I promise). This function needs to be called from inside another function...
+Bob is excited about his multi-purpose `orbital_velocity` function and wants to try it out. Pressing the run button opens the run window, which now presents some text boxes to enter the input variables to the function. Other than simple numbers, you can type expressions in these boxes, including globals. Bob enters `Parent.R + Craft.Pe` in the box labeled `Pe`, `Parent.R + Craft.Ap` in the box labeled `Ap` and `Parent.R + Craft.Alt` in the box labeled `Alt`. Satisfied that the function works properly, Bob is ready to chain multiple functions together.
 
 ### Calling functions from functions
 
