@@ -84,7 +84,7 @@ namespace Kerbulator {
 			blizzyButton.TexturePath = "Kerbulator/Textures/kerbulator";
 			blizzyButton.ToolTip = "Open a powerful calculator";
 			blizzyButton.Visibility = new GameScenesVisibility(
-				GameScenes.FLIGHT | GameScenes.SPACECENTER | GameScenes.EDITOR | GameScenes.TRACKSTATION
+				GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.EDITOR, GameScenes.TRACKSTATION
 			);
 			blizzyButton.OnClick += (e) => { gui.ChangeState(!mainWindowEnabled); };
 		}
