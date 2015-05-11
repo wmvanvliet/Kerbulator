@@ -56,6 +56,7 @@ Name            | Description
 {body}.Vel      | Current orbital velocity of the object
 {body}.TrueAnomaly | True anomaly (angle between the current position of the body and its periapsis)
 {body}.θ        | Same as {body}.TrueAnomaly
+{body}.Inc      | The inclination of the body
 
 If there is a SOI change occuring in the orbit, these are defined as well:
 
