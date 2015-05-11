@@ -68,7 +68,7 @@ namespace Kerbulator {
 				ApplicationLauncher.AppScenes.ALWAYS,
 
 				// Button texture
-				GetTexture("kerbulator")
+				GetTexture("kerbulator_38")
 			);
 
 			Debug.Log("[Kerbulator] Done!");
