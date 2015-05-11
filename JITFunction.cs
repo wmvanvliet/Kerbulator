@@ -973,6 +973,12 @@ namespace Kerbulator {
 				case "atan_rad":
 					funcExpression = CallUnaryMathFunction(func.id, "Atan", arguments[0], pos);
 					break;
+				case "atan2":
+					funcExpression = ToDeg(func.id, CallBinaryMathFunction(func.id, "Atan2", arguments[0], arguments[1], pos), pos);
+					break;
+				case "atan2_rad":
+					funcExpression = CallBinaryMathFunction(func.id, "Atan2", arguments[0], arguments[1], pos);
+					break;
 				case "ceil":
 					funcExpression = CallUnaryMathFunction(func.id, "Ceiling", arguments[0], pos);
 					break;

@@ -204,45 +204,47 @@ And so are these:
 #### Build-in functions
 Apart from the functions you write yourself, Kerbulator supplies the following build-in functions:
 
-Name         | Description
--------------|------------
-`abs(x)`     | Absolute value of `x`
-`acos(x)`    | Arccosine, or cos^(-1) (in degrees)
-`acos_rad(x)`| Arccosine, or cos^(-1) (in radians)
-`asin(x)`    | Arcsine, or sin^(-1) (in degrees)
-`asin_rad(x)`| Arcsine, or sin^(-1) (in radians)
-`atan(x)`    | Arctangent, or tan^(-1) (in degrees)
-`atan_rad(x)`| Arctangent, or tan^(-1) (in radians)
-`ceil(x)`    | Round up to the nearest integer
-`cos(x)`     | Cosine (`x` in degrees)
-`cos_rad(x)` | Cosine (`x` in radians)
-`cosh(x)`    | Hyperbolic cosine (`x` in degrees)
-`cosh_rad(x)`| Hyperbolic cosine (`x` in radians)
-`exp(x)`     | `e` to the power of `x`
-`floor(x)`   | Round down to the nearest integer
-`ln(x)`      | Natural logarithm
-`log(x)`     | Same as `ln`
-`log10(x)`   | Base 10 logarithm
-`max(a,b)`   | `a` if `a >= b` otherwise `b`
-`min(a,b)`   | `a` if `a <= b` otherwise `b`
-`pow(a,b)`   | `a` to the power of `b`
-`rand()`     | Generate a random number between 0 and 1
-`round(a,b)` | Round `a` to `b` decimal places
-`sign(x)`    | `-1` if `a < 0` otherwise 1
-`sin(x)`     | Sine (`x` in degrees)
-`sin_rad(x)` | Sine (`x` in radians)
-`sinh(x)`    | Hyperbolic sine (`x` in degrees)
-`sinh_rad(x)`| Hyperbolic sine (`x` in radians)
-`sqrt(x)`    | Square root
-`tan(x)`     | Tangent (`x` in degrees)
-`tan_rad(x)` | Tangent (`x` in radians)
-`tanh(x)`    | Hyperbolic tangent (`x` in degrees)
-`tanh_rad(x)`| Hyperbolic tangent (`x` in radians)
-`len(x)`     | Number of elements in list `x`
-`mag(x)`     | Magnitude of vector `x`
-`norm(x)`    | Version of vector `x` that has a magnitude of 1
-`dot(a,b)`   | Dot product between list/matrix `a` and list/matrix `b`
-`cross(a,b)` | Cross product between list `a` and `b` (only supports vectors with 3 elements)
+Name             | Description
+-----------------|------------
+`abs(x)`         | Absolute value of `x`
+`acos(x)`        | Arccosine, or cos^(-1) (in degrees)
+`acos_rad(x)`    | Arccosine, or cos^(-1) (in radians)
+`asin(x)`        | Arcsine, or sin^(-1) (in degrees)
+`asin_rad(x)`    | Arcsine, or sin^(-1) (in radians)
+`atan(x)`        | Arctangent, or tan^(-1) (in degrees)
+`atan_rad(x)`    | Arctangent, or tan^(-1) (in radians)
+`atan2(y,x)`     | Arctangent with two arguments
+`atan2_rad(y,x)` | Arctangent with two arguments (in radians)
+`ceil(x)`        | Round up to the nearest integer
+`cos(x)`         | Cosine (`x` in degrees)
+`cos_rad(x)`     | Cosine (`x` in radians)
+`cosh(x)`        | Hyperbolic cosine (`x` in degrees)
+`cosh_rad(x)`    | Hyperbolic cosine (`x` in radians)
+`exp(x)`         | `e` to the power of `x`
+`floor(x)`       | Round down to the nearest integer
+`ln(x)`          | Natural logarithm
+`log(x)`         | Same as `ln`
+`log10(x)`       | Base 10 logarithm
+`max(a,b)`       | `a` if `a >= b` otherwise `b`
+`min(a,b)`       | `a` if `a <= b` otherwise `b`
+`pow(a,b)`       | `a` to the power of `b`
+`rand()`         | Generate a random number between 0 and 1
+`round(a,b)`     | Round `a` to `b` decimal places
+`sign(x)`        | `-1` if `a < 0` otherwise 1
+`sin(x)`         | Sine (`x` in degrees)
+`sin_rad(x)`     | Sine (`x` in radians)
+`sinh(x)`        | Hyperbolic sine (`x` in degrees)
+`sinh_rad(x)`    | Hyperbolic sine (`x` in radians)
+`sqrt(x)`        | Square root
+`tan(x)`         | Tangent (`x` in degrees)
+`tan_rad(x)`     | Tangent (`x` in radians)
+`tanh(x)`        | Hyperbolic tangent (`x` in degrees)
+`tanh_rad(x)`    | Hyperbolic tangent (`x` in radians)
+`len(x)`         | Number of elements in list `x`
+`mag(x)`         | Magnitude of vector `x`
+`norm(x)`        | Version of vector `x` that has a magnitude of 1
+`dot(a,b)`       | Dot product between list/matrix `a` and list/matrix `b`
+`cross(a,b)`     | Cross product between list `a` and `b` (only supports vectors with 3 elements)
 
 #### Using the solver 
 

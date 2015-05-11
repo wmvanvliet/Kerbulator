@@ -51,6 +51,8 @@ namespace Kerbulator {
 			buildInFunctions.Add("asin_rad", new BuildInFunction("asin_rad", 1));
 			buildInFunctions.Add("atan", new BuildInFunction("atan", 1));
 			buildInFunctions.Add("atan_rad", new BuildInFunction("atan_rad", 1));
+			buildInFunctions.Add("atan2", new BuildInFunction("atan2", 2));
+			buildInFunctions.Add("atan2_rad", new BuildInFunction("atan2_rad", 2));
 			buildInFunctions.Add("ceil", new BuildInFunction("ceil", 1));
 			buildInFunctions.Add("cos", new BuildInFunction("cos", 1));
 			buildInFunctions.Add("cos_rad", new BuildInFunction("cos_rad", 1));

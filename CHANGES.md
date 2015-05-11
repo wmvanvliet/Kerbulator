@@ -1,5 +1,20 @@
 Changelog
 ---------
+### 0.33
+Small maintenance update. Thanks to Emanuele Bardelli.
+
+- GUI features
+  - Fixed support for blizzy78 toolbar
+ 
+- Language features
+  - Added build-in function `atan2`
+  - Added build-in function `atan2_rad`
+
+!! Breaking backwards compatability
+  - Kerbulator used to store its files (.math) outside the main Kerbulator folder,
+    which is a violation of the guidelines laid out by Squad. Function files now go
+    in the `PluginData/Kerbulator` folder.
+
 ### 0.32
 Kerbal Alarm Clock integration
 
