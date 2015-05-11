@@ -124,7 +124,6 @@ namespace Kerbulator {
 			// Use the game base directory + PluginData as base folder for plugin data
 			functionDir = KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
 			functionDir = functionDir.Replace("\\", "/");
-			if (functionDir.EndsWith("/")) functionDir = functionDir.Substring(0, functionDir.Length - 1);
 
 			Debug.Log("Kerbulator function dir: "+ functionDir);
 
