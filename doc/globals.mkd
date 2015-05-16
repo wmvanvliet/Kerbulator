@@ -133,4 +133,7 @@ Craft.Inter2.Δt  | Same as Craft.Inter1.dt
 Craft.Inter2.Sep | Distance (in meters) between our craft and the target at Craft.Inter2.dt
 Craft.Inter2.TrueAnomaly | True anomaly of the second time we cross the target orbit
 Craft.Inter2.θ   | Same as Craft.Inter2.TrueAnomaly
+Craft.Rel.AN     | Argument of Ascending node relative to target
+Craft.Rel.DN     | Argument of Descenging node relative to target
+Craft.Rel.Inc    | Incliation relative to target
 

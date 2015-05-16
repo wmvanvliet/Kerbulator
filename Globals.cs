@@ -78,6 +78,10 @@ namespace Kerbulator {
 					AddDouble(kalc, "Craft.Inter2.Sep", (orbit1.getPositionAtUT(T2+UT) - orbit2.getPositionAtUT(T2+UT)).magnitude);
 					AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
 					AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
+					// Relative Ascending and Descending Nodes, Inclination
+					AddDouble(kalc, "Craft.Rel.AN", orbit1.GetTrueAnomalyOfZupVector(Vector3d.Cross(orbit2.GetOrbitNormal(), orbit1.GetOrbitNormal())) * (180 / Math.PI));
+					AddDouble(kalc, "Craft.Rel.DN", orbit1.GetTrueAnomalyOfZupVector(Vector3d.Cross(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal())) * (180 / Math.PI));
+					AddDouble(kalc, "Craft.Rel.Inc", Vector3d.Angle(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal()));
 				}
 			}
 		}
