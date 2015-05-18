@@ -1,5 +1,11 @@
 Changelog
 ---------
+### 0.34
+More globals. Thanks to Emanuele Bardelli.
+ - Language features
+   - Fixed `{Body}.AtmosHeight` global
+   - Fixed `{Body}.AtmosPress` global
+
 ### 0.33
 Small maintenance update. Thanks to Emanuele Bardelli.
 
