@@ -5,6 +5,9 @@ More globals. Thanks to Emanuele Bardelli.
  - Language features
    - Fixed `{Body}.AtmosHeight` global
    - Fixed `{Body}.AtmosPress` global
+   - Added `Craft.Rel.AN` global
+   - Added `Craft.Rel.DN` global
+   - Added `Craft.Rel.Inc` global
 
 ### 0.33
 Small maintenance update. Thanks to Emanuele Bardelli.
