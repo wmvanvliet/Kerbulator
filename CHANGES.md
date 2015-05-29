@@ -1,6 +1,6 @@
 Changelog
 ---------
-### 0.34 (not released yet)
+### 0.34
 More globals. Thanks to Emanuele Bardelli.
  - Language features
    - Fixed `{Body}.AtmosHeight` global
