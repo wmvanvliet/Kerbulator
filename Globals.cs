@@ -9,6 +9,7 @@ namespace Kerbulator {
 			// Planets
 			foreach(CelestialBody b in FlightGlobals.Bodies) {
 				if(b.name == "Sun")
+					AddCelestialBody(kalc, b, "Sun");
 					AddCelestialBody(kalc, b, "Kerbol");
 				else
 					AddCelestialBody(kalc, b, b.name);
