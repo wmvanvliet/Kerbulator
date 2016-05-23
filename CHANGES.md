@@ -1,5 +1,8 @@
 Changelog
 ---------
+### 0.35
+Add support for KSP version 1.1.2
+
 ### 0.34
 More globals. Thanks to Emanuele Bardelli.
  - Language features
