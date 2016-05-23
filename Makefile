@@ -7,8 +7,8 @@ ifeq ($(OS),Windows_NT)
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S), Darwin)
-		KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program\ Minimal
-		MANAGED := KSP.app/Contents/Data/Managed/
+		KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
+		MANAGED := KSP.app/Contents/Resources/Data/Managed/
 		PREFIX := /usr/local
 	endif
 	ifeq ($(UNAME_S), Linux)
@@ -29,7 +29,8 @@ RESGEN2 := $(PREFIX)/bin/resgen2
 MCS    := $(PREFIX)/bin/mcs
 MONO    := $(PREFIX)/bin/mono
 GIT     := /usr/bin/git
-TAR     := $(PREFIX)/tar
+#TAR     := $(PREFIX)/tar
+TAR     := /usr/bin/tar
 ZIP     := /usr/bin/zip
 PDFLATEX   := $(PREFIX)/bin/pdflatex
 
@@ -49,7 +50,7 @@ info:
 build: info
 	mkdir -p build
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,KSPUtil \
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 
@@ -103,8 +104,8 @@ unity:
 	cp icons/*.png KerbulatorUnity/Assets/Resources
 
 release: zip tar.gz
-	cp Kerbulator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kerbulator
-	cp Kerbulator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kerbulator
+	cp package/Kerbulator-$(shell ${GIT} describe --tags).zip ~/Dropbox/Public/Kerbulator
+	cp package/Kerbulator-$(shell ${GIT} describe --tags).tar.gz ~/Dropbox/Public/Kerbulator
 
 jittest:
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \

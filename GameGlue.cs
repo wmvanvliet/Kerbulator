@@ -5,9 +5,12 @@ using System;
 using UnityEngine;
 using KSP;
 using KSP.IO;
+using KSP.UI.Screens;
 
 namespace Kerbulator {
+	#region Starter Classes
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+	#endregion
 
 	/// <summary>Glue code when plugin is loaded in KSP and game
 	/// assembly is available.</summary>
@@ -34,6 +37,7 @@ namespace Kerbulator {
 			if(!ToolbarManager.ToolbarAvailable && mainButton == null) {
 				InitToolbarButton();
 			} else {
+				// Create a toolbar button using Blizzy's toolbar
 				InitBlizzyButton();
 			}
 
@@ -240,6 +244,10 @@ namespace Kerbulator {
 
 		public bool CanAddAlarm() {
 			return KACWrapper.APIReady;
+		}
+
+		public string GetFunctionDir() {
+			return KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
 		}
 	}
 }

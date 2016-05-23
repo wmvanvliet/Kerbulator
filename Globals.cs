@@ -8,10 +8,10 @@ namespace Kerbulator {
 		public static void Add(Kerbulator kalc) {
 			// Planets
 			foreach(CelestialBody b in FlightGlobals.Bodies) {
-				if(b.name == "Sun")
+				if(b.name == "Sun") {
 					AddCelestialBody(kalc, b, "Sun");
 					AddCelestialBody(kalc, b, "Kerbol");
-				else
+				} else
 					AddCelestialBody(kalc, b, b.name);
 			}
 
@@ -29,20 +29,20 @@ namespace Kerbulator {
 				AddOrbit(kalc, orbit1, "Craft");
 
 				// Navball (thank you MechJeb source)
-				Vector3d CoM = v.findWorldCenterOfMass();
-				Vector3d up = (CoM - v.mainBody.position).normalized;
-				Vector3d north = Vector3d.Exclude(up, (v.mainBody.position + v.mainBody.transform.up * (float)v.mainBody.Radius) - CoM).normalized;
+				Vector3 CoM = v.findWorldCenterOfMass();
+				Vector3 up = (CoM - v.mainBody.position).normalized;
+				Vector3 north = Vector3.Exclude(up, (v.mainBody.position + v.mainBody.transform.up * (float)v.mainBody.Radius) - CoM).normalized;
 				Quaternion rotationSurface = Quaternion.LookRotation(north, up);
 				Quaternion rotationVesselSurface = Quaternion.Inverse(Quaternion.Euler(90, 0, 0) * Quaternion.Inverse(v.GetTransform().rotation) * rotationSurface);
-            	Vector3d velocityVesselOrbit = v.orbit.GetVel();
-				Vector3d velocityVesselSurface = velocityVesselOrbit - v.mainBody.getRFrmVel(CoM);
+            	Vector3 velocityVesselOrbit = v.orbit.GetVel();
+				Vector3 velocityVesselSurface = velocityVesselOrbit - v.mainBody.getRFrmVel(CoM);
 
             	AddDouble(kalc, "Navball.Heading", rotationVesselSurface.eulerAngles.y);
             	AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
             	AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
             	AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
             	AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
-            	AddDouble(kalc, "Navball.VerticalVelocity", Vector3d.Dot(velocityVesselSurface, up));
+            	AddDouble(kalc, "Navball.VerticalVelocity", Vector3.Dot(velocityVesselSurface, up));
 
 				// Reference body
 				AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
@@ -80,9 +80,9 @@ namespace Kerbulator {
 					AddDouble(kalc, "Craft.Inter2.TrueAnomaly", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
 					AddDouble(kalc, "Craft.Inter2.θ", orbit2.TrueAnomalyAtUT(T2+UT) * (180/Math.PI));
 					// Relative Ascending and Descending Nodes, Inclination
-					AddDouble(kalc, "Craft.Rel.AN", orbit1.GetTrueAnomalyOfZupVector(Vector3d.Cross(orbit2.GetOrbitNormal(), orbit1.GetOrbitNormal())) * (180 / Math.PI));
-					AddDouble(kalc, "Craft.Rel.DN", orbit1.GetTrueAnomalyOfZupVector(Vector3d.Cross(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal())) * (180 / Math.PI));
-					AddDouble(kalc, "Craft.Rel.Inc", Vector3d.Angle(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal()));
+					AddDouble(kalc, "Craft.Rel.AN", orbit1.GetTrueAnomalyOfZupVector(Vector3.Cross(orbit2.GetOrbitNormal(), orbit1.GetOrbitNormal())) * (180 / Math.PI));
+					AddDouble(kalc, "Craft.Rel.DN", orbit1.GetTrueAnomalyOfZupVector(Vector3.Cross(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal())) * (180 / Math.PI));
+					AddDouble(kalc, "Craft.Rel.Inc", Vector3.Angle(orbit1.GetOrbitNormal(), orbit2.GetOrbitNormal()));
 				}
 			}
 		}
@@ -115,10 +115,10 @@ namespace Kerbulator {
 
 			// Current position in carthesian coordinates
 			double UT = (double)Planetarium.GetUniversalTime();
-			Vector3d relPos = orbit.getRelativePositionAtUT(UT);
-			Vector3d relVel = orbit.getOrbitalVelocityAtUT(UT);
-			AddVector3d(kalc, prefix +".RelPos", new Vector3d(relPos.x, relPos.z, relPos.y));
-			AddVector3d(kalc, prefix +".RelVel", new Vector3d(relVel.x, relVel.z, relVel.y));
+			Vector3 relPos = orbit.getRelativePositionAtUT(UT);
+			Vector3 relVel = orbit.getOrbitalVelocityAtUT(UT);
+			AddVector3(kalc, prefix +".RelPos", new Vector3(relPos.x, relPos.z, relPos.y));
+			AddVector3(kalc, prefix +".RelVel", new Vector3(relVel.x, relVel.z, relVel.y));
 		}
 
 		public static void AddCelestialBody(Kerbulator kalc, CelestialBody body) {
@@ -159,12 +159,6 @@ namespace Kerbulator {
 		public static void AddBool(Kerbulator kalc, string id, bool v) {
 			double val = v ? 1.0 : 0.0;
 			AddDouble(kalc, id, val);
-		}
-
-		public static void AddVector3d(Kerbulator kalc, string prefix, Vector3d v) {
-			AddDouble(kalc, prefix +".x", v.x);
-			AddDouble(kalc, prefix +".y", v.y);
-			AddDouble(kalc, prefix +".z", v.z);
 		}
 
 		public static void AddVector3(Kerbulator kalc, string prefix, Vector3 v) {

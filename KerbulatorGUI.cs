@@ -16,6 +16,7 @@ namespace Kerbulator {
 		void AddAlarm(string name, List<string> ids, List<System.Object> output);
 		bool CanAddAlarm();
 		bool CanAddNode();
+		string GetFunctionDir();
 	}
 
 	public class KerbulatorGUI {
@@ -122,7 +123,7 @@ namespace Kerbulator {
 			ChangeState(false);
 
 			// Use the game base directory + PluginData as base folder for plugin data
-			functionDir = KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
+			functionDir = glue.GetFunctionDir();
 			functionDir = functionDir.Replace("\\", "/");
 
 			Debug.Log("Kerbulator function dir: "+ functionDir);
@@ -190,20 +191,20 @@ namespace Kerbulator {
 
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
-				mainWindowPos = GUILayout.Window(windowId, mainWindowPos, DrawMainWindow, "Kerbulator", GUILayout.ExpandHeight(false));
+				mainWindowPos = GUI.Window(windowId, mainWindowPos, DrawMainWindow, "Kerbulator");
 			}
 
 			if(editWindowEnabled) {
-				editWindowPos = GUILayout.Window(windowId + 1, editWindowPos, DrawEditWindow, "Function Editor", GUILayout.ExpandHeight(false));
+				editWindowPos = GUI.Window(windowId + 1, editWindowPos, DrawEditWindow, "Function Editor");
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUILayout.Window(windowId + 2, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id, GUILayout.ExpandHeight(false));
+				runWindowPos = GUI.Window(windowId + 2, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id);
 			}
 
 			if(running) {
 				foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
-					pair.Value.windowPos = GUILayout.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id, GUILayout.ExpandHeight(false));
+					pair.Value.windowPos = GUI.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id);
 				}
 			}
 
@@ -350,9 +351,10 @@ namespace Kerbulator {
 			GUILayout.BeginHorizontal();
 			foreach(string s in greekLetters) {
 				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
-					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
-					editor.pos ++;
-					editor.selectPos ++;
+					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
+					editor.cursorIndex ++;
+					editor.selectIndex ++;
+					editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -360,9 +362,10 @@ namespace Kerbulator {
 			GUILayout.BeginHorizontal();
 			foreach(string s in greekUCLetters) {
 				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
-					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
-					editor.pos ++;
-					editor.selectPos ++;
+					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
+					editor.cursorIndex ++;
+					editor.selectIndex ++;
+					editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -370,9 +373,10 @@ namespace Kerbulator {
 			GUILayout.BeginHorizontal();
 			foreach(string s in symbols) {
 				if(GUILayout.Button(s, keyboard, GUILayout.Width(15))) {
-					editFunctionContent = editFunctionContent.Insert(editor.pos, s);
-					editor.pos ++;
-					editor.selectPos ++;
+					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
+					editor.cursorIndex ++;
+					editor.selectIndex ++;
+					editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();

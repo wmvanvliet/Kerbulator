@@ -9,7 +9,7 @@ namespace Kerbulator {
 		private KerbulatorGUI gui = null;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
-		void Start() {
+		void Awake() {
 			gui = new KerbulatorGUI(this, true, true);
 		}
 
@@ -54,6 +54,10 @@ namespace Kerbulator {
 
 		public bool CanAddNode() {
 			return true;
+		}
+
+		public string GetFunctionDir() {
+			return "/Users/rodin/Projects/Kerbulator/KerbulatorFunctions";
 		}
 	}
 }
