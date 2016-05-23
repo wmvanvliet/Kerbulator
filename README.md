@@ -8,7 +8,7 @@ Kerbulator comes without any preprogrammed formulae. While it can be fun to use 
 What you get is access to all the numbers you can read off the various displays in vanilla KSP, an astronomical almanac and a simple expression language to write functions operating on them. This enables you to calculate useful stuff like Hohmann transfers, gravitational slingshots, launch windows, etc. Kerbulator can also create maneuver nodes for you based on your calculations.
 
 ## Installation
-The installation of Kerbulator is the same as for most other mods. Install Kerbulator by downloading the [zip file](https://dl.dropboxusercontent.com/u/79303435/Kerbulator/Kerbulator-0.35.zip) from Kerbal Space Port and unzipping it into the `GameData` folder of your KSP installation. The `GameData` folder should now contain a subfolder called `Kerbulator`. Start KSP and you're good to go!
+The installation of Kerbulator is the same as for most other mods. Install Kerbulator by downloading the [zip file](https://dl.dropboxusercontent.com/u/79303435/Kerbulator/Kerbulator-0.35.zip) and unzipping it into the `GameData` folder of your KSP installation. The `GameData` folder should now contain a subfolder called `Kerbulator`. Start KSP and you're good to go!
 
 ## Download latest release
 [Hosted on Github](https://github.com/wmvanvliet/Kerbulator/releases/download/0.35/Kerbulator-0.35.zip) <br/>
