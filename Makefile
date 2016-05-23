@@ -99,7 +99,7 @@ test: info
 	${MONO} Kerbulator.exe tests/braeunig.test
 
 unity: 
-	cp Kerbulator.cs KerbulatorGUI.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs ExecutionEnvironment.cs KerbulatorUnity/Assets/Standard\ Assets/
+	cp Kerbulator.cs KerbulatorGUI.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs ExecutionEnvironment.cs KerbulatorOptions.cs KerbulatorUnity/Assets/Standard\ Assets/
 	cp UnityGlue.cs KerbulatorUnity/Assets/
 	cp icons/*.png KerbulatorUnity/Assets/Resources
 

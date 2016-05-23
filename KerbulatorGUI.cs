@@ -71,19 +71,15 @@ namespace Kerbulator {
 		Rect mainButtonPos = new Rect(190, 0, 32, 32);
 
 		// Window positions
-		Rect mainWindowPos = new Rect(0, 60, 280, 400);
 		Vector2 minMainWindowSize = new Vector2(280, 400);
 		bool mainWindowEnabled = false;
 
-		Rect editWindowPos = new Rect(280, 60, 350, 300);
 		Vector2 minEditWindowSize = new Vector2(300, 200);
 		bool editWindowEnabled = false;
 
-		Rect runWindowPos = new Rect(0, 470, 200, 200);
 		Vector2 minRunWindowSize = new Vector2(100, 100);
 		bool runWindowEnabled = false;
 
-		Rect repeatWindowPos = new Rect(200, 470, 200, 100);
 		Vector2 minRepeatWindowSize = new Vector2(75, 75);
 
 		// Dictionary containing all available functions
@@ -106,6 +102,8 @@ namespace Kerbulator {
 		IGlue glue;
 		bool inEditor = false;
 
+		KerbulatorOptions options = null;
+
 		// Icons
 		Texture2D kerbulatorIcon;
 		Texture2D editIcon;
@@ -116,10 +114,11 @@ namespace Kerbulator {
 		Texture2D nodeIcon;
 		Texture2D alarmIcon;
 
-		public KerbulatorGUI(IGlue glue, bool inEditor, bool drawMainButton) {
+		public KerbulatorGUI(IGlue glue, bool inEditor, bool drawMainButton, KerbulatorOptions options) {
 			this.glue = glue;
 			this.inEditor = inEditor;
 			this.drawMainButton = drawMainButton;
+			this.options = options;
 			ChangeState(false);
 
 			// Use the game base directory + PluginData as base folder for plugin data
@@ -191,15 +190,15 @@ namespace Kerbulator {
 
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
-				mainWindowPos = GUI.Window(windowId, mainWindowPos, DrawMainWindow, "Kerbulator");
+				options.mainWindowPos = GUI.Window(windowId, options.mainWindowPos, DrawMainWindow, "Kerbulator");
 			}
 
 			if(editWindowEnabled) {
-				editWindowPos = GUI.Window(windowId + 1, editWindowPos, DrawEditWindow, "Function Editor");
+				options.editWindowPos = GUI.Window(windowId + 1, options.editWindowPos, DrawEditWindow, "Function Editor");
 			}
 
 			if(runWindowEnabled) {
-				runWindowPos = GUI.Window(windowId + 2, runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id);
+				options.runWindowPos = GUI.Window(windowId + 2, options.runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id);
 			}
 
 			if(running) {
@@ -216,14 +215,14 @@ namespace Kerbulator {
 		public void DrawMainWindow(int id) {
 			// Close button at the top right corner
 			if(drawMainButton)
-				ChangeState(!GUI.Toggle(new Rect(mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
+				ChangeState(!GUI.Toggle(new Rect(options.mainWindowPos.width - 25, 0, 20, 20), !mainWindowEnabled, ""));
 
 			if(error != null)
 				GUILayout.Label(error);
 
 			GUILayout.Label("Available functions:");
 
-			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(mainWindowPos.height - 110));
+			mainScrollPos = GUILayout.BeginScrollView(mainScrollPos, false, true, GUILayout.Height(options.mainWindowPos.height - 110));
 
 			bool runSomething = false;
 
@@ -292,7 +291,7 @@ namespace Kerbulator {
 
 			GUILayout.EndHorizontal();
 
-			mainWindowPos = ResizeWindow(id, mainWindowPos, minMainWindowSize);
+			options.mainWindowPos = ResizeWindow(id, options.mainWindowPos, minMainWindowSize);
 			GUI.DragWindow(titleBarRect);
 
 			if(Event.current.type == EventType.Repaint)
@@ -311,7 +310,7 @@ namespace Kerbulator {
 		/// <param name="id">An unique number indentifying the window</param>
 		public void DrawEditWindow(int id) {
 			// Close button
-			editWindowEnabled = !GUI.Toggle(new Rect(editWindowPos.width - 25, 0, 20, 20), !editWindowEnabled, "");
+			editWindowEnabled = !GUI.Toggle(new Rect(options.editWindowPos.width - 25, 0, 20, 20), !editWindowEnabled, "");
 
 			GUILayout.BeginHorizontal();
 			
@@ -343,7 +342,7 @@ namespace Kerbulator {
 
 			GUILayout.EndHorizontal();
 
-			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(editWindowPos.height - 140)); //, GUILayout.Width(460));
+			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(options.editWindowPos.height - 140)); //, GUILayout.Width(460));
 			editFunctionContent = GUILayout.TextArea(editFunctionContent, GUILayout.ExpandWidth(true));
 			TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			GUILayout.EndScrollView();
@@ -381,7 +380,7 @@ namespace Kerbulator {
 			}
 			GUILayout.EndHorizontal();
 
-			editWindowPos = ResizeWindow(id, editWindowPos, minEditWindowSize);
+			options.editWindowPos = ResizeWindow(id, options.editWindowPos, minEditWindowSize);
 			GUI.DragWindow(titleBarRect);
 
 			if(Event.current.type == EventType.Repaint)
@@ -392,8 +391,8 @@ namespace Kerbulator {
 		/// <param name="id">An unique number indentifying the window</param>
 		public void DrawRunWindow(int id) {
 			// Close button
-			runWindowEnabled = !GUI.Toggle(new Rect(runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
-			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(runWindowPos.height - 40));
+			runWindowEnabled = !GUI.Toggle(new Rect(options.runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
+			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(options.runWindowPos.height - 40));
 
 			if(RunFunction == null) {
 				GUILayout.Label("ERROR: no function selected.");
@@ -449,7 +448,7 @@ namespace Kerbulator {
 
 			GUILayout.EndScrollView();
 
-			runWindowPos = ResizeWindow(id, runWindowPos, minRunWindowSize);
+			options.runWindowPos = ResizeWindow(id, options.runWindowPos, minRunWindowSize);
 			GUI.DragWindow(titleBarRect);
 
 			if(Event.current.type == EventType.Repaint)
@@ -510,7 +509,7 @@ namespace Kerbulator {
 					return;
 			}
 
-			Rect pos = repeatWindowPos;
+			Rect pos = options.repeatWindowPos;
 
 			// Stop the function if already running, and remove from the list
 			int id = WindowIdOfRepeatingFunction(RunFunction.Id);
@@ -771,7 +770,7 @@ namespace Kerbulator {
 							if(size.x > maxWidth)
 								maxWidth = size.x;
 						}
-						runWindowPos = new Rect(runWindowPos.x, runWindowPos.y, maxWidth + 200, runWindowPos.height);
+						options.runWindowPos = new Rect(options.runWindowPos.x, options.runWindowPos.y, maxWidth + 200, options.runWindowPos.height);
 					}
 				}
 

@@ -9,7 +9,14 @@ using KSP.UI.Screens;
 
 namespace Kerbulator {
 	#region Starter Classes
-	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
+    public class KerbulatorFlight : GameGlue { }
+    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
+    public class KerbulatorEditor : GameGlue { }
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
+    public class KerbulatorSpaceCenter : GameGlue { }
+    [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
+    public class KerbulatorTrackingStation : GameGlue { }
 	#endregion
 
 	/// <summary>Glue code when plugin is loaded in KSP and game
@@ -19,11 +26,13 @@ namespace Kerbulator {
 		private ApplicationLauncherButton mainButton = null;
 		private IButton blizzyButton = null;
 		private bool mainWindowEnabled = false;
+		private KerbulatorOptions options = null;
 
 		/// <summary>Called by Unity when the Plugin is loaded</summary>
 		void Awake() {
 			Debug.Log("[Kerbulator] Start");
-			gui = new KerbulatorGUI(this, false, false);
+			options = LoadConfig();
+			gui = new KerbulatorGUI(this, false, false, options);
 
 			if(!ToolbarManager.ToolbarAvailable) {
 				GameEvents.onGUIApplicationLauncherReady.Add(InitToolbarButton);
@@ -42,6 +51,63 @@ namespace Kerbulator {
 			}
 
 			KACWrapper.InitKACWrapper();
+		}
+
+		void OnDisable() {
+			SaveConfig();
+		}
+
+		void SaveConfig() {
+			// Save config
+			PluginConfiguration config = KSP.IO.PluginConfiguration.CreateForType<Kerbulator>(null);
+
+			config["mainWindowX"] = (int)options.mainWindowPos.x;
+			config["mainWindowY"] = (int)options.mainWindowPos.y;
+			config["mainWindowWidth"] = (int)options.mainWindowPos.width;
+			config["mainWindowHeight"] = (int)options.mainWindowPos.height;
+			config["editWindowX"] = (int)options.editWindowPos.x;
+			config["editWindowY"] = (int)options.editWindowPos.y;
+			config["editWindowWidth"] = (int)options.editWindowPos.width;
+			config["editWindowHeight"] = (int)options.editWindowPos.height;
+			config["runWindowX"] = (int)options.runWindowPos.x;
+			config["runWindowY"] = (int)options.runWindowPos.y;
+			config["runWindowWidth"] = (int)options.runWindowPos.width;
+			config["runWindowHeight"] = (int)options.runWindowPos.height;
+			config["repeatWindowX"] = (int)options.repeatWindowPos.x;
+			config["repeatWindowY"] = (int)options.repeatWindowPos.y;
+			config["repeatWindowWidth"] = (int)options.repeatWindowPos.width;
+			config["repeatWindowHeight"] = (int)options.repeatWindowPos.height;
+
+			config.save();
+		}
+
+		KerbulatorOptions LoadConfig() {
+			PluginConfiguration config = KSP.IO.PluginConfiguration.CreateForType<Kerbulator>(null);
+			config.load();
+
+			options = new KerbulatorOptions();
+
+			try {
+				options.mainWindowPos.x = config.GetValue<int>("mainWindowX", 0);
+				options.mainWindowPos.y = config.GetValue<int>("mainWindowY", 60);
+				options.mainWindowPos.width = config.GetValue<int>("mainWindowWidth", 280);
+				options.mainWindowPos.height = config.GetValue<int>("mainWindowHeight", 400);
+				options.editWindowPos.x = config.GetValue<int>("editWindowX", 280);
+				options.editWindowPos.y = config.GetValue<int>("editWindowY", 60);
+				options.editWindowPos.width = config.GetValue<int>("editWindowWidth", 500);
+				options.editWindowPos.height = config.GetValue<int>("editWindowHeight", 400);
+				options.runWindowPos.x = config.GetValue<int>("runWindowX", 0);
+				options.runWindowPos.y = config.GetValue<int>("runWindowY", 470);
+				options.runWindowPos.width = config.GetValue<int>("runWindowWidth", 200);
+				options.runWindowPos.height = config.GetValue<int>("runWindowHeight", 200);
+				options.repeatWindowPos.x = config.GetValue<int>("repeatWindowX", 200);
+				options.repeatWindowPos.y = config.GetValue<int>("repeatWindowY", 470);
+				options.repeatWindowPos.width = config.GetValue<int>("repeatWindowWidth", 200);
+				options.repeatWindowPos.height = config.GetValue<int>("repeatWindowHeight", 100);
+			} catch(ArgumentException) {
+			}
+
+			return options;
 		}
 
 		/// <summary>Creates a toolbar button for KSP's toolbar</summary>

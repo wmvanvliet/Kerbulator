@@ -7,10 +7,12 @@ namespace Kerbulator {
 	/// assembly is not available.</summary>
 	public class UnityGlue : MonoBehaviour, IGlue {
 		private KerbulatorGUI gui = null;
+		private KerbulatorOptions options = null;
 
 		/// <summary>Called by Unity when the Plugin is started</summary>
 		void Awake() {
-			gui = new KerbulatorGUI(this, true, true);
+			options = new KerbulatorOptions();
+			gui = new KerbulatorGUI(this, true, true, options);
 		}
 
 		/// <summary>Called by Unity to draw the GUI</summary>
