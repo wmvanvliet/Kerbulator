@@ -1,5 +1,10 @@
 Changelog
 ---------
+### 0.36
+Add support for KSP version 1.1.3
+ - GUI features
+   - Remember window positions
+
 ### 0.35
 Add support for KSP version 1.1.2
  - Language features
