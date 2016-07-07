@@ -1,16 +1,16 @@
-somefunc (1)                            > 3
-somefunc2(1, 2)                         > 3
-somefunc 1                              > 3
-somefunc(1) + somefunc(1)               > 6
-somefunc 1  + somefunc 1                > 6
-somefunc(1+2)                           > 5
-somefunc2(somefunc(1+2), somefunc(1+2)) > 10
-somefunc [1,2,3]                        > [3, 4, 5]
-somefunc2([1,2,3], [4,5,6])             > [5, 7, 9] 
-somefunc3()                             > [1, 2, 3]
-abs(somefunc3())                        > [1, 2, 3]
-somefunc4                               > 100
-1 + somefunc4                           > 101
-somefunc4()                             > 100
-somefunc4 + 1                           > 101
-√(|-somefunc4| + 1)                     > 10.0498756211209
+somefunc (1)                            ; 3
+somefunc2(1, 2)                         ; 3
+somefunc 1                              ; 3
+somefunc(1) + somefunc(1)               ; 6
+somefunc 1  + somefunc 1                ; 6
+somefunc(1+2)                           ; 5
+somefunc2(somefunc(1+2), somefunc(1+2)) ; 10
+somefunc [1,2,3]                        ; [3, 4, 5]
+somefunc2([1,2,3], [4,5,6])             ; [5, 7, 9] 
+somefunc3()                             ; [1, 2, 3]
+abs(somefunc3())                        ; [1, 2, 3]
+somefunc4                               ; 100
+1 + somefunc4                           ; 101
+somefunc4()                             ; 100
+somefunc4 + 1                           ; 101
+√(|-somefunc4| + 1)                     ; 10.0498756211209

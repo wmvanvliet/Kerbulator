@@ -5,7 +5,25 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace Kerbulator {
-	public enum TokenType { EMPTY, NUMBER, IDENTIFIER, OPERATOR, BRACE, LIST, END, EQUALS, COMMA, COLON, TEXT, IN, OUT, SKIP_NEWLINE};
+	public enum TokenType {
+		EMPTY,
+		NUMBER,
+		IDENTIFIER,
+		OPERATOR,
+		BRACE,
+		LIST,
+		END,
+		ASSIGN,
+		COMMA,
+		COLON,
+		TEXT,
+		IN,
+		OUT,
+		SKIP_NEWLINE,
+		PIECEWISE,
+		CONDITIONAL
+	};
+
 	public class Token {
 		public TokenType type;
 		public string val;
@@ -101,7 +119,7 @@ namespace Kerbulator {
 					case '\n':
 						if(tok.type != TokenType.SKIP_NEWLINE) {
 							HandleToken(tok);
-							HandleToken(new Token(TokenType.END, "\n", functionName, lineno, col));
+							HandleToken(new Token(TokenType.END, "\\n", functionName, lineno, col));
 						}
 						lineno ++;
 						tok = new Token(functionName, lineno, col);
@@ -207,11 +225,65 @@ namespace Kerbulator {
 					case '·':
 					case '×':
 					case '^':
+					case '≤':
+					case '≥':
+					case '≠':
+					case '¬':
+					case '∧':
+					case '∨':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.OPERATOR, c.ToString(), functionName, lineno, col));
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Operators that can possibly expand to two characters (<=, =>, ==, !=)
+					case '<':
+						HandleToken(tok);
+						if(i < line.Length - 1 && line[i+1] == '=') {
+							HandleToken(new Token(TokenType.OPERATOR, "<=", functionName, lineno, col));
+							col++; i++;
+						} else {
+							HandleToken(new Token(TokenType.OPERATOR, "<", functionName, lineno, col));
+						}
+						tok = new Token(functionName, lineno, col);
+						break;
+
+					case '>':
+						HandleToken(tok);
+						if(i < line.Length - 1 && line[i+1] == '=') {
+							HandleToken(new Token(TokenType.OPERATOR, ">=", functionName, lineno, col));
+							col++; i++;
+						} else {
+							HandleToken(new Token(TokenType.OPERATOR, ">", functionName, lineno, col));
+						}
+						tok = new Token(functionName, lineno, col);
+						break;
+
+					case '!':
+						HandleToken(tok);
+						if(i < line.Length - 1 && line[i+1] == '=') {
+							HandleToken(new Token(TokenType.OPERATOR, "!=", functionName, lineno, col));
+							col++; i++;
+						} else {
+							HandleToken(new Token(TokenType.OPERATOR, "!", functionName, lineno, col));
+						}
+						tok = new Token(functionName, lineno, col);
+						break;
+
+					// The =, ==, ={ case
+					case '=':
+						HandleToken(tok);
+						if(i < line.Length - 1 && line[i+1] == '=') {
+							HandleToken(new Token(TokenType.OPERATOR, "==", functionName, lineno, col));
+							col++; i++;
+						} else if(i < line.Length - 1 && line[i+1] == '{') {
+							HandleToken(new Token(TokenType.PIECEWISE, "={", functionName, lineno, col));
+							col++; i++;
+						} else {
+							HandleToken(new Token(TokenType.ASSIGN, "=", functionName, lineno, col));
+						}
+						tok = new Token(functionName, lineno, col);
+						break;
 
 					// Brackets
 					case '[':
@@ -235,14 +307,8 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
-					case '=':
-						HandleToken(tok);
-						HandleToken(new Token(TokenType.EQUALS, tok.val, functionName, lineno, col));
-						tok = new Token(functionName, lineno, col);
-						break;
-
+					// In: and Out: statements
 					case ':':
-						// In: and Out: statements
 						if(tok.val == "in")
 							HandleToken(new Token(TokenType.IN, tok.val, functionName, lineno, col));
 						else if(tok.val == "out")
@@ -255,6 +321,7 @@ namespace Kerbulator {
 						tok = new Token(functionName, lineno, col);
 						break;
 
+					// Others
 					case ',':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.COMMA, c.ToString(), functionName, lineno, col));
@@ -282,13 +349,22 @@ namespace Kerbulator {
 		private void HandleToken(Token t) {
 			switch(t.type) {
 				case TokenType.EMPTY:
-					break;
+					return;
 
-				default:
-					Kerbulator.Debug(" "+ t.ToString());
-					tokens.Enqueue(t);
+				// Some identifiers are special
+				case TokenType.IDENTIFIER:
+					// These are actually operators
+					if(t.val == "and" || t.val == "or")
+						t.type = TokenType.OPERATOR;
+
+					// These are actually conditionals
+					else if(t.val == "if" || t.val == "otherwise")
+						t.type = TokenType.CONDITIONAL;
 					break;
 			}
+
+			Kerbulator.Debug(" "+ t.ToString());
+			tokens.Enqueue(t);
 		}
 	}
 }

@@ -310,7 +310,7 @@ namespace Kerbulator {
 			while(true) {
 				t = Consume(TokenType.IDENTIFIER, "statements must start with a variable name");
 				ids.Add(t.val);
-				if(tokens.Peek().type == TokenType.EQUALS || tokens.Peek().type == TokenType.COLON)
+				if(tokens.Peek().type == TokenType.ASSIGN || tokens.Peek().type == TokenType.COLON || tokens.Peek().type == TokenType.PIECEWISE)
 					break;
 				else
 					Consume(",");
@@ -323,43 +323,18 @@ namespace Kerbulator {
 			Expression expr;
 
 			// Consume the next token
-			t = ConsumeWithErr(t.pos +"expected = or :");
+			t = ConsumeWithErr(t.pos +"expected =, =? or :");
 
-			// Test if the statement uses the solver or not
-			if(t.type == TokenType.EQUALS) {
+			// Branch on different type of statements
+			if(t.type == TokenType.ASSIGN) {
 				// Statement is a plain variable assignment
 				expr = ParseExpression();
 			} else if(t.type == TokenType.COLON) {
 				// Statement uses the solver
-				expr = ParseExpression();
-
-				if(tokens.Count > 0 && tokens.Peek().type == TokenType.EQUALS) {
-					Consume();
-					expr = CallBinaryLambda(
-						"=",
-						(x,y)=> x-y, 
-						expr,
-						ParseExpression(),
-						t.pos
-					);
-				}
-
-				// Construct array of vars of interest for the solver 
-				Expression[] idExpressions = new Expression[ids.Count];
-				for(int i=0; i<ids.Count; i++)
-					idExpressions[i] = Expression.Constant(ids[i]);
-
-				// Invoke the solver
-				expr = Expression.Call(
-					Expression.Constant(this.solv),
-					typeof(Solver).GetMethod("Solve"),
-					Expression<Func<Object>>.Lambda(expr),
-					Expression.NewArrayInit(
-						typeof(string),
-						idExpressions
-					),
-					Expression.Constant(t.pos)
-				);
+				expr = ParseSolverStatement(ids, t);
+			} else if(t.type == TokenType.PIECEWISE) {
+				// Statement is a piecewise statement
+				expr = ParsePiecewiseStatement(t);
 			} else
 				throw new Exception(t.pos +"unexpected token: "+ t.val);
 
@@ -413,9 +388,10 @@ namespace Kerbulator {
 						ParseIdentifier(expr, ops);
 						break;
 					case TokenType.COMMA:
-						end = true;
-						break;
-					case TokenType.EQUALS:
+					case TokenType.ASSIGN:
+					case TokenType.PIECEWISE:
+					case TokenType.COLON:
+					case TokenType.CONDITIONAL:
 						end = true;
 						break;
 					default:
@@ -445,7 +421,9 @@ namespace Kerbulator {
 			if(tokens.Count == 0)
 				throw new Exception(err);
 
-			return tokens.Dequeue();
+			Token t = tokens.Dequeue();
+			Kerbulator.DebugLine("Consuming "+ t.val);
+			return t;
 		}
 
 		private Token Consume(string val) {
@@ -460,6 +438,7 @@ namespace Kerbulator {
 			if(!String.Equals(t.val, val))
 				throw new Exception(t.pos + err);
 
+			Kerbulator.DebugLine("Consuming "+ t.val);
 			return t;
 		}
 
@@ -475,6 +454,7 @@ namespace Kerbulator {
 			if(t.type != type)
 				throw new Exception(t.pos + err);
 
+			Kerbulator.DebugLine("Consuming "+ t.val);
 			return t;
 		}
 
@@ -523,7 +503,8 @@ namespace Kerbulator {
 					op = new Operator(op.id, op.precidence, Arity.BINARY);
 					Kerbulator.DebugLine(op.id +" is binary.");
 				} else {
-					op = new Operator(op.id, 3, Arity.UNARY);
+					// Unary operators have the same predicence as the absolute operator
+					op = new Operator(op.id, kalc.Operators["|"].precidence, Arity.UNARY);
 					Kerbulator.DebugLine(op.id +" is unary.");
 				}
 			} 
@@ -532,7 +513,9 @@ namespace Kerbulator {
 			while(ops.Count > 0) {
 				Operator prevOp = ops.Peek();
 
-				if(op.arity != Arity.BINARY || prevOp.precidence < op.precidence)
+				// Comparison operators are special, since we allow things like: 0 < x < 1
+				if(op.arity == Arity.UNARY || prevOp.precidence < op.precidence ||
+					   	(IsComparisonOp(prevOp) && IsComparisonOp(op)))
 					// Leave for later
 					break;
 				else
@@ -542,6 +525,11 @@ namespace Kerbulator {
 			// Push current operator on the stack
 			Kerbulator.DebugLine("Pushing "+ op.id);
 			ops.Push(op);
+		}
+
+		private static bool IsComparisonOp(Operator a) {
+			return (a.id == "<" || a.id == ">" || a.id == "<=" || a.id == ">=" ||
+				    a.id == "≥" || a.id == "≤");
 		}
 
 		public delegate double UnaryFunction(double a); 
@@ -677,7 +665,7 @@ namespace Kerbulator {
 						opExpression = CallUnaryLambda(op.id, x => -x, b, pos);
 					else {
 						a = expr.Pop();
-						opExpression = CallBinaryLambda(op.id, (x,y)=> x-y, a, b, pos);
+						opExpression = CallBinaryLambda(op.id, (x,y)=> x - y, a, b, pos);
 					}
 					break;
 				case "*":
@@ -711,6 +699,100 @@ namespace Kerbulator {
 							pos
 						);
 					}
+					break;
+				case "<":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x < y) ? 1.0 : 0.0), a, b, pos);
+
+					// Check for 0 < x < 1 case
+					if(ops.Count > 0 && IsComparisonOp(ops.Peek())) {
+						Kerbulator.DebugLine("ternary case detected");
+						expr.Push(a);
+						opExpression = CallBinaryLambda(
+							"and",
+							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
+							ExecuteOperator(ops.Pop(), expr, ops, pos),
+						   	opExpression,
+							pos
+						);
+					}
+					break;
+				case "≤":
+				case "<=":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x <= y) ? 1.0 : 0.0), a, b, pos);
+
+					// Check for 0 ≤ x ≤ 1 case
+					if(ops.Count > 0 && IsComparisonOp(ops.Peek())) {
+						Kerbulator.DebugLine("ternary case detected");
+						expr.Push(a);
+						opExpression = CallBinaryLambda(
+							"and",
+							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
+							ExecuteOperator(ops.Pop(), expr, ops, pos),
+						   	opExpression,
+							pos
+						);
+					}
+					break;
+				case ">":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x > y) ? 1.0 : 0.0), a, b, pos);
+
+					// Check for 0 > x > 1 case
+					if(ops.Count > 0 && IsComparisonOp(ops.Peek())) {
+						Kerbulator.DebugLine("ternary case detected");
+						expr.Push(a);
+						opExpression = CallBinaryLambda(
+							"and",
+							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
+							ExecuteOperator(ops.Pop(), expr, ops, pos),
+						   	opExpression,
+							pos
+						);
+					}
+					break;
+				case "≥":
+				case ">=":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x >= y) ? 1.0 : 0.0), a, b, pos);
+
+					// Check for 0 ≥ x ≥ 1 case
+					if(ops.Count > 0 && IsComparisonOp(ops.Peek())) {
+						Kerbulator.DebugLine("ternary case detected");
+						expr.Push(a);
+						opExpression = CallBinaryLambda(
+							"and",
+							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
+							ExecuteOperator(ops.Pop(), expr, ops, pos),
+						   	opExpression,
+							pos
+						);
+					}
+					break;
+				case "==":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x == y) ? 1.0 : 0.0), a, b, pos);
+					break;
+				case "!=":
+				case "≠":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x != y) ? 1.0 : 0.0), a, b, pos);
+					break;
+				case "!":
+				case "¬":
+					a = expr.Pop();
+					opExpression = CallUnaryLambda(op.id, x => ((x != 0.0) ? 0.0 : 1.0), a, pos);
+					break;
+				case "and":
+				case "∧":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0), a, b, pos);
+					break;
+				case "or":
+				case "∨":
+					b = expr.Pop(); a = expr.Pop();
+					opExpression = CallBinaryLambda(op.id, (x,y) => ((x != 0.0 || y != 0.0) ? 1.0 : 0.0), a, b, pos);
 					break;
 				case "⌊":
 					b = expr.Pop();
@@ -1091,6 +1173,20 @@ namespace Kerbulator {
 						Expression.Constant(pos)
 					);
 					break;
+				case "any":
+					funcExpression = Expression.Call(
+						typeof(VectorMath).GetMethod("Any"),
+						arguments[0],
+						Expression.Constant(pos)
+					);
+					break;
+				case "all":
+					funcExpression = Expression.Call(
+						typeof(VectorMath).GetMethod("All"),
+						arguments[0],
+						Expression.Constant(pos)
+					);
+					break;
 				default:
 					throw new Exception(pos +"unknown build-in function: "+ func.id);
 			}
@@ -1124,6 +1220,96 @@ namespace Kerbulator {
 			} catch(Exception e) {
 				throw new Exception(pos + e.Message);
 			}
+		}
+
+		private	Expression ParseSolverStatement(List<string> ids, Token currentToken) {
+			Expression expr = ParseExpression();
+
+			if(tokens.Count > 0 && tokens.Peek().type == TokenType.ASSIGN) {
+				Consume();
+				expr = CallBinaryLambda(
+					"=",
+					(x, y) => x - y, 
+					expr,
+					ParseExpression(),
+					currentToken.pos
+				);
+			}
+
+			// Construct array of vars of interest for the solver 
+			Expression[] idExpressions = new Expression[ids.Count];
+			for(int i=0; i<ids.Count; i++)
+				idExpressions[i] = Expression.Constant(ids[i]);
+
+			// Invoke the solver
+			return Expression.Call(
+				Expression.Constant(this.solv),
+				typeof(Solver).GetMethod("Solve"),
+				Expression<Func<Object>>.Lambda(expr),
+				Expression.NewArrayInit(
+					typeof(string),
+					idExpressions
+				),
+				Expression.Constant(currentToken.pos)
+			);
+		}
+
+		public static bool IsTrue(Object a, string pos) {
+			if(a.GetType() != typeof(double))
+				throw new Exception(pos +"invalid 'if' statement: cannot determine truthyness of a list");
+			if(((double) a) != 0)
+				return true;
+			else
+				return false;
+		}
+
+		private	Expression ParsePiecewiseStatement(Token currentToken) {
+			// List of possible values to assign to the variable
+			List<Expression> possibleValues = new List<Expression>();
+
+			// List of conditions to evaluate
+			List<Expression> conditions = new List<Expression>();
+			List<string> conditionPositions = new List<string>();
+
+			// Start parting the piecewise function
+			while(true) {
+				possibleValues.Add(ParseExpression());
+				Consume(TokenType.COMMA);
+
+				Token t = Consume(TokenType.CONDITIONAL, "expected 'if' or 'otherwise'");
+				if(t.val == "if") {
+					conditions.Add(ParseExpression());
+					conditionPositions.Add(t.pos);
+					Consume(TokenType.END);
+				} else {
+					// t.val == "otherwise"
+					break;
+				}
+			}
+
+			// Sanity check
+			if(conditions.Count != possibleValues.Count - 1)
+				throw new Exception("There should be "+ (possibleValues.Count - 1) +" conditions in the piecewise statement, but "+ conditions.Count +" were specified.");
+
+			// Execute the piecewise function. Start and the end of the list and create
+			// nested if statements
+			Expression expr = possibleValues[possibleValues.Count - 1];
+			for(int i=conditions.Count - 1; i >= 0; i--) {
+				expr = Expression.Condition(
+					// FIXME
+					Expression.Call(
+						typeof(JITFunction).GetMethod("IsTrue"),
+						conditions[i],
+						Expression.Constant(conditionPositions[i])
+					),
+					possibleValues[i],
+					expr
+				);
+			}
+
+			Kerbulator.DebugLine("Finished parsing piecewise statement with "+ possibleValues.Count +" possible values.");
+
+			return expr;
 		}
 	}
 

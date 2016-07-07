@@ -144,7 +144,7 @@ namespace Kerbulator {
 			double mag = 0.0;
 			for(int i=0; i<listA.Length; i++) {
 				if(listA[i].GetType() != typeof(double))
-					throw new Exception(pos +"argument to function mag() must be a lists that contains only numbers");
+					throw new Exception(pos +"argument to function mag() must be a list that contains only numbers");
 				mag += (double) listA[i] * (double) listA[i];
 			}
 			mag = Math.Sqrt(mag);
@@ -161,8 +161,11 @@ namespace Kerbulator {
 			Object[] listA = (Object[]) a;
 			Object[] newA = new Object[listA.Length];
 
-			for(int i=0; i<listA.Length; i++)
+			for(int i=0; i<listA.Length; i++) {
+				if(listA[i].GetType() != typeof(double))
+					throw new Exception(pos +"argument to function norm() must be a list that contains only numbers");
 				newA[i] = (double)listA[i] / mag;
+			}
 
 			return (Object) newA;
 		}
@@ -189,6 +192,44 @@ namespace Kerbulator {
 			};
 
 			return (Object) res;
+		}
+
+		public static Object Any(Object a, string pos) {
+			Kerbulator.DebugLine("Executing any()");
+			if(a.GetType() != typeof(Object[]))
+				throw new Exception(pos +"function any() can only be called with a list as argument");
+
+			Object[] listA = (Object[]) a;
+
+			double result = 0.0;
+			for(int i=0; i<listA.Length; i++) {
+				if(listA[i].GetType() != typeof(double))
+					throw new Exception(pos +"argument to function any() must be a list that contains only numbers");
+				if(((double) listA[i]) != 0)
+					result = 1.0;
+			}
+
+			return (Object) result;
+		}
+
+		public static Object All(Object a, string pos) {
+			Kerbulator.DebugLine("Executing all()");
+			if(a.GetType() != typeof(Object[]))
+				throw new Exception(pos +"function all() can only be called with a list as argument");
+
+			Object[] listA = (Object[]) a;
+
+			double result = 1.0;
+			for(int i=0; i<listA.Length; i++) {
+				if(listA[i].GetType() != typeof(double))
+					throw new Exception(pos +"argument to function all() must be a list that contains only numbers");
+				if(((double) listA[i]) == 0) {
+					result = 0.0;
+					break;
+				}
+			}
+
+			return (Object) result;
 		}
 	}
 }
