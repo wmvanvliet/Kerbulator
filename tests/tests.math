@@ -1,5 +1,7 @@
 out: out1 "The first output"
 out: out2 # No output description given
+out: "pre:" a "The third output"
+out: "pre:" b ":post" "The forth output"
 
 a = 1 + 1 # Test a simple expression
 a = 1 + 1 # Test overwriting existing variable

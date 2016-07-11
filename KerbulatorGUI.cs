@@ -621,7 +621,6 @@ namespace Kerbulator {
 		}
 
 		private bool IsValidName(string name) {
-			Debug.Log("IsValidName: "+ name);
 			if(name.Length == 0)
 				return true;
 			foreach(Operator o in kalc.Operators.Values) {
@@ -726,9 +725,8 @@ namespace Kerbulator {
 				desc += "None.";
 			} else {
 				for(int i=0; i<env.Output.Count-1; i++)
-					desc += env.func.Outs[i]+" = "+ Kerbulator.FormatVar(env.Output[i]) +"\n";
-				if(env.Output.Count > 0)
-					desc += env.func.Outs[env.func.Outs.Count-1]+" = "+ Kerbulator.FormatVar(env.Output[env.Output.Count-1]);
+					desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
+				desc += env.func.OutPrefixes[env.func.Outs.Count-1] + Kerbulator.FormatVar(env.Output[env.func.Outs.Count-1]) + env.func.OutPostfixes[env.func.Outs.Count-1] +"\n";
 			}
 
 			return desc;

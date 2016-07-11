@@ -19,6 +19,8 @@ namespace Kerbulator {
 		List<string> lastAssigned;
 		List<string> inDescriptions;
 		List<string> outDescriptions;
+		List<string> outPrefixes;
+		List<string> outPostfixes;
 
 		bool inError = false;
 		Exception error = null;
@@ -35,6 +37,8 @@ namespace Kerbulator {
 			this.outs = new List<string>();
 			this.inDescriptions = new List<string>();
 			this.outDescriptions = new List<string>();
+			this.outPrefixes = new List<string>();
+			this.outPostfixes = new List<string>();
 
 			this.locals = new Dictionary<string, Object>();
 			this.thisExpression = Expression.Constant(this);
@@ -77,6 +81,16 @@ namespace Kerbulator {
 			protected set {}
 		}
 
+		public List<string> OutPrefixes {
+			get { return outPrefixes; }
+			protected set {}
+		}
+
+		public List<string> OutPostfixes {
+			get { return outPostfixes; }
+			protected set {}
+		}
+
 		public bool InError {
 			get { return inError; }
 			set { inError = value; if(!value) error = null; }
@@ -101,7 +115,9 @@ namespace Kerbulator {
 		}
 
 		public static void Scan(string dir, Kerbulator kalc) {
-			// This function is called pretty often, so I went through some lengths to ensure that only new or updated functions are compiled.
+			// This function is called pretty often, so I went through some
+			// lengths to ensure that only new or updated functions are
+			// compiled.
 			List<string> files = new List<string>(Directory.GetFiles(dir, "*.math"));
 			List<string> compiledFunctions = new List<string>(kalc.Functions.Keys);
 
@@ -227,12 +243,31 @@ namespace Kerbulator {
 				// Parse out: statements
 				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
 					Consume();
-					Token id = Consume(TokenType.IDENTIFIER);
 
+					string prefix = null;
 					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
-						outDescriptions.Add( tokens.Dequeue().val );
-					else
+						prefix = tokens.Dequeue().val;
+
+					Token id = Consume(TokenType.IDENTIFIER);
+					if(prefix == null)
+						prefix = id.val + " = ";
+
+					outPrefixes.Add(prefix);
+
+					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+						string part1 = Consume(TokenType.TEXT).val;
+						if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+							string part2 = Consume(TokenType.TEXT).val;
+							outPostfixes.Add(part1);
+						    outDescriptions.Add(part2);
+						} else {
+						    outDescriptions.Add(part1);
+							outPostfixes.Add("");
+						}
+					} else {
 						outDescriptions.Add("");
+						outPostfixes.Add("");
+					}
 
 					Consume(TokenType.END);
 					outs.Add(id.val);
@@ -323,7 +358,7 @@ namespace Kerbulator {
 			Expression expr;
 
 			// Consume the next token
-			t = ConsumeWithErr(t.pos +"expected =, =? or :");
+			t = ConsumeWithErr(t.pos +"expected =, ={ or :");
 
 			// Branch on different type of statements
 			if(t.type == TokenType.ASSIGN) {

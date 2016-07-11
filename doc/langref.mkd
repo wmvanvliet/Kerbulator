@@ -19,9 +19,20 @@ A function contains:
  2. A list of output specifications (can be empty)
  3. A list of statements to execute (at least one)
 
-An input specification is of the form `in: identifier` and can also be of the form `in: identifier "Short description"`. 
+### Input and output specifications
+An input specification is one of the following forms:
+ 1. `in: identifier`
+ 2. `in: identifier "Short description"`, in which case `<Short description>` will be shown in the function help in the GUI. 
 
-An output specification is of the form `out: identifier` and can also be of the form `out: identifier "Short description"`. If no output specifications are given, the result produced by the execution of the last statement of the function is used as output of the function.
+An output specification is of the following forms:
+ 1. `out: identifier`
+ 2. `out: identifier "Short description"`, in which case `<Short description>` will be shown in the function help in the GUI.
+ 3. `out: "prefix" identifier`, in which case the GUI will show the output of this variable as `<prefix>output`.
+ 4. `out: "prefix" identifier "postfix"`, in which case the GUI will show the output of this variable as `<prefix>output<postfix>`.
+ 5. `out: identifier "postfix" "Short description"`, in which case the GUI will show the output of this variable as `output<postfix>` and will show `<Short description>` in the function help.
+ 6. `out: "prefix" identifier "postfix" "Short description"`, in which case the GUI will show the output of this variable as `<prefix>output<postfix>` and will show `<Short description>` in the function help.
+
+If no output specifications are given, the result produced by the execution of the last statement of the function is used as output of the function.
 
 ### Comments
 A `#` character is ignored and everything following the character up to the end of the line is also ignored. You can use this to place comments in your code. For example:
