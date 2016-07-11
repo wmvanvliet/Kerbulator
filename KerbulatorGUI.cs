@@ -91,13 +91,16 @@ namespace Kerbulator {
 		// Math symbols
         string[] greekLetters = new[] {"α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ","υ","φ","χ","ψ","ω"};
 		string[] greekUCLetters = new[] {"Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π","Ρ","Σ","Τ","Υ","Φ","Χ","Ψ","Ω"};
-		string[] symbols = new[] {"=","+","-","*","×","·","/","÷","%", "√","^","(",")","[","]","{","}","⌊","⌋","⌈","⌉"};
+		string[] symbols = new[] {"×","·","÷","√","≤","≥","≠","¬","∧","∨","⌊","⌋","⌈","⌉"};
 
 		// GUI styles in use
 		bool stylesInitiated = false;
 		GUIStyle keyboard;
 		GUIStyle defaultButton;
 		GUIStyle tooltipStyle;
+		GUIStyle editFunctionStyle;
+		GUIStyle validFunctionName;
+		GUIStyle invalidFunctionName;
 
 		IGlue glue;
 		bool inEditor = false;
@@ -166,6 +169,14 @@ namespace Kerbulator {
 				texBack.SetPixel(0, 0, new Color(0.0f, 0.0f, 0.0f, 1f));
 				texBack.Apply();
 				tooltipStyle.normal.background = texBack;
+
+				validFunctionName = new GUIStyle(GUI.skin.GetStyle("TextField"));
+				editFunctionStyle = validFunctionName;
+				invalidFunctionName = new GUIStyle(GUI.skin.GetStyle("TextField"));
+				invalidFunctionName.normal.textColor = Color.red;
+				invalidFunctionName.active.textColor = Color.red;
+				invalidFunctionName.hover.textColor = Color.red;
+				invalidFunctionName.focused.textColor = Color.red;
 
 				stylesInitiated = true;
 			}
@@ -318,7 +329,7 @@ namespace Kerbulator {
 				Delete();
 			}
 
-			editFunctionName = GUILayout.TextField(editFunctionName, GUILayout.Height(24));
+			editFunctionName = GUILayout.TextField(editFunctionName, editFunctionStyle, GUILayout.Height(24));
 			
 			if(GUILayout.Button(saveIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 				Save();
@@ -544,6 +555,13 @@ namespace Kerbulator {
 
 		/// <summary>Save the current function being edited.</summary>
 		public void Save() {
+			if(!IsValidName(editFunctionName)) {
+				editFunctionStyle = invalidFunctionName;
+				return;
+			} else {
+				editFunctionStyle = validFunctionName;
+			}
+
 			int id;
 			if(editFunction != null && editFunction.Id != editFunctionName) {
 				// Changing function name, remove old function
@@ -596,6 +614,23 @@ namespace Kerbulator {
 				kalc.Functions[editFunctionName] = f;
 
             editFunction = f;
+		}
+
+		private bool IsValidName(string name) {
+			Debug.Log("IsValidName: "+ name);
+			if(name.Length == 0)
+				return true;
+			foreach(Operator o in kalc.Operators.Values) {
+				if(name.Contains(o.id))
+					return false;
+			}
+			if(name.Contains(" "))
+				return false;
+			if(name.Contains("\\"))
+				return false;
+			if(Char.IsDigit(name[0]))
+				return false;
+			return true;
 		}
 
 		/// <summary>Delete the current function being edited.</summary>

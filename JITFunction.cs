@@ -28,7 +28,7 @@ namespace Kerbulator {
 
 		static Random random = new Random();
 
-		public JITFunction(string id, string expression, Kerbulator kalc) { 
+		public JITFunction(string id, string expression, Kerbulator kalc) {
 			this.id = id;
 
 			this.ins = new List<string>();
@@ -249,7 +249,7 @@ namespace Kerbulator {
 						statements.Add(statement);
 					Consume(TokenType.END);
 				}
-				
+
 				if(statements.Count == 0)
 					throw new Exception("In function "+ this.id +": function does not contain any statements (it's empty)");
 
@@ -292,8 +292,8 @@ namespace Kerbulator {
 			Object[] list = (Object[]) result;
 
 			if(ids.Count != list.Length)
-				throw new Exception(pos +"expression needed to yield "+ ids.Count +" values, but yielded only "+ list.Length);	
-			
+				throw new Exception(pos +"expression needed to yield "+ ids.Count +" values, but yielded only "+ list.Length);
+
 			for(int i=0; i<list.Length; i++)
 				SetLocal(ids[i], list[i]);
 
@@ -498,7 +498,7 @@ namespace Kerbulator {
 			Operator op = kalc.Operators[t.val];
 
 			// Handle ambiguous cases of arity
-			if(op.arity == Arity.BOTH) {	
+			if(op.arity == Arity.BOTH) {
 				if(PossiblyValidExpression(expr, ops) ) {
 					op = new Operator(op.id, op.precidence, Arity.BINARY);
 					Kerbulator.DebugLine(op.id +" is binary.");
@@ -507,7 +507,7 @@ namespace Kerbulator {
 					op = new Operator(op.id, kalc.Operators["|"].precidence, Arity.UNARY);
 					Kerbulator.DebugLine(op.id +" is unary.");
 				}
-			} 
+			}
 
 			// Handle operators with higher precidence
 			while(ops.Count > 0) {
@@ -515,7 +515,7 @@ namespace Kerbulator {
 
 				// Comparison operators are special, since we allow things like: 0 < x < 1
 				if(op.arity == Arity.UNARY || prevOp.precidence < op.precidence ||
-					   	(IsComparisonOp(prevOp) && IsComparisonOp(op)))
+					(IsComparisonOp(prevOp) && IsComparisonOp(op)))
 					// Leave for later
 					break;
 				else
@@ -532,8 +532,8 @@ namespace Kerbulator {
 				    a.id == "≥" || a.id == "≤");
 		}
 
-		public delegate double UnaryFunction(double a); 
-		public delegate double BinaryFunction(double a, double b); 
+		public delegate double UnaryFunction(double a);
+		public delegate double BinaryFunction(double a, double b);
 
 		public Object ExecuteUnaryFunction(string id, UnaryFunction action, Object a, string pos) {
 			// Called with a double
@@ -661,7 +661,7 @@ namespace Kerbulator {
 					break;
 				case "-":
 					b = expr.Pop();
-					if(op.arity == Arity.UNARY) 
+					if(op.arity == Arity.UNARY)
 						opExpression = CallUnaryLambda(op.id, x => -x, b, pos);
 					else {
 						a = expr.Pop();
@@ -712,7 +712,7 @@ namespace Kerbulator {
 							"and",
 							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
 							ExecuteOperator(ops.Pop(), expr, ops, pos),
-						   	opExpression,
+							opExpression,
 							pos
 						);
 					}
@@ -730,7 +730,7 @@ namespace Kerbulator {
 							"and",
 							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
 							ExecuteOperator(ops.Pop(), expr, ops, pos),
-						   	opExpression,
+							opExpression,
 							pos
 						);
 					}
@@ -747,7 +747,7 @@ namespace Kerbulator {
 							"and",
 							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
 							ExecuteOperator(ops.Pop(), expr, ops, pos),
-						   	opExpression,
+							opExpression,
 							pos
 						);
 					}
@@ -765,7 +765,7 @@ namespace Kerbulator {
 							"and",
 							(x,y) => ((x != 0.0 && y != 0.0) ? 1.0 : 0.0),
 							ExecuteOperator(ops.Pop(), expr, ops, pos),
-						   	opExpression,
+							opExpression,
 							pos
 						);
 					}
@@ -860,7 +860,7 @@ namespace Kerbulator {
 						Kerbulator.DebugLine("| is right brace");
 					}
 					break;
-			} 
+			}
 
 			// If it's a left brace, start a sub-expression
 			if(isLeft) {
@@ -894,7 +894,7 @@ namespace Kerbulator {
 						break;
 				}
 				return false;
-			} else { 
+			} else {
 				return true;
 			}
 		}
@@ -914,7 +914,7 @@ namespace Kerbulator {
 				Expression subexpr = ParseExpression();
 				Kerbulator.DebugLine("End of subexpression");
 				elements.Add(subexpr);
-				
+
 				if(tokens.Count == 0)
 					throw new Exception(t.pos +"missing closing ']'");
 
@@ -995,7 +995,7 @@ namespace Kerbulator {
 						Expression.Constant(t.val),
 						Expression.Constant(t.pos)
 					)
-				);	
+				);
 			}
 		}
 
@@ -1009,7 +1009,7 @@ namespace Kerbulator {
 
 				Expression subexpr = ParseExpression();
 				arguments.Add(subexpr);
-				
+
 				if(tokens.Count == 0)
 					throw new Exception(t.pos +"missing closing ')'");
 
@@ -1229,14 +1229,14 @@ namespace Kerbulator {
 				Consume();
 				expr = CallBinaryLambda(
 					"=",
-					(x, y) => x - y, 
+					(x, y) => x - y,
 					expr,
 					ParseExpression(),
 					currentToken.pos
 				);
 			}
 
-			// Construct array of vars of interest for the solver 
+			// Construct array of vars of interest for the solver
 			Expression[] idExpressions = new Expression[ids.Count];
 			for(int i=0; i<ids.Count; i++)
 				idExpressions[i] = Expression.Constant(ids[i]);
@@ -1317,7 +1317,7 @@ namespace Kerbulator {
 		Func<Object> expressionFunction = null;
 
 		public JITExpression(string expression, Kerbulator kalc)
-	   	:base("unnamed", expression, kalc)	{ 
+		:base("unnamed", expression, kalc)	{
 			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(ParseExpression());
 			expressionFunction = e.Compile();
 		}
