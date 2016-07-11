@@ -22,6 +22,7 @@ namespace Kerbulator {
 	public class KerbulatorGUI {
 		// Error reporting
 		string error = null;
+		string functionNameError = null;
 
 		// Tooltips
 		string tooltip = "";
@@ -37,7 +38,7 @@ namespace Kerbulator {
 		string editFunctionName = "unnamed";
 		string functionFile = "unnamed.math";
 		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
-		
+
 		// Running functions
 		bool running = false;
 		JITFunction runFunction = null;
@@ -135,7 +136,7 @@ namespace Kerbulator {
 			if(!Directory.Exists(functionDir)) {
 				Directory.CreateDirectory(functionDir);
 			}
-			
+
 			// Load icons
 			kerbulatorIcon = glue.GetTexture("kerbulator");
 			editIcon = glue.GetTexture("edit");
@@ -240,7 +241,7 @@ namespace Kerbulator {
 			foreach(KeyValuePair<string, JITFunction> f in kalc.Functions) {
 				GUILayout.BeginHorizontal();
 
-				if(GUILayout.Button(f.Key, GUILayout.Height(24))) { 
+				if(GUILayout.Button(f.Key, GUILayout.Height(24))) {
 					selectedFunction = f.Value;
 					functionDescription = FunctionDescription(f.Value);
 					functionDescriptionHeight = GUI.skin.GetStyle("label").CalcHeight(new GUIContent(functionDescription), 225);
@@ -271,13 +272,13 @@ namespace Kerbulator {
 				// When a function is selected, display some info
 				if(selectedFunction == f.Value) {
 					GUILayout.Label("Function info:");
-					GUILayout.Label(functionDescription, GUILayout.Width(225), GUILayout.Height(functionDescriptionHeight)); 
+					GUILayout.Label(functionDescription, GUILayout.Width(225), GUILayout.Height(functionDescriptionHeight));
 				}
 			}
 
 			GUILayout.EndScrollView();
 
-			GUILayout.Space(20);	
+			GUILayout.Space(20);
 
 			GUILayout.BeginHorizontal();
 			if(GUILayout.Button("New function")) {
@@ -316,7 +317,7 @@ namespace Kerbulator {
 				runSomething = false;
 			}
 		}
-		
+
 		/// <summary>Draws the edit window that allows basic text editing.</summary>
 		/// <param name="id">An unique number indentifying the window</param>
 		public void DrawEditWindow(int id) {
@@ -324,13 +325,13 @@ namespace Kerbulator {
 			editWindowEnabled = !GUI.Toggle(new Rect(options.editWindowPos.width - 25, 0, 20, 20), !editWindowEnabled, "");
 
 			GUILayout.BeginHorizontal();
-			
+
 			if(GUILayout.Button(deleteIcon, defaultButton, GUILayout.Width(25), GUILayout.Height(24))) {
 				Delete();
 			}
 
 			editFunctionName = GUILayout.TextField(editFunctionName, editFunctionStyle, GUILayout.Height(24));
-			
+
 			if(GUILayout.Button(saveIcon, defaultButton, GUILayout.Width(24), GUILayout.Height(24))) {
 				Save();
 
@@ -352,6 +353,9 @@ namespace Kerbulator {
 			}
 
 			GUILayout.EndHorizontal();
+
+			if(functionNameError != null)
+				GUILayout.Label("Cannot save function:" + functionNameError, invalidFunctionName);
 
 			editorScrollPos = GUILayout.BeginScrollView(editorScrollPos, false, true, GUILayout.Height(options.editWindowPos.height - 140)); //, GUILayout.Width(460));
 			editFunctionContent = GUILayout.TextArea(editFunctionContent, GUILayout.ExpandWidth(true));
@@ -434,7 +438,7 @@ namespace Kerbulator {
 				if(GUILayout.Button(repeatIcon, defaultButton, GUILayout.Height(32))) {
 					RunRepeated();
 				}
-				
+
 				if(glue.CanAddNode()) {
 					if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 						List<System.Object> output = Run();
@@ -621,15 +625,28 @@ namespace Kerbulator {
 			if(name.Length == 0)
 				return true;
 			foreach(Operator o in kalc.Operators.Values) {
-				if(name.Contains(o.id))
+				if(name.Contains(o.id)) {
+					functionNameError = "function name cannot contain the symbol '"+ o.id +"'";
 					return false;
+				}
 			}
-			if(name.Contains(" "))
+			if(name.Contains(" ")) {
+				functionNameError = "function name cannot contain spaces";
 				return false;
-			if(name.Contains("\\"))
+			}
+			if(name.Contains("\\")) {
+				functionNameError = "function name cannot contain (back)slashes";
 				return false;
-			if(Char.IsDigit(name[0]))
+			}
+			if(Char.IsDigit(name[0])) {
+				functionNameError = "function name cannot start with a number";
 				return false;
+			}
+			if(name[0] == '.') {
+				functionNameError = "function name cannot start with a dot";
+				return false;
+			}
+			functionNameError = null;
 			return true;
 		}
 
@@ -637,7 +654,7 @@ namespace Kerbulator {
 		public void Delete() {
 			if(editFunction != null) {
 				string oldFunctionFile = functionDir +"/"+ editFunction.Id +".math";
-				if(System.IO.File.Exists(oldFunctionFile)) 
+				if(System.IO.File.Exists(oldFunctionFile))
 					System.IO.File.Delete(oldFunctionFile);
 
 				if(selectedFunction != null && selectedFunction.Id == editFunction.Id) {
@@ -797,7 +814,7 @@ namespace Kerbulator {
 					if(value.InError)
 						arguments = new List<string>();
 					else if(value.Id != prevRunFunction.Id || arguments.Count != prevRunFunction.Ins.Count) {
-						float maxWidth = 0; 
+						float maxWidth = 0;
 						arguments = new List<string>(value.Ins.Count);
 						foreach(string arg in value.Ins) {
 							arguments.Add("");
@@ -864,7 +881,7 @@ namespace Kerbulator {
 				windowRect.xMax = Mathf.Min(Screen.width, windowRect.xMax);  // modifying xMax affects width, not x
 				windowRect.yMax = Mathf.Min(Screen.height, windowRect.yMax);  // modifying yMax affects height, not y
 			}
-		 
+
 			GUI.Button(r, gcDrag, GUI.skin.label);
 
 			return windowRect;
