@@ -1,12 +1,26 @@
 Changelog
 ---------
+### 0.4
+Some welcome additions to the language.
+
+ - Language features
+   - Add boolean operators: < > <= ≤ >= ≥ == != ≠ ¬ ! ∧ and ∨ or
+   - Add support for piecewise functions (a.k.a. if-statements)
+   - Add support for specifying pre- and postfixes for output variables
+
+ - GUI features
+   - Add support for showing pre- and postfixes for output variables
+   - An error message is shown when the user tries to save a function with an invalid name
+
 ### 0.36
 Add support for KSP version 1.1.3
+
  - GUI features
    - Remember window positions
 
 ### 0.35
 Add support for KSP version 1.1.2
+
  - Language features
    - Added global `Sun`
 
