@@ -26,22 +26,36 @@ namespace Kerbulator {
 		public Kerbulator(string functionDir) {
 			operators = new Dictionary<string, Operator>();
 			operators.Add("=", new Operator("=", 1, Arity.BINARY)); // Assignment
-			operators.Add("-", new Operator("-", 1, Arity.BOTH)); // Substraction or negation
-			operators.Add("+", new Operator("+", 1, Arity.BINARY)); // Addition
-			operators.Add("/", new Operator("/", 2, Arity.BINARY)); // Division
-			operators.Add("÷", new Operator("÷", 2, Arity.BINARY)); // Division
-			operators.Add("√", new Operator("√", 2, Arity.BOTH)); // Square Root or ^(1/n)
-			operators.Add("%", new Operator("%", 2, Arity.BINARY)); // Modulo
-			operators.Add("*", new Operator("*", 2, Arity.BINARY)); // Multiplication
-			operators.Add("·", new Operator("·", 2, Arity.BINARY)); // Multiplication
-			operators.Add("×", new Operator("×", 2, Arity.BINARY)); // Multiplication
-			operators.Add("^", new Operator("^", 3, Arity.BINARY)); // Multiplication
-			operators.Add("|", new Operator("|", 3, Arity.UNARY)); // Absolute
-			operators.Add("⌊", new Operator("⌊", 3, Arity.UNARY)); // Floor
-			operators.Add("⌈", new Operator("⌈", 3, Arity.UNARY)); // Ceiling
-			operators.Add("func", new Operator("func", 2, Arity.BINARY)); // Execute buildin function as unary operator
-			operators.Add("buildin-function", new Operator("buildin-function", 2, Arity.BINARY)); // Execute buildin function as unary operator
-			operators.Add("user-function", new Operator("user-function", 2, Arity.BINARY)); // Execute user function as unary operator
+			operators.Add("-", new Operator("-", 4, Arity.BOTH)); // Substraction or negation
+			operators.Add("+", new Operator("+", 4, Arity.BINARY)); // Addition
+			operators.Add("/", new Operator("/", 5, Arity.BINARY)); // Division
+			operators.Add("÷", new Operator("÷", 5, Arity.BINARY)); // Division
+			operators.Add("√", new Operator("√", 5, Arity.BOTH)); // Square Root or ^(1/n)
+			operators.Add("%", new Operator("%", 5, Arity.BINARY)); // Modulo
+			operators.Add("*", new Operator("*", 5, Arity.BINARY)); // Multiplication
+			operators.Add("·", new Operator("·", 5, Arity.BINARY)); // Multiplication
+			operators.Add("×", new Operator("×", 5, Arity.BINARY)); // Multiplication
+			operators.Add("^", new Operator("^", 6, Arity.BINARY)); // Multiplication
+			operators.Add("|", new Operator("|", 6, Arity.UNARY)); // Absolute
+			operators.Add("⌊", new Operator("⌊", 6, Arity.UNARY)); // Floor
+			operators.Add("⌈", new Operator("⌈", 6, Arity.UNARY)); // Ceiling
+			operators.Add("<", new Operator("<", 3, Arity.BINARY)); // Less than
+			operators.Add(">", new Operator(">", 3, Arity.BINARY)); // Greater than
+			operators.Add("<=", new Operator("<=", 3, Arity.BINARY)); // Less than or equal
+			operators.Add("≤", new Operator("≤", 3, Arity.BINARY)); // Less than or equal
+			operators.Add(">=", new Operator(">=", 3, Arity.BINARY)); // Greater than or equal
+			operators.Add("≥", new Operator("≥", 3, Arity.BINARY)); // Greater than or equal
+			operators.Add("==", new Operator("==", 3, Arity.BINARY)); // Equals
+			operators.Add("!=", new Operator("!=", 3, Arity.BINARY)); // Not equals
+			operators.Add("≠", new Operator("≠", 3, Arity.BINARY)); // Not equals
+			operators.Add("!", new Operator("!", 6, Arity.UNARY)); // Boolean not
+			operators.Add("¬", new Operator("¬", 6, Arity.UNARY)); // Boolean not
+			operators.Add("and", new Operator("and", 2, Arity.BINARY)); // AND
+			operators.Add("∧", new Operator("∧", 2, Arity.BINARY)); // AND
+			operators.Add("or", new Operator("or", 2, Arity.BINARY)); // OR
+			operators.Add("∨", new Operator("∨", 2, Arity.BINARY)); // OR
+			operators.Add("buildin-function", new Operator("buildin-function", 5, Arity.BINARY)); // Execute buildin function as unary operator
+			operators.Add("user-function", new Operator("user-function", 5, Arity.BINARY)); // Execute user function as unary operator
 
 			buildInFunctions = new Dictionary<string, BuildInFunction>();
 			buildInFunctions.Add("abs", new BuildInFunction("abs", 1));
@@ -83,6 +97,8 @@ namespace Kerbulator {
 			buildInFunctions.Add("norm", new BuildInFunction("norm", 1));
 			buildInFunctions.Add("dot", new BuildInFunction("dot", 2));
 			buildInFunctions.Add("cross", new BuildInFunction("cross", 2));
+			buildInFunctions.Add("all", new BuildInFunction("all", 1));
+			buildInFunctions.Add("any", new BuildInFunction("any", 1));
 
 			globals = new Dictionary<string, Object>();
 			globals.Add("pi", Math.PI);
@@ -187,7 +203,7 @@ namespace Kerbulator {
 					if(line.Trim().StartsWith("#"))
 						continue;
 
-					string[] parts = line.Split('>');
+					string[] parts = line.Split(';');
 					string expression = parts[0].Trim();
 					string expectedResult = parts[1].Trim();
 
@@ -207,6 +223,7 @@ namespace Kerbulator {
 				file.Close();
 				return;
 			} else {
+				Console.WriteLine("Running file "+ filename +"\n");
 				Console.WriteLine(k.Run(filename), "\n");
 			}
 		}

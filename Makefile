@@ -96,6 +96,8 @@ test: info
 	${MONO} Kerbulator.exe tests/functions.test
 	${MONO} Kerbulator.exe tests/userfuncs.test
 	${MONO} Kerbulator.exe tests/operators.test
+	${MONO} Kerbulator.exe tests/piecewise.test
+	${MONO} Kerbulator.exe tests/solver.test
 	${MONO} Kerbulator.exe tests/braeunig.test
 
 unity: 

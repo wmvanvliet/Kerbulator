@@ -88,6 +88,14 @@ o = [[1,1,1], [2,2,2]] + [1,2]
 # Run test on solver
 x = solver
 
+# Piecewise statements
+x = 2
+y ={ (x^2-x) / x, if x ≥ 1
+               0, otherwise
+y ={ (x^2-x) / x, if x ≥ 1
+              12, if x < 1
+               2, otherwise
+
 # Run test on globals
 #x = globals
 

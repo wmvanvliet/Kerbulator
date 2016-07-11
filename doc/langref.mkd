@@ -44,7 +44,7 @@ A statement can span multiple lines by using the `\` symbol:
          [4,5,6]]
 
 #### Identifiers
-An identifier is used to denote a variable or function name. It can be any unicode string that does not contain spaces, the comment mark `#`, an operator `+ - / ÷ * × · ^ √ %`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
+An identifier is used to denote a variable or function name. It can be any unicode string that does not contain spaces, the comment mark `#`, an operator `+ - / ÷ * × · ^ √ % ! ¬ < > ≤ ≥`, colon `:`, equals sign `=`, or bracket `( ) [ ] { } ⌊ ⌋ ⌈ ⌉ |`. Identifiers can contain numbers and dots (.), but not as first character. Examples of valid identifiers:
 
     a
     aaaa
@@ -52,6 +52,7 @@ An identifier is used to denote a variable or function name. It can be any unico
     someValue
     één
     Kerbal.M
+    Δv
 
 ### Expressions
 An expression is a calculation that uses, numbers, operators, brackets, variables, lists and function calls to yield some value. 
@@ -87,26 +88,48 @@ An operator performs a calculation on one or more numbers.
 
 Operators that operate on one number are called unary operators. They operate on the number that follows them. The unary operators available to Kerbulator are:
 
-Operator | Description
----------|------------
-`-a`     | Negate `a`
-`√a`     | Take the square root of `a`
+Operator | Description                | Precidence
+---------|----------------------------|-----------
+`-a`     | Negate `a`                 | 6
+`√a`     | Take the square root of `a`| 6
+`!a`     | 1 if `a` is zero, else 0   | 6
+`¬a`     | 1 if `a` is zero, else 0   | 6
 
 Operators that operate on two numbers are called binary operators. They operate on the number to the left and the number to the right of the operator. 
 The binary operators available to Kerbulator are:
 
-Operator | Description
----------|------------
-`a + b`  | Add b to a
-`a - b`  | Substract b from a
-`a / b`  | Divide a by b
-`a ÷ b`  | Divide a by b
-`a * b`  | Multiply a by b
-`a × b`  | Multiply a by b
-`a · b`  | Multiply a by b
-`a ^ b`  | Raise a to the power of b
-`a √ b`  | Raise b to the power of 1/a
-`a % b`  | Calculate the remainder of a divided by b
+Operator | Description                                     | Precidence
+---------|-------------------------------------------------|-----------
+`a + b`  | Add `b` to `a`                                  | 4
+`a - b`  | Substract `b` from `a`                          | 4
+`a / b`  | Divide `a` by `b`                               | 5
+`a ÷ b`  | Divide `a` by `b`                               | 5
+`a * b`  | Multiply `a` by `b`                             | 5
+`a × b`  | Multiply `a` by `b`                             | 5
+`a · b`  | Multiply `a` by `b`                             | 5
+`a ^ b`  | Raise `a` to the power of `b`                   | 6
+`a √ b`  | Raise `b` to the power of `1/a `                | 5
+`a % b`  | Calculate the remainder of `a` divided by `b`   | 5
+`a == b` | 1 if `a` equals `b`, else 0                     | 3
+`a != b` | 1 if `a` does not equal `b`, else 0             | 3
+`a ≠ b`  | 1 if `a` does not equal `b`, else 0             | 3
+`a and b`| 1 if `a` and `b` are both nonzero, else 0       | 2
+`a ∧ b`  | 1 if `a` and `b` are both nonzero, else 0       | 2
+`a or b` | 1 if `a` or `b` is nonzero (or both are), else 0| 2
+`a ∨ b`  | 1 if `a` or `b` is nonzero (or both are), else 0| 2
+
+The following comparison operators are a special case:
+
+Operator | Description                                     | Precidence
+---------|-------------------------------------------------|-----------
+`a > b`  | 1 if `a` is greater than `b`, else 0            | 3
+`a < b`  | 1 if `a` is less than `b`, else 0               | 3
+`a >= b` | 1 if `a` is greater than or equal to `b`, else 0| 3
+`a ≥ b`  | 1 if `a` is greater than or equal to `b`, else 0| 3
+`a <= b` | 1 if `a` is less than or equal to `b`, else 0   | 3
+`a ≤ b`  | 1 if `a` is less than or equal to `b`, else 0   | 3
+
+these operators can be chained to form expressions such as `0 ≤ x < 1`, which will result in `1` if `x` is between 0 (inclusive) and 1 (exclusive). The length of these chains can be arbitrary, for example, `0 < 1 < 2 < 3 < 4` will result in `1`.
 
 #### Variables
 A variable is a container that holds either a number or a list. A statement assigns the value yielded by an expression to a variable. Once this is done, future expressions can use this variable. Variables are denoted with an identifier (a name). For example:
@@ -152,6 +175,8 @@ A list can be operated on by operators, in which case they are applied element-w
     -[1,2,3]          # = [-1,-2,-3]
     ⌊[1.1, 2.1, 3.1]⌋ # = [1,2,3]
     5 * [1,2,3]       # = [5,10,15]
+    [1,2,3] ≥ [0,2,4] # = [1, 1, 0]
+    [1,2,3] ≥ 2       # = [0, 1, 1]
 
 An exception are the `|...|` brackets. They treat the list as a vector and calculate the length:
 
@@ -245,6 +270,27 @@ Name             | Description
 `norm(x)`        | Version of vector `x` that has a magnitude of 1
 `dot(a,b)`       | Dot product between list/matrix `a` and list/matrix `b`
 `cross(a,b)`     | Cross product between list `a` and `b` (only supports vectors with 3 elements)
+`any(x)`         | `1` if any of the elements of `x` is nonzero, else `0`
+`all(x)`         | `1` if all of the elements of `x` are nonzero, else `0`
+
+#### Piecewise functions (a.k.a. if-statements or branching statements)
+
+Piecewise functions can be specified by using the following language construct:
+
+    var ={ expression, if condition
+           expression, if condition
+           expression, if condition
+           ...
+           expression, otherwise
+
+In the above construct, all the conditions are evaluated one by one. A condition is an expression that yields either a zero (=false) or nonzero (=true) value. If the condition is true, then the value yielded by the corresponding expression is assigned to the variable. If none of the conditions are true, the value yielded by the expression corresponding to the `otherwise` statement is assigned. This construct must always have at least one `if` statement and must have exactly one `otherwise` statement that must appear at the very end. 
+
+For example:
+
+    y ={ (x^2-x) / x, if x ≥ 1 or x < 10
+                   0, otherwise
+
+Take a look at the list of operators above for the different logical operators you can use to construct expressions to use as condition and take note of the `any()` and `all()` buildin functions that operate on lists.
 
 #### Using the solver 
 
