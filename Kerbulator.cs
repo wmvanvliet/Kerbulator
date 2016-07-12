@@ -105,6 +105,8 @@ namespace Kerbulator {
 			globals.Add("π", Math.PI);
 			globals.Add("e", Math.E);
 			globals.Add("G", 6.67384E-11);
+			globals.Add("Inf", double.PositiveInfinity);
+			globals.Add("∞", double.PositiveInfinity);
 
 			functions = new SortedDictionary<string, JITFunction>();
 			JITFunction.Scan(functionDir, this);
