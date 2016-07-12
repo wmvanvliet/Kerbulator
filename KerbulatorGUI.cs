@@ -504,13 +504,14 @@ namespace Kerbulator {
 			if(RunFunction == editFunction)
 				Save();
 
+			functionOutput = "";
+			env = new ExecutionEnvironment(RunFunction, kalc);
+
 			foreach(string arg in arguments) {
 				if(arg == "")
 					return null;
 			}
 
-
-			env = new ExecutionEnvironment(RunFunction, kalc);
 			env.SetArguments(arguments);
 
 			glue.AddGlobals(kalc);
