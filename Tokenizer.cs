@@ -111,7 +111,7 @@ namespace Kerbulator {
 					case '\r':
 						if(tok.type != TokenType.SKIP_NEWLINE) {
 							HandleToken(tok);
-							tok = new Token(functionName, lineno, col);
+							tok = new Token(functionName, lineno, col + 1);
 						}
 						break;
 
@@ -122,7 +122,8 @@ namespace Kerbulator {
 							HandleToken(new Token(TokenType.END, "\\n", functionName, lineno, col));
 						}
 						lineno ++;
-						tok = new Token(functionName, lineno, col);
+						col = 0;
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// Comments
@@ -233,7 +234,7 @@ namespace Kerbulator {
 					case '∨':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.OPERATOR, c.ToString(), functionName, lineno, col));
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// Operators that can possibly expand to two characters (<=, =>, ==, !=)
@@ -245,7 +246,7 @@ namespace Kerbulator {
 						} else {
 							HandleToken(new Token(TokenType.OPERATOR, "<", functionName, lineno, col));
 						}
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					case '>':
@@ -256,7 +257,7 @@ namespace Kerbulator {
 						} else {
 							HandleToken(new Token(TokenType.OPERATOR, ">", functionName, lineno, col));
 						}
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					case '!':
@@ -267,7 +268,7 @@ namespace Kerbulator {
 						} else {
 							HandleToken(new Token(TokenType.OPERATOR, "!", functionName, lineno, col));
 						}
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// The =, ==, ={ case
@@ -282,7 +283,7 @@ namespace Kerbulator {
 						} else {
 							HandleToken(new Token(TokenType.ASSIGN, "=", functionName, lineno, col));
 						}
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// Brackets
@@ -290,7 +291,7 @@ namespace Kerbulator {
 					case ']':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.LIST, c.ToString(), functionName, lineno, col));
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					case '(':
@@ -304,7 +305,7 @@ namespace Kerbulator {
 					case '|':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.BRACE, c.ToString(), functionName, lineno, col));
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// In: and Out: statements
@@ -318,14 +319,14 @@ namespace Kerbulator {
 							HandleToken(new Token(TokenType.COLON, tok.val, functionName, lineno, col));
 						}
 
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					// Others
 					case ',':
 						HandleToken(tok);
 						HandleToken(new Token(TokenType.COMMA, c.ToString(), functionName, lineno, col));
-						tok = new Token(functionName, lineno, col);
+						tok = new Token(functionName, lineno, col + 1);
 						break;
 
 					case '\\':

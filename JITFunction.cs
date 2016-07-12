@@ -7,10 +7,12 @@ using System.Reflection;
 namespace Kerbulator {
 	public class JITFunction {
 		string id;
+		string expression;
+
 		Dictionary<string, Object> locals = null;
 		Kerbulator kalc;
 		Solver solv;
-		Queue<Token> tokens;
+		protected Queue<Token> tokens;
 
 		ConstantExpression thisExpression;
 
@@ -32,6 +34,7 @@ namespace Kerbulator {
 
 		public JITFunction(string id, string expression, Kerbulator kalc) {
 			this.id = id;
+			this.expression = expression;
 
 			this.ins = new List<string>();
 			this.outs = new List<string>();
@@ -45,15 +48,6 @@ namespace Kerbulator {
 
 			this.kalc = kalc;
 			this.solv = new Solver(this);
-
-			try {
-				Tokenizer tok = new Tokenizer(id);
-				tok.Tokenize(expression);
-				tokens = tok.tokens;
-			} catch(Exception e) {
-				inError = true;
-				error = e;
-			}
 		}
 
 		public string Id {
@@ -97,7 +91,12 @@ namespace Kerbulator {
 		}
 
 		public string ErrorString {
-			get { return error.Message; }
+			get { 
+				if(error != null)
+					return error.Message; 
+				else
+					return "";
+			}
 			protected set { }
 		}
 
@@ -218,6 +217,11 @@ namespace Kerbulator {
 				return; // Already compiled
 
 			try {
+				// Tokenize the input string
+				Tokenizer tok = new Tokenizer(this.id);
+				tok.Tokenize(expression);
+				tokens = tok.tokens;
+
 				// Skip leading whitespace
 				while(tokens.Count > 0 && tokens.Peek().type == TokenType.END)
 					Consume();
@@ -292,8 +296,11 @@ namespace Kerbulator {
 				if(outs.Count == 0) {
 					outs = lastAssigned;
 					outDescriptions = new List<string>(outs.Count);
-					for(int i=0; i<outs.Count; i++)
+					for(int i=0; i<outs.Count; i++) {
 						outDescriptions.Add("");
+						outPrefixes.Add(outs[i] + " = ");
+						outPostfixes.Add("");
+					}
 				}
 
 				// Create expression that will execute all the statements
@@ -442,7 +449,9 @@ namespace Kerbulator {
 				expr.Push( ExecuteOperator(op, expr, ops, t.pos) );
 			}
 
-			if(expr.Count > 1)
+			if(expr.Count == 0)
+				throw new Exception(t.pos +"expected expression");
+			else if(expr.Count > 1)
 				throw new Exception(t.pos +"malformed expression");
 
 			return expr.Pop();
@@ -1353,6 +1362,9 @@ namespace Kerbulator {
 
 		public JITExpression(string expression, Kerbulator kalc)
 		:base("unnamed", expression, kalc)	{
+			Tokenizer tok = new Tokenizer("unnamed");
+			tok.Tokenize(expression);
+			tokens = tok.tokens;
 			Expression<Func<Object>> e = Expression.Lambda<Func<Object>>(ParseExpression());
 			expressionFunction = e.Compile();
 		}

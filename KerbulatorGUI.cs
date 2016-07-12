@@ -409,6 +409,39 @@ namespace Kerbulator {
 			runWindowEnabled = !GUI.Toggle(new Rect(options.runWindowPos.width - 25, 0, 20, 20), !runWindowEnabled, "");
 			runScrollPos = GUILayout.BeginScrollView(runScrollPos, GUILayout.Height(options.runWindowPos.height - 40));
 
+			GUILayout.BeginHorizontal();
+
+			if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
+				Run();
+				functionOutput = FormatOutput(env);
+			}
+
+			if(GUILayout.Button(repeatIcon, defaultButton, GUILayout.Height(32))) {
+				RunRepeated();
+			}
+
+			if(glue.CanAddNode()) {
+				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
+					Debug.Log("[Kerbulator] Adding maneuver node");
+					List<System.Object> output = Run();
+					if(!RunFunction.InError)
+						glue.PlaceNode(RunFunction.Outs, output);
+					functionOutput = FormatOutput(env);
+				}
+			}
+
+			if(glue.CanAddAlarm()) {
+				if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
+					Debug.Log("[Kerbulator] Adding alarm");
+					List<System.Object> output = Run();
+					if(!RunFunction.InError)
+						glue.AddAlarm(RunFunction.Id, RunFunction.Outs, output);
+					functionOutput = FormatOutput(env);
+				}
+			}
+
+			GUILayout.EndHorizontal();
+
 			if(RunFunction == null) {
 				GUILayout.Label("ERROR: no function selected.");
 			} else if(RunFunction.InError) {
@@ -427,36 +460,6 @@ namespace Kerbulator {
 						GUILayout.EndHorizontal();
 					}
 				}
-
-				GUILayout.BeginHorizontal();
-
-				if(GUILayout.Button(runIcon, defaultButton, GUILayout.Height(32))) {
-					Run();
-					functionOutput = FormatOutput(env);
-				}
-
-				if(GUILayout.Button(repeatIcon, defaultButton, GUILayout.Height(32))) {
-					RunRepeated();
-				}
-
-				if(glue.CanAddNode()) {
-					if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
-						List<System.Object> output = Run();
-						glue.PlaceNode(RunFunction.Outs, output);
-						functionOutput = FormatOutput(env);
-					}
-				}
-
-				if(glue.CanAddAlarm()) {
-					if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
-						Debug.Log("[Kerbulator] Adding alarm");
-						List<System.Object> output = Run();
-						glue.AddAlarm(RunFunction.Id, RunFunction.Outs, output);
-						functionOutput = FormatOutput(env);
-					}
-				}
-
-				GUILayout.EndHorizontal();
 
 				GUILayout.Label(functionOutput);
 			}
@@ -533,6 +536,10 @@ namespace Kerbulator {
 				envs.Remove(id);
 			}
 
+			// Don't run the function if it is in error state
+			if(RunFunction.InError)
+				return;
+
 			ExecutionEnvironment e = new ExecutionEnvironment(RunFunction, kalc);
 			e.SetArguments(arguments);
 			e.windowPos = pos;
@@ -573,6 +580,7 @@ namespace Kerbulator {
 				if(System.IO.File.Exists(oldFunctionFile)) {
 					try {
 						System.IO.File.Delete(oldFunctionFile);
+						error = null;
 					} catch(Exception e) {
 						error = "Cannot save function: "+ e.Message;
 						return;
@@ -597,6 +605,7 @@ namespace Kerbulator {
 			try {
 				functionFile = functionDir +"/"+ editFunctionName +".math";
 				System.IO.File.WriteAllText(functionFile, editFunctionContent);
+				error = null;
 			} catch(Exception e) {
 				error = "Cannot save function: "+ e.Message;
 				return;
@@ -624,6 +633,8 @@ namespace Kerbulator {
 			if(name.Length == 0)
 				return true;
 			foreach(Operator o in kalc.Operators.Values) {
+				if(o.id == "or" || o.id == "and")
+					continue;
 				if(name.Contains(o.id)) {
 					functionNameError = "function name cannot contain the symbol '"+ o.id +"'";
 					return false;
@@ -708,8 +719,6 @@ namespace Kerbulator {
 		}
 
 		/// <summary>Provide a string representation of the output resulting from executing a function.</summary>
-		/// <param name="f">The function that was executed</param>
-		/// <param name="output">The variables resuting from the execution</param>
 		public string FormatOutput(ExecutionEnvironment env) {
 			if(env == null)
 				return "";
@@ -720,14 +729,19 @@ namespace Kerbulator {
 			if(env.Output == null)
 				return "";
 
-			string desc = "";
 			if(env.Output.Count == 0) {
-				desc += "None.";
-			} else {
-				for(int i=0; i<env.Output.Count-1; i++)
-					desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
-				desc += env.func.OutPrefixes[env.func.Outs.Count-1] + Kerbulator.FormatVar(env.Output[env.func.Outs.Count-1]) + env.func.OutPostfixes[env.func.Outs.Count-1] +"\n";
+				return "None.";
 			}
+
+			if(env.Output.Count != env.func.Outs.Count) {
+				return "None.";
+			}
+		   
+			string desc = "";
+			for(int i=0; i<env.Output.Count-1; i++)
+				desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
+			if(env.func.Outs.Count > 0)
+				desc += env.func.OutPrefixes[env.func.Outs.Count-1] + Kerbulator.FormatVar(env.Output[env.func.Outs.Count-1]) + env.func.OutPostfixes[env.func.Outs.Count-1] +"\n";
 
 			return desc;
 		}
@@ -748,6 +762,7 @@ namespace Kerbulator {
 		public void Scan() {
 			try {
 				JITFunction.Scan(functionDir, kalc);
+				error = null;
 			} catch(Exception e) {
 				error = "Cannot access function dir ("+ functionDir +"): "+ e.Message;
 				functions = new Dictionary<string, JITFunction>();

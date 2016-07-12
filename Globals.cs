@@ -96,21 +96,21 @@ namespace Kerbulator {
 			AddDouble(kalc, prefix +".Pe", (double)orbit.PeA);
 			AddDouble(kalc, prefix +".Inc", (double)orbit.inclination);
 			AddDouble(kalc, prefix +".Alt", (double)orbit.altitude);
-			AddDouble(kalc, prefix +".ArgPe", (double)orbit.argumentOfPeriapsis);
-			AddDouble(kalc, prefix +".ω", (double)orbit.argumentOfPeriapsis);
-			AddDouble(kalc, prefix +".LAN", (double)orbit.LAN);
-			AddDouble(kalc, prefix +".Ω", (double)orbit.LAN);
+			AddDouble(kalc, prefix +".ArgPe", ((double)orbit.argumentOfPeriapsis) * (180/Math.PI));
+			AddDouble(kalc, prefix +".ω", ((double)orbit.argumentOfPeriapsis) * (180/Math.PI));
+			AddDouble(kalc, prefix +".LAN", ((double)orbit.LAN)  * (180/Math.PI));
+			AddDouble(kalc, prefix +".Ω", ((double)orbit.LAN)  * (180/Math.PI));
 			AddDouble(kalc, prefix +".TimeToAp", (double)orbit.timeToAp);
 			AddDouble(kalc, prefix +".TimeToPe", (double)orbit.timeToPe);
 			AddDouble(kalc, prefix +".Vel", (double)orbit.vel.magnitude);
-			AddDouble(kalc, prefix +".TrueAnomaly", (double)orbit.trueAnomaly);
-			AddDouble(kalc, prefix +".θ", (double)orbit.trueAnomaly);
+			AddDouble(kalc, prefix +".TrueAnomaly", ((double)orbit.trueAnomaly) * (180/Math.PI));
+			AddDouble(kalc, prefix +".θ", ((double)orbit.trueAnomaly) * (180/Math.PI));
 
 			if(orbit.UTsoi > 0) {
 				AddDouble(kalc, prefix +".SOI.dt", (double)orbit.UTsoi-Planetarium.GetUniversalTime());
 				AddDouble(kalc, prefix +".SOI.Δt", (double)orbit.UTsoi-Planetarium.GetUniversalTime());
-				AddDouble(kalc, prefix +".SOI.TrueAnomaly", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
-				AddDouble(kalc, prefix +".SOI.θ", (double)orbit.TrueAnomalyAtUT(orbit.UTsoi));
+				AddDouble(kalc, prefix +".SOI.TrueAnomaly", ((double)orbit.TrueAnomalyAtUT(orbit.UTsoi)) * (180/Math.PI));
+				AddDouble(kalc, prefix +".SOI.θ", ((double)orbit.TrueAnomalyAtUT(orbit.UTsoi)) * (180/Math.PI));
 			}
 
 			// Current position in carthesian coordinates

@@ -41,13 +41,15 @@ namespace Kerbulator {
 		}
 
 		public List<System.Object> Execute() {
-			if(inError) {
+			inError = false;
+			error = null;
+				
+			if(func.InError) {
+				inError = true;
+				error = new Exception(func.ErrorString);
 				output = null;
 				return null;
 			}
-				
-			if(func.InError)
-				throw new Exception("Tried to execute a function that is in error state: "+ func.ErrorString);
 
 			try {
 				// Evaluate input expressions to yield the input arguments
