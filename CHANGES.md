@@ -1,5 +1,19 @@
 Changelog
 ---------
+### 0.41
+Bugfixes.
+
+ - Globals
+   - Added Inf and ∞ globals to denote infinity
+   - Fixed some globals that were in radians instead of degrees (e.g. θ)
+
+ - GUI features
+   - Fix function name validation in GUI
+   - Fix column indicator in error messages
+   - Fix missing expression error message
+   - Fix behavior when running a repeating function that contains an error
+   - Fix a bug where the output of the previously run function was shown
+   
 ### 0.4
 Some welcome additions to the language.
 
