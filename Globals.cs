@@ -96,10 +96,10 @@ namespace Kerbulator {
 			AddDouble(kalc, prefix +".Pe", (double)orbit.PeA);
 			AddDouble(kalc, prefix +".Inc", (double)orbit.inclination);
 			AddDouble(kalc, prefix +".Alt", (double)orbit.altitude);
-			AddDouble(kalc, prefix +".ArgPe", ((double)orbit.argumentOfPeriapsis) * (180/Math.PI));
-			AddDouble(kalc, prefix +".ω", ((double)orbit.argumentOfPeriapsis) * (180/Math.PI));
-			AddDouble(kalc, prefix +".LAN", ((double)orbit.LAN)  * (180/Math.PI));
-			AddDouble(kalc, prefix +".Ω", ((double)orbit.LAN)  * (180/Math.PI));
+			AddDouble(kalc, prefix +".ArgPe", ((double)orbit.argumentOfPeriapsis));
+			AddDouble(kalc, prefix +".ω", ((double)orbit.argumentOfPeriapsis));
+			AddDouble(kalc, prefix +".LAN", ((double)orbit.LAN));
+			AddDouble(kalc, prefix +".Ω", ((double)orbit.LAN));
 			AddDouble(kalc, prefix +".TimeToAp", (double)orbit.timeToAp);
 			AddDouble(kalc, prefix +".TimeToPe", (double)orbit.timeToPe);
 			AddDouble(kalc, prefix +".Vel", (double)orbit.vel.magnitude);

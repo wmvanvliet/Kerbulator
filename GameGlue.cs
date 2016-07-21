@@ -207,7 +207,7 @@ namespace Kerbulator {
 					UT = val + Planetarium.GetUniversalTime();
 			}
 
-			Vector3d dV = new Vector3d(dr, -dn, dp);
+			Vector3d dV = new Vector3d(dr, dn, dp);
 
 			Vessel vessel = FlightGlobals.ActiveVessel;
 			if(vessel == null)
@@ -232,8 +232,6 @@ namespace Kerbulator {
 			//protects against that.
 			UT = Math.Max(UT, Planetarium.GetUniversalTime());
 
-			//convert a dV in world coordinates into the coordinate system of the maneuver node,
-			//which uses (x, y, z) = (radial+, normal-, prograde)
 			ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
 			mn.OnGizmoUpdated(dV, UT);
 		}

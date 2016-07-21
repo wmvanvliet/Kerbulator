@@ -2,7 +2,7 @@ out: v1
 out: v2
 
 # Implementation of:
-# http://www.braeunig.us/space/problem.htm#4.13
+# http://www.braeunig.us/space/problem.htm#5.4
 
 # Given
 v_r1 = [0.473265, -0.899215, 0] # position of earth
@@ -13,6 +13,7 @@ p = 1.250633 # AU
 a = 1.320971 # AU
 dnu = 149.770967 
 GM = 3.964016E-14 # AU^3/s^2, GM of Sun
+AU = 149.597870E9 # AU in meters
 
 f = 1 - r2 / p × (1 - cos dnu)
 g = r1 × r2 × sin dnu / √(GM × p)
@@ -23,5 +24,5 @@ g_dot = 1 - r1 / p × (1 - cos dnu)
 v1 = (v_r2 - f × v_r1)  / g
 v2 = (f_dot × v_r1 + g_dot × v1)
 
-v1 = round(v1 × 149.597870E9, 1)
-v2 = round(v2 × 149.597870E9, 1)
+v1 = round(v1 × AU, 1)
+v2 = round(v2 × AU, 1)

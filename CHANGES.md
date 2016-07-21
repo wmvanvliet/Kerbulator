@@ -13,6 +13,7 @@ Bugfixes.
    - Fix missing expression error message
    - Fix behavior when running a repeating function that contains an error
    - Fix a bug where the output of the previously run function was shown
+   - Fix delta-V in normal direction when placing maneuver node
    
 ### 0.4
 Some welcome additions to the language.
