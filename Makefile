@@ -50,7 +50,7 @@ info:
 build: info
 	mkdir -p build
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,KSPUtil \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 

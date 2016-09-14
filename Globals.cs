@@ -29,9 +29,9 @@ namespace Kerbulator {
 				AddOrbit(kalc, orbit1, "Craft");
 
 				// Navball (thank you MechJeb source)
-				Vector3 CoM = v.findWorldCenterOfMass();
-				Vector3 up = (CoM - v.mainBody.position).normalized;
-				Vector3 north = Vector3.Exclude(up, (v.mainBody.position + v.mainBody.transform.up * (float)v.mainBody.Radius) - CoM).normalized;
+				Vector3 CoM = v.CoM;
+				Vector3 up = v.up;
+				Vector3 north = v.north;
 				Quaternion rotationSurface = Quaternion.LookRotation(north, up);
 				Quaternion rotationVesselSurface = Quaternion.Inverse(Quaternion.Euler(90, 0, 0) * Quaternion.Inverse(v.GetTransform().rotation) * rotationSurface);
             	Vector3 velocityVesselOrbit = v.orbit.GetVel();
@@ -41,8 +41,8 @@ namespace Kerbulator {
             	AddDouble(kalc, "Navball.Pitch",  (rotationVesselSurface.eulerAngles.x > 180) ? (360.0 - rotationVesselSurface.eulerAngles.x) : -rotationVesselSurface.eulerAngles.x);
             	AddDouble(kalc, "Navball.Roll", (rotationVesselSurface.eulerAngles.z > 180) ? (rotationVesselSurface.eulerAngles.z - 360.0) : rotationVesselSurface.eulerAngles.z);
             	AddDouble(kalc, "Navball.OrbitalVelocity", velocityVesselOrbit.magnitude);
-            	AddDouble(kalc, "Navball.SurfaceVelocity", velocityVesselSurface.magnitude);
-            	AddDouble(kalc, "Navball.VerticalVelocity", Vector3.Dot(velocityVesselSurface, up));
+            	AddDouble(kalc, "Navball.SurfaceVelocity", v.srfSpeed);
+            	AddDouble(kalc, "Navball.VerticalVelocity", v.verticalSpeed);
 
 				// Reference body
 				AddCelestialBody(kalc, v.orbit.referenceBody, "Parent");
@@ -112,13 +112,6 @@ namespace Kerbulator {
 				AddDouble(kalc, prefix +".SOI.TrueAnomaly", ((double)orbit.TrueAnomalyAtUT(orbit.UTsoi)) * (180/Math.PI));
 				AddDouble(kalc, prefix +".SOI.θ", ((double)orbit.TrueAnomalyAtUT(orbit.UTsoi)) * (180/Math.PI));
 			}
-
-			// Current position in carthesian coordinates
-			double UT = (double)Planetarium.GetUniversalTime();
-			Vector3 relPos = orbit.getRelativePositionAtUT(UT);
-			Vector3 relVel = orbit.getOrbitalVelocityAtUT(UT);
-			AddVector3(kalc, prefix +".RelPos", new Vector3(relPos.x, relPos.z, relPos.y));
-			AddVector3(kalc, prefix +".RelVel", new Vector3(relVel.x, relVel.z, relVel.y));
 		}
 
 		public static void AddCelestialBody(Kerbulator kalc, CelestialBody body) {
