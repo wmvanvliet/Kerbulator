@@ -1,5 +1,8 @@
 Changelog
 ---------
+### 0.42
+Recompile for KSP 1.2
+
 ### 0.41
 Bugfixes.
 
