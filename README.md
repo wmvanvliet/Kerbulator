@@ -17,8 +17,8 @@ The installation of Kerbulator is the same as for most other mods. Install Kerbu
 
 ## Usage
 [Manual](doc/manual.mkd) <br/>
-[Language reference] (doc/langref.mkd) <br/>
-[Globals] (doc/globals.mkd) <br/>
+[Language reference](doc/langref.mkd) <br/>
+[Globals](doc/globals.mkd) <br/>
 
 ## Start learning KSP math
 
