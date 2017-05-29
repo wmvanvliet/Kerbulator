@@ -1,5 +1,8 @@
 Changelog
 ---------
+### 0.43
+Recompile for KSP 1.3
+
 ### 0.42
 Recompile for KSP 1.2
 
