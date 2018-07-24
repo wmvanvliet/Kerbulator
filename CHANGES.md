@@ -1,5 +1,12 @@
 Changelog
 ---------
+
+### 0.44
+Add support for KSP version 1.4.4
+
+ - GUI features
+   - Kerbulator now makes use of the clickthrough prevention logic
+
 ### 0.43
 Recompile for KSP 1.3
 
