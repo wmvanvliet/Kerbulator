@@ -27,6 +27,7 @@ namespace Kerbulator {
 		private IButton blizzyButton = null;
 		private bool mainWindowEnabled = false;
 		private KerbulatorOptions options = null;
+		private Dictionary<string, bool> locks = new Dictionary<string, bool>();
 
 		/// <summary>Called by Unity when the Plugin is loaded</summary>
 		void Awake() {
@@ -312,6 +313,32 @@ namespace Kerbulator {
 
 		public string GetFunctionDir() {
 			return KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
+		}
+
+		public void PreventClickthrough(Rect windowRect, string lockName) {
+			Vector2 mousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+			bool cursorOnWindow = windowRect.Contains(mousePos);
+			if(cursorOnWindow) {
+				if(HighLogic.LoadedSceneIsEditor) {
+					EditorLogic.fetch.Lock(true, true, true, lockName);
+				} else {
+					InputLockManager.SetControlLock(ControlTypes.All, lockName);
+				}
+			} else if(!cursorOnWindow) {
+				if(HighLogic.LoadedSceneIsEditor) {
+					EditorLogic.fetch.Unlock(lockName);
+				} else {
+					InputLockManager.RemoveControlLock(lockName);
+				}
+			}
+		}
+
+		public void EnsureLockReleased(string lockName) {
+			if(HighLogic.LoadedSceneIsEditor) {
+				EditorLogic.fetch.Unlock(lockName);
+			} else {
+				InputLockManager.RemoveControlLock(lockName);
+			}
 		}
 	}
 }

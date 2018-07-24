@@ -61,5 +61,11 @@ namespace Kerbulator {
 		public string GetFunctionDir() {
 			return "/Users/rodin/Projects/Kerbulator/KerbulatorFunctions";
 		}
+
+		public void PreventClickthrough(Rect r, string lockName) {
+		}
+
+		public void EnsureLockReleased(string lockName) {
+		}
 	}
 }

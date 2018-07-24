@@ -17,6 +17,8 @@ namespace Kerbulator {
 		bool CanAddAlarm();
 		bool CanAddNode();
 		string GetFunctionDir();
+		void PreventClickthrough(Rect r, string lockName);
+		void EnsureLockReleased(string lockName);
 	}
 
 	public class KerbulatorGUI {
@@ -203,19 +205,29 @@ namespace Kerbulator {
 			// Draw the windows (if enabled)
 			if(mainWindowEnabled) {
 				options.mainWindowPos = GUI.Window(windowId, options.mainWindowPos, DrawMainWindow, "Kerbulator");
+				glue.PreventClickthrough(options.mainWindowPos, "KerbulatorMainWindow");
+			} else {
+				glue.EnsureLockReleased("KerbulatorMainWindow");
 			}
 
 			if(editWindowEnabled) {
 				options.editWindowPos = GUI.Window(windowId + 1, options.editWindowPos, DrawEditWindow, "Function Editor");
+				glue.PreventClickthrough(options.editWindowPos, "KerbulatorEditWindow");
+			} else {
+				glue.EnsureLockReleased("KerbulatorEditWindow");
 			}
 
 			if(runWindowEnabled) {
 				options.runWindowPos = GUI.Window(windowId + 2, options.runWindowPos, DrawRunWindow, "Run "+ RunFunction.Id);
+				glue.PreventClickthrough(options.runWindowPos, "KerbulatorRunWindow");
+			} else {
+				glue.EnsureLockReleased("KerbulatorRunWindow");
 			}
 
 			if(running) {
 				foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
 					pair.Value.windowPos = GUI.Window(pair.Key, pair.Value.windowPos, DrawRepeatedWindow, pair.Value.func.Id);
+					glue.PreventClickthrough(pair.Value.windowPos, "KerbulatorEnvironment" + pair.Value.func.Id);
 				}
 			}
 
@@ -368,7 +380,7 @@ namespace Kerbulator {
 					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
 					editor.cursorIndex ++;
 					editor.selectIndex ++;
-					editor.UpdateScrollOffsetIfNeeded();
+					//editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -379,7 +391,7 @@ namespace Kerbulator {
 					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
 					editor.cursorIndex ++;
 					editor.selectIndex ++;
-					editor.UpdateScrollOffsetIfNeeded();
+					//editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -390,7 +402,7 @@ namespace Kerbulator {
 					editFunctionContent = editFunctionContent.Insert(editor.cursorIndex, s);
 					editor.cursorIndex ++;
 					editor.selectIndex ++;
-					editor.UpdateScrollOffsetIfNeeded();
+					//editor.UpdateScrollOffsetIfNeeded();
 				}
 			}
 			GUILayout.EndHorizontal();

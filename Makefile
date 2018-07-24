@@ -50,7 +50,7 @@ info:
 build: info
 	mkdir -p build
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,UnityEngine.CoreModule,UnityEngine.IMGUIModule,UnityEngine.AnimationModule \
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 
@@ -111,7 +111,7 @@ release: zip tar.gz
 
 jittest:
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,UnityEngine.CoreModule,UnityEngine.IMGUIModule,UnityEngine.AnimationModule \
 		-out:test.exe test.cs
 
 .PHONY : all info doc build package tar.gz zip clean install uninstall
