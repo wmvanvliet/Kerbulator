@@ -1,0 +1,30 @@
+{
+    "NAME": "Kerbulator",
+    "URL": "forum.kerbalspaceprogram.com/index.php?/topic/62988-13-kerbulator-use-your-own-math",
+    "DOWNLOAD": "https://github.com/wmvanvliet/Kerbulator/releases",
+    "GITHUB": {
+        "USERNAME": "wmvanvliet",
+        "REPOSITORY": "Kerbulator"
+    },
+    "VERSION": {
+        "MAJOR": 0,
+        "MINOR": 1,
+        "PATCH": 6,
+        "BUILD": 7
+    },
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 4
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 1
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 99
+    }
+}
