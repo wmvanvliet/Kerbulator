@@ -22,9 +22,9 @@ The installation of Kerbulator is the same as for most other mods. Install Kerbu
 
 ## Start learning KSP math
 
-[My own notes] (https://www.dropbox.com/s/a09gle65k7ghei6/space.pdf?dl=1) <br/>
-[Scott Manley video #1] (http://www.youtube.com/watch?v=000zDI2nmq8) <br/>
-[Scott Manley video #2] (http://www.youtube.com/watch?v=QXPhQKkOcYM) <br/>
+[My own notes](https://www.dropbox.com/s/a09gle65k7ghei6/space.pdf?dl=1) <br/>
+[Scott Manley video #1](http://www.youtube.com/watch?v=000zDI2nmq8) <br/>
+[Scott Manley video #2](http://www.youtube.com/watch?v=QXPhQKkOcYM) <br/>
 
 ![screenshot](doc/screenshot2.png)
 
