@@ -1,6 +1,9 @@
 Changelog
 ---------
 
+### 0.45
+Add support for KSP version 1.9
+
 ### 0.44
 Add support for KSP version 1.4.4
 
