@@ -13,7 +13,6 @@ The installation of Kerbulator is the same as for most other mods. Install Kerbu
 ## Download latest release
 [Hosted on Github](https://github.com/wmvanvliet/Kerbulator/releases/download/0.45/Kerbulator-0.45.zip) <br/>
 [Hosted on SpaceDock](http://spacedock.info/mod/782/Kerbulator) <br/>
-[Hosted on Curse](http://www.curse.com/ksp-mods/kerbal/220266-kerbulator)
 
 ## Usage
 [Manual](doc/manual.mkd) <br/>
