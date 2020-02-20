@@ -893,11 +893,11 @@ namespace Kerbulator {
 			//Rect r = GUILayoutUtility.GetRect(gcDrag, GUI.skin.window);
 			Rect r = new Rect(windowRect.width-20, windowRect.height-20, 20, 20);
 
-			if(Event.current.type == EventType.mouseDown && r.Contains(mouse))
+			if(Event.current.type == EventType.MouseDown && r.Contains(mouse))
 			{
 				resizing = id;
 				resizeStart = new Rect( mouse.x, mouse.y, windowRect.width, windowRect.height );
-			} else if(Event.current.type == EventType.mouseUp && resizing == id)
+			} else if(Event.current.type == EventType.MouseUp && resizing == id)
 				resizing = 0;
 			else if(!Input.GetMouseButton(0))
 				resizing = 0;
