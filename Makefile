@@ -1,38 +1,32 @@
-# Makefile for building Kerbulator
+# Makefile for building Kerbulator on OSX, Linux and FreeBSD
 
-ifeq ($(OS),Windows_NT)
-	KSPDIR  := C:/Program\ Files\ \(x86\)/Steam/SteamApps/common/Kerbal\ Space\ Program
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+	KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
+	MANAGED := KSP.app/Contents/Resources/Data/Managed/
+	PREFIX := /usr/local
+endif
+ifeq ($(UNAME_S), Linux)
+	KSPDIR  := ${HOME}/.local/share/Steam/SteamApps/common/Kerbal\ Space\ Program
 	MANAGED := KSP_Data/Managed/
-	PREFIX := C:/Program\ Files\ \(x86\)/Mono-3.2.3
-else
-	UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S), Darwin)
-		KSPDIR  := ${HOME}/Library/Application\ Support/Steam/SteamApps/common/Kerbal\ Space\ Program
-		MANAGED := KSP.app/Contents/Resources/Data/Managed/
-		PREFIX := /usr/local
-	endif
-	ifeq ($(UNAME_S), Linux)
-		KSPDIR  := ${HOME}/.local/share/Steam/SteamApps/common/Kerbal\ Space\ Program
-		MANAGED := KSP_Data/Managed/
-		PREFIX := /usr
-	endif
-	ifeq ($(UNAME_S), FreeBSD)
-		KSPDIR  := ${HOME}/KSP
-		MANAGED := KSP_Data/Managed/
-		PREFIX := /usr/local
-	endif
+	PREFIX := /usr
+endif
+ifeq ($(UNAME_S), FreeBSD)
+	KSPDIR  := ${HOME}/KSP
+	MANAGED := KSP_Data/Managed/
+	PREFIX := /usr/local
 endif
 
 SOURCEFILES := $(wildcard *.cs)
 
 RESGEN2 := $(PREFIX)/bin/resgen2
-MCS    := $(PREFIX)/bin/mcs
 MONO    := $(PREFIX)/bin/mono
+MCS     := $(PREFIX)/bin/mcs
 GIT     := /usr/bin/git
 #TAR     := $(PREFIX)/tar
 TAR     := /usr/bin/tar
 ZIP     := /usr/bin/zip
-PDFLATEX   := $(PREFIX)/bin/pdflatex
+PDFLATEX   := pdflatex
 
 all: build
 
@@ -50,7 +44,8 @@ info:
 build: info
 	mkdir -p build
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,UnityEngine.CoreModule,UnityEngine.IMGUIModule,UnityEngine.AnimationModule \
+		-r:Assembly-CSharp.dll,Assembly-CSharp-firstpass.dll,UnityEngine.dll,UnityEngine.CoreModule.dll,UnityEngine.IMGUIModule.dll,UnityEngine.AnimationModule.dll,UnityEngine.InputLegacyModule.dll \
+		"%MCS%" -target:library -lib:"%KSPDIR%\%MANAGED%" -out:build\Kerbulator.dll *.cs
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 
