@@ -492,6 +492,7 @@ namespace Kerbulator {
 			e.enabled = !GUI.Toggle(new Rect(e.windowPos.width - 25, 0, 20, 20), !e.enabled, "");
 			if(!e.enabled) {
 				envs.Remove(id);
+				glue.EnsureLockReleased("KerbulatorEnvironment" + e.func.Id);
 				return;
 			}
 
@@ -884,6 +885,12 @@ namespace Kerbulator {
 		}
 
 		public void OnDestroy() {
+			glue.EnsureLockReleased("KerbulatorMainWindow");
+			glue.EnsureLockReleased("KerbulatorEditWindow");
+			glue.EnsureLockReleased("KerbulatorRunWindow");
+			foreach(KeyValuePair<int, ExecutionEnvironment> pair in envs) {
+				glue.EnsureLockReleased("KerbulatorEnvironment" + pair.Value.func.Id);
+			}
 			envs.Clear();
 			running = false;
 		}

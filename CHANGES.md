@@ -1,5 +1,10 @@
 Changelog
 ---------
+### 0.46
+Bugfixes.
+ - GUI features
+   - Fix clickthrough prevention logic not releasing the lock when closing a repeating-function output window
+   - Fix toolbarbutton not being removed when exiting the VHB or Hangar
 
 ### 0.45
 Add support for KSP version 1.9

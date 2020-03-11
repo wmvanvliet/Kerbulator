@@ -23,4 +23,5 @@ copy icons\*.png package\Kerbulator\Textures
 copy README.md package\Kerbulator
 copy LICENSE.md package\Kerbulator
 mkdir package\Kerbulator\doc
-copy doc\*.mkd doc\*.png package\Kerbulator\doc
+copy doc\*.mkd package\Kerbulator\doc
+copy doc\*.png package\Kerbulator\doc

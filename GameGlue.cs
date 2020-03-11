@@ -37,16 +37,14 @@ namespace Kerbulator {
 
 			if(!ToolbarManager.ToolbarAvailable) {
 				GameEvents.onGUIApplicationLauncherReady.Add(InitToolbarButton);
-				GameEvents.onGameSceneLoadRequested.Add(RemoveToolbarButton);
+				GameEvents.onGUIApplicationLauncherUnreadifying.Add(OnGuiApplicationLauncherUnreadifying);
 			}
 
 			Debug.Log("[Kerbulator] Start done");
 		}
 
 		void Start() {
-			if(!ToolbarManager.ToolbarAvailable && mainButton == null) {
-				InitToolbarButton();
-			} else {
+			if(ToolbarManager.ToolbarAvailable) {
 				// Create a toolbar button using Blizzy's toolbar
 				InitBlizzyButton();
 			}
@@ -143,9 +141,6 @@ namespace Kerbulator {
 			);
 
 			Debug.Log("[Kerbulator] Done!");
-
-			//ApplicationLancher.Instance.AddOnShowCallback(() => {gui.ChangeState(true);});
-			//ApplicationLancher.Instance.AddOnHideCallback(() => {gui.ChangeState(false);});
 		}
 
 		/// <summary>Creates a toolbar button for Blizzy's toolbar</summary>
@@ -160,13 +155,25 @@ namespace Kerbulator {
 			blizzyButton.OnClick += (e) => { gui.ChangeState(!mainWindowEnabled); };
 		}
 
-		public void RemoveToolbarButton(GameScenes SceneToLoad) {
+		public void OnGuiApplicationLauncherUnreadifying(GameScenes SceneToLoad) {
+			RemoveToolbarButton();
+		}
+
+		public void RemoveToolbarButton() {
 			Debug.Log("[Kerbulator] RemoveToolbarButton");
-			if(mainButton != null)
-        		ApplicationLauncher.Instance.RemoveModApplication(mainButton);
-			mainButton = null;
-			if(gui != null)
-				gui.ChangeState(false);
+
+			if(!ToolbarManager.ToolbarAvailable) {
+				GameEvents.onGUIApplicationLauncherReady.Remove(InitToolbarButton);
+				GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnGuiApplicationLauncherUnreadifying);
+				if(mainButton != null)
+					ApplicationLauncher.Instance.RemoveModApplication(mainButton);
+				mainButton = null;
+			} else {
+				if(blizzyButton != null) {
+					blizzyButton.Destroy();
+					blizzyButton = null;
+				}
+			}
 		}			
 
 		/// <summary>Called by Unity to draw the GUI</summary>
@@ -248,17 +255,7 @@ namespace Kerbulator {
 				gui.OnDestroy();
 			gui = null;
 
-			if(!ToolbarManager.ToolbarAvailable) {
-				GameEvents.onGUIApplicationLauncherReady.Remove(InitToolbarButton);
-				if(mainButton != null)
-					ApplicationLauncher.Instance.RemoveModApplication(mainButton);
-				mainButton = null;
-			} else {
-				if(blizzyButton != null) {
-					blizzyButton.Destroy();
-					blizzyButton = null;
-				}
-			}
+			RemoveToolbarButton();
 		}
 
 		public void ChangeState(bool open) {
@@ -312,7 +309,7 @@ namespace Kerbulator {
 		}
 
 		public string GetFunctionDir() {
-			return KSPUtil.ApplicationRootPath + "/PluginData" + "/Kerbulator";
+			return KSPUtil.ApplicationRootPath + "/PluginData/Kerbulator";
 		}
 
 		public void PreventClickthrough(Rect windowRect, string lockName) {
@@ -324,7 +321,7 @@ namespace Kerbulator {
 				} else {
 					InputLockManager.SetControlLock(ControlTypes.All, lockName);
 				}
-			} else if(!cursorOnWindow) {
+			} else {
 				if(HighLogic.LoadedSceneIsEditor) {
 					EditorLogic.fetch.Unlock(lockName);
 				} else {
