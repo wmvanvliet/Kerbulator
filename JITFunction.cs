@@ -23,6 +23,7 @@ namespace Kerbulator {
 		List<string> outDescriptions;
 		List<string> outPrefixes;
 		List<string> outPostfixes;
+		List<bool> outIsManeuverNode;
 
 		bool inError = false;
 		Exception error = null;
@@ -42,6 +43,7 @@ namespace Kerbulator {
 			this.outDescriptions = new List<string>();
 			this.outPrefixes = new List<string>();
 			this.outPostfixes = new List<string>();
+			this.outIsManeuverNode = new List<bool>();
 
 			this.locals = new Dictionary<string, Object>();
 			this.thisExpression = Expression.Constant(this);
@@ -85,7 +87,11 @@ namespace Kerbulator {
 			protected set {}
 		}
 
-		public bool InError {
+        public List<bool> OutIsManeuverNode { 
+			get { return outIsManeuverNode; }
+		}
+
+        public bool InError {
 			get { return inError; }
 			set { inError = value; if(!value) error = null; }
 		}
@@ -245,8 +251,10 @@ namespace Kerbulator {
 					Consume();
 
 				// Parse out: statements
-				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
-					Consume();
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.OUT_MANEUVER) {
+					Token token = Consume();
+					bool isManeuverNode = token.type == TokenType.OUT_MANEUVER;
+
 
 					string prefix = null;
 					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
@@ -275,6 +283,7 @@ namespace Kerbulator {
 
 					Consume(TokenType.END);
 					outs.Add(id.val);
+					outIsManeuverNode.Add(isManeuverNode);
 					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
 				}
 

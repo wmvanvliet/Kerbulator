@@ -194,57 +194,89 @@ namespace Kerbulator {
 			Globals.Add(kalc); // UNITY
 		}
 
-		public void PlaceNode(List<string> ids, List<System.Object> output) { 
-			double dr = 0, dn = 0, dp = 0;
-			double UT = 0;
+		public void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output)
+        {
+			Debug.Log("Got a new thing");
+			Debug.Log(ids.Count);
+			Debug.Log(maneuverNodes.Count);
 
-			// Look at the resulting variables and create a maneuver node with them
-			for(int i=0; i<ids.Count; i++) {
-				if(output[i].GetType() != typeof(double))
-					continue;
+			//Places a node using the old system for backwards capability
+            PlaceNode(ids, output);
 
-				string id = ids[i];
-				double val = (double) output[i];
-				if(id == "Δv_r" || id == "dv_r")
-					dr = val;
-				else if(id == "Δv_n" || id == "dv_n")
-					dn = val;
-				else if(id == "Δv_p" || id == "dv_p")
-					dp = val;
-				else if(id == "Δt" || id == "dt")
-					UT = val + Planetarium.GetUniversalTime();
-			}
+            foreach (object[] maneuver in maneuverNodes)
+            {
+				double dr, dn, dp;
 
-			Vector3d dV = new Vector3d(dr, dn, dp);
+				dr = (double)maneuver[0];
+				dn = (double)maneuver[1];
+				dp = (double)maneuver[2];
 
-			Vessel vessel = FlightGlobals.ActiveVessel;
-			if(vessel == null)
-				return;
+				double UT = (double)maneuver[3] + Planetarium.GetUniversalTime();
+				Vector3d dV = new Vector3d(dr, dn, dp);
 
-			//placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
-			//and log an exception if we get a bad dV vector:
-			for(int i = 0; i < 3; i++)
-			{
-				if(double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
-				{
-					throw new Exception("Kerbulator: bad dV: " + dV);
-				}
-			}
+				CreateManeuverNode(UT, dV);
+            }
+        }
 
-			if(double.IsNaN(UT) || double.IsInfinity(UT))
-			{
-				throw new Exception("Kerbulator: bad UT: " + UT);
-			}
+        private void PlaceNode(List<string> ids, List<object> output)
+        {
+            double dr = 0, dn = 0, dp = 0;
+            double UT = 0;
 
-			//It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
-			//protects against that.
-			UT = Math.Max(UT, Planetarium.GetUniversalTime());
+            // Look at the resulting variables and create a maneuver node with them
+            for (int i = 0; i < ids.Count; i++)
+            {
+                if (output[i].GetType() != typeof(double))
+                    continue;
 
-			ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
-			mn.OnGizmoUpdated(dV, UT);
-		}
+                string id = ids[i];
+                double val = (double)output[i];
+                if (id == "Δv_r" || id == "dv_r")
+                    dr = val;
+                else if (id == "Δv_n" || id == "dv_n")
+                    dn = val;
+                else if (id == "Δv_p" || id == "dv_p")
+                    dp = val;
+                else if (id == "Δt" || id == "dt")
+                    UT = val + Planetarium.GetUniversalTime();
+            }
 
-		public Texture2D GetTexture(string id) {
+            Vector3d dV = new Vector3d(dr, dn, dp);
+
+			if(dV.sqrMagnitude > 0)
+				CreateManeuverNode(UT, dV);
+        }
+
+        private void CreateManeuverNode(double UT, Vector3d dV)
+        {
+            Vessel vessel = FlightGlobals.ActiveVessel;
+            if (vessel == null)
+                return;
+
+            //placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
+            //and log an exception if we get a bad dV vector:
+            for (int i = 0; i < 3; i++)
+            {
+                if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
+                {
+                    throw new Exception("Kerbulator: bad dV: " + dV);
+                }
+            }
+
+            if (double.IsNaN(UT) || double.IsInfinity(UT))
+            {
+                throw new Exception("Kerbulator: bad UT: " + UT);
+            }
+
+            //It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
+            //protects against that.
+            UT = Math.Max(UT, Planetarium.GetUniversalTime());
+
+            ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
+            mn.OnGizmoUpdated(dV, UT);
+        }
+
+        public Texture2D GetTexture(string id) {
 			return GameDatabase.Instance.GetTexture("Kerbulator/Textures/"+ id, false);
 		}
 

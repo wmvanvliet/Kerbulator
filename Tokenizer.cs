@@ -19,6 +19,7 @@ namespace Kerbulator {
 		TEXT,
 		IN,
 		OUT,
+		OUT_MANEUVER,
 		SKIP_NEWLINE,
 		PIECEWISE,
 		CONDITIONAL
@@ -109,7 +110,15 @@ namespace Kerbulator {
 					case ' ':
 					case '\t':
 					case '\r':
-						if(tok.type != TokenType.SKIP_NEWLINE) {
+						if (tok.val == "out" && line.Length > i + 10 && line.Substring(i, 10) == " maneuver:")
+                        {
+							tok.val += line.Substring(i, 10);
+							i += 9;
+
+							HandleToken(new Token(TokenType.OUT_MANEUVER, tok.val, functionName, lineno, col));
+							tok = new Token(functionName, lineno, col + 1);
+						}
+						else if(tok.type != TokenType.SKIP_NEWLINE) {
 							HandleToken(tok);
 							tok = new Token(functionName, lineno, col + 1);
 						}
@@ -310,11 +319,14 @@ namespace Kerbulator {
 
 					// In: and Out: statements
 					case ':':
-						if(tok.val == "in")
+						if (tok.val == "in")
 							HandleToken(new Token(TokenType.IN, tok.val, functionName, lineno, col));
-						else if(tok.val == "out")
+						else if (tok.val == "out")
 							HandleToken(new Token(TokenType.OUT, tok.val, functionName, lineno, col));
-						else {
+						else if (tok.val == "maneuver")
+							HandleToken(new Token(TokenType.OUT_MANEUVER, tok.val, functionName, lineno, col));
+						else
+						{
 							HandleToken(tok);
 							HandleToken(new Token(TokenType.COLON, tok.val, functionName, lineno, col));
 						}

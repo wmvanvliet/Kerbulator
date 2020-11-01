@@ -40,6 +40,15 @@ namespace Kerbulator {
 			protected set { }
 		}
 
+		//Return a list of outputs marked as maneuver nodes
+		public List<System.Object> ManeuverOutput
+        {
+			get {
+				int i = 0;
+				return output.Where(o => func.OutIsManeuverNode[i++]).ToList();
+			}
+        }
+
 		public List<System.Object> Execute() {
 			inError = false;
 			error = null;
