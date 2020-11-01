@@ -196,10 +196,6 @@ namespace Kerbulator {
 
 		public void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output)
         {
-			Debug.Log("Got a new thing");
-			Debug.Log(ids.Count);
-			Debug.Log(maneuverNodes.Count);
-
 			//Places a node using the old system for backwards capability
             PlaceNode(ids, output);
 
