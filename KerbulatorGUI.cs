@@ -3,12 +3,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 namespace Kerbulator {
 	/// <summary>Glue code to smooth over differences when plugin is loaded in
 	/// the Unity editor versus when it is loaded in the actual game.</summary>
 	public interface IGlue {
-		void PlaceNodes(List<string> ids, List<object> maneuverNodeIds, List<System.Object> output);
+		void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output);
 		void AddGlobals(Kerbulator kalc);
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
@@ -39,7 +40,7 @@ namespace Kerbulator {
 		string editFunctionContent = "";
 		string editFunctionName = "unnamed";
 		string functionFile = "unnamed.math";
-		string maneuverTemplate = "out maneuver: node\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0\n\nnode = [Δv_r, Δv_n, Δv_p, Δt]";
+		string maneuverTemplate = "maneuver: node\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0\n\nnode = [Δv_r, Δv_n, Δv_p, Δt]";
 
 		// Running functions
 		bool running = false;
@@ -436,12 +437,9 @@ namespace Kerbulator {
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
 					Debug.Log("[Kerbulator] Adding maneuver node");
 					List<System.Object> output = Run();
-					if(!RunFunction.InError)
-						glue.PlaceNodes(RunFunction.Outs, env.ManeuverOutput, output);
-
-					foreach(System.Object maneuverNodeOutput in env.ManeuverOutput)
-                    {
-
+                    if(!RunFunction.InError) {
+                        List<System.Object> maneuvers = env.GetOutputsOfType(OutputType.Maneuver);
+                        glue.PlaceNodes(RunFunction.Outs, maneuvers, output);
                     }
 
 					functionOutput = FormatOutput(env);

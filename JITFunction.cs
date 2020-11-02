@@ -23,7 +23,7 @@ namespace Kerbulator {
 		List<string> outDescriptions;
 		List<string> outPrefixes;
 		List<string> outPostfixes;
-		List<bool> outIsManeuverNode;
+        List<OutputType> outputTypes;
 
 		bool inError = false;
 		Exception error = null;
@@ -43,7 +43,7 @@ namespace Kerbulator {
 			this.outDescriptions = new List<string>();
 			this.outPrefixes = new List<string>();
 			this.outPostfixes = new List<string>();
-			this.outIsManeuverNode = new List<bool>();
+            this.outputTypes = new List<OutputType>();
 
 			this.locals = new Dictionary<string, Object>();
 			this.thisExpression = Expression.Constant(this);
@@ -87,8 +87,8 @@ namespace Kerbulator {
 			protected set {}
 		}
 
-        public List<bool> OutIsManeuverNode { 
-			get { return outIsManeuverNode; }
+        public List<OutputType> OutputTypes { 
+			get { return outputTypes; }
 		}
 
         public bool InError {
@@ -251,43 +251,44 @@ namespace Kerbulator {
 					Consume();
 
 				// Parse out: statements
-				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.OUT_MANEUVER) {
-					Token token = Consume();
-					bool isManeuverNode = token.type == TokenType.OUT_MANEUVER;
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.MANEUVER) {
+                    Token token = Consume();
 
 
-					string prefix = null;
-					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
-						prefix = tokens.Dequeue().val;
+                    string prefix = null;
+                    if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
+                        prefix = tokens.Dequeue().val;
 
-					Token id = Consume(TokenType.IDENTIFIER);
-					if(prefix == null)
-						prefix = id.val + " = ";
+                    Token id = Consume(TokenType.IDENTIFIER);
+                    if(prefix == null)
+                        prefix = id.val + " = ";
 
-					outPrefixes.Add(prefix);
+                    outPrefixes.Add(prefix);
 
-					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
-						string part1 = Consume(TokenType.TEXT).val;
-						if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
-							string part2 = Consume(TokenType.TEXT).val;
-							outPostfixes.Add(part1);
-						    outDescriptions.Add(part2);
-						} else {
-						    outDescriptions.Add(part1);
-							outPostfixes.Add("");
-						}
-					} else {
-						outDescriptions.Add("");
-						outPostfixes.Add("");
-					}
+                    if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+                        string part1 = Consume(TokenType.TEXT).val;
+                        if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+                            string part2 = Consume(TokenType.TEXT).val;
+                            outPostfixes.Add(part1);
+                            outDescriptions.Add(part2);
+                        }
+                        else {
+                            outDescriptions.Add(part1);
+                            outPostfixes.Add("");
+                        }
+                    }
+                    else {
+                        outDescriptions.Add("");
+                        outPostfixes.Add("");
+                    }
 
-					Consume(TokenType.END);
-					outs.Add(id.val);
-					outIsManeuverNode.Add(isManeuverNode);
-					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
-				}
+                    Consume(TokenType.END);
+                    outs.Add(id.val);
+                    AddOutputType(token);
+                    Kerbulator.DebugLine("Found OUT statement for " + id.val);
+                }
 
-				Kerbulator.DebugLine("");
+                Kerbulator.DebugLine("");
 
 				// Parse all other statements
 				List<Expression> statements = new List<Expression>();
@@ -327,7 +328,18 @@ namespace Kerbulator {
 			}
 		}
 
-		public Object SetLocal(string id, Object val) {
+        private void AddOutputType(Token token) {
+            switch(token.type) {
+                case TokenType.OUT:
+                    outputTypes.Add(OutputType.Value);
+                    break;
+                case TokenType.MANEUVER:
+                    outputTypes.Add(OutputType.Maneuver);
+                    break;
+            }
+        }
+
+        public Object SetLocal(string id, Object val) {
 			if(locals.ContainsKey(id))
 				locals[id] = val;
 			else

@@ -194,13 +194,11 @@ namespace Kerbulator {
 			Globals.Add(kalc); // UNITY
 		}
 
-		public void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output)
-        {
+		public void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output) {
 			//Places a node using the old system for backwards capability
             PlaceNode(ids, output);
 
-            foreach (object[] maneuver in maneuverNodes)
-            {
+            foreach(object[] maneuver in maneuverNodes) {
 				double dr, dn, dp;
 
 				dr = (double)maneuver[0];
@@ -214,26 +212,24 @@ namespace Kerbulator {
             }
         }
 
-        private void PlaceNode(List<string> ids, List<object> output)
-        {
+        private void PlaceNode(List<string> ids, List<object> output) {
             double dr = 0, dn = 0, dp = 0;
             double UT = 0;
 
             // Look at the resulting variables and create a maneuver node with them
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (output[i].GetType() != typeof(double))
+            for(int i = 0; i < ids.Count; i++) {
+                if(output[i].GetType() != typeof(double))
                     continue;
 
                 string id = ids[i];
                 double val = (double)output[i];
-                if (id == "Δv_r" || id == "dv_r")
+                if(id == "Δv_r" || id == "dv_r")
                     dr = val;
-                else if (id == "Δv_n" || id == "dv_n")
+                else if(id == "Δv_n" || id == "dv_n")
                     dn = val;
-                else if (id == "Δv_p" || id == "dv_p")
+                else if(id == "Δv_p" || id == "dv_p")
                     dp = val;
-                else if (id == "Δt" || id == "dt")
+                else if(id == "Δt" || id == "dt")
                     UT = val + Planetarium.GetUniversalTime();
             }
 
@@ -243,24 +239,20 @@ namespace Kerbulator {
 				CreateManeuverNode(UT, dV);
         }
 
-        private void CreateManeuverNode(double UT, Vector3d dV)
-        {
+        private void CreateManeuverNode(double UT, Vector3d dV) {
             Vessel vessel = FlightGlobals.ActiveVessel;
-            if (vessel == null)
+            if(vessel == null)
                 return;
 
             //placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
             //and log an exception if we get a bad dV vector:
-            for (int i = 0; i < 3; i++)
-            {
-                if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
-                {
+            for (int i = 0; i < 3; i++) {
+                if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i])) {
                     throw new Exception("Kerbulator: bad dV: " + dV);
                 }
             }
 
-            if (double.IsNaN(UT) || double.IsInfinity(UT))
-            {
+            if (double.IsNaN(UT) || double.IsInfinity(UT)) {
                 throw new Exception("Kerbulator: bad UT: " + UT);
             }
 

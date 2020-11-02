@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Kerbulator {
 	public class Kerbulator {
-		public static bool DEBUG = false;
+		public static bool DEBUG = true;
 		public static void Debug(string s) {
 			if(DEBUG)
 				Console.Write(s);
