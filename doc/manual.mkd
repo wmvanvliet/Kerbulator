@@ -171,6 +171,8 @@ Name   | Description
 
 All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kerbulator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
 
+Maneuver nodes can also be defined by using the maneuver output specification `maneuver: <identifier>`, this tells Kerbulator to use the output to create a maneuver node. When using this notation the output has to be a list with the values `[Δv_r, Δv_n, Δv_p, Δt]`. This can be used to make multiple maneuver nodes from one script.
+
 Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the node button (maneuver node icon) in the run window in order to create the node. Happy flying Bob!
 
 ### Calling functions with multiple outputs
