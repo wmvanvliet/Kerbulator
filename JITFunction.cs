@@ -209,12 +209,26 @@ namespace Kerbulator {
 				// No outputs specified, just return the value yielded by the last statement
 				result.Add(lastVal);
 
+            //Verify whether outputs are the correct types
+            VerifyResultTypes(result);
+
 			return result;
 		}
 
-		// With .NET 4.0, there is a BlockExpression. For now, we must hack our own
-		// implementation to execute multiple expressions.
-		public Object ExecuteBlock(Object[] statementResults) {
+        private void VerifyResultTypes(List<object> result) {
+            for(int i = 0; i < result.Count; i++) {
+                if(outputTypes[i] == OutputType.Maneuver) {
+                    object[] value = result[i] as object[];
+                    if(value == null || value.Length != 4) {
+                        throw new Exception($"In function {this.id} output variable {outs[i]} is not a list with 4 elements");
+                    }
+                }
+            }
+        }
+
+        // With .NET 4.0, there is a BlockExpression. For now, we must hack our own
+        // implementation to execute multiple expressions.
+        public Object ExecuteBlock(Object[] statementResults) {
 			return statementResults[statementResults.Length-1];
 		}
 
