@@ -156,24 +156,40 @@ He saves his function and presses the `Run` button. Behold! Kerbulator faithfull
 
 ### Creating maneuver nodes
 
-Bob is just about to create a maneuver node manually when he realizes that Kerbulator has the ability to create it for him. However, he needs to make a small change to his code. When Kerbulator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are outputs. It uses the following variables to create the node:
+Bob is just about to create a maneuver node manually when he realizes that Kerbulator has the ability to create it for him. However, he needs to make a small change to his code. In the same manner as he defined the inputs and outputs, Bob can define maneuvers at the top of the function by writing `maneuver: <identifier> "<description>"`. When Kerbulator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are flagged as describing maneuvers. A maneuver variable needs to be a list of four values in the form of: `[Δv_r, Δv_n, Δv_p, Δt]`, where the values mean:
 
-Name   | Description
+Value  | Description
 -------|----------
-`Δv_r` | Change in velocity in the radial direction (away from the planet)
-`dv_r` | Same as `Δv_r`
-`Δv_n` | Change in velocity in the normal direction (up)
-`dv_n` | Same as `Δv_n`
 `Δv_p` | Change in velocity in the prograde direction (straight ahead)
-`dv_p` | Same as `Δv_p`
+`Δv_n` | Change in velocity in the normal direction (up)
+`Δv_r` | Change in velocity in the radial direction (away from the planet)
 `Δt`   | Time at which to perform the burn (where 0 means right now)
-`dt`   | Same as `Δt`
 
-All these values may be negative, except for Δt; creating nodes in the past really confuses KSP so Kerbulator will not do it. Also, not all of these have to be defined by the function. Values that are not defined will be set to 0.
+All these values may be negative, except for value 4 (Δt); creating nodes in the past really confuses KSP so Kerbulator will not do it. Also, not all of these have to be defined by the function.
 
-Maneuver nodes can also be defined by using the maneuver output specification `maneuver: <identifier>`, this tells Kerbulator to use the output to create a maneuver node. When using this notation the output has to be a list with the values `[Δv_r, Δv_n, Δv_p, Δt]`. This can be used to make multiple maneuver nodes from one script.
+For Bob's function to be ablt to create a maneuver nodes, he first defines the maneuver variable at the top and creates the variable at the bottom:
 
-Bob's function is almost ready to be used to create a maneuver node, he just needs to change his `Δv` variable to `Δv_p`. Now Bob can press the node button (maneuver node icon) in the run window in order to create the node. Happy flying Bob!
+    out: Δv "Amount of Δv to burn for"
+    out: Δt "Time at which to initiate burn (0 means right now)"
+    maneuver: circularize "Maneuver to perform the circularization burn"
+
+    # Calculate our velocity when we reach apoapsis
+    v1 = orbital_velocity(Craft.Pe, Craft.Ap, Craft.Ap)
+
+    # Calculate how fast we should be going were we in a circular orbit
+    v2 = orbital_velocity(Craft.Ap, Craft.Ap, Craft.Ap)
+
+    # Calculate Δv required to circularize our orbit
+    Δv = v2 - v1
+
+    # Burn at apoapsis. Kerbulator has a global for this.
+    Δt = Craft.TimeToAp
+
+    # Information to create a maneuver node.
+    circularize = [Δv, 0, 0, Δt]
+
+Now Bob can press the node button (maneuver node icon) in the run window in order to create the node. Happy flying Bob!
+
 
 ### Calling functions with multiple outputs
 
