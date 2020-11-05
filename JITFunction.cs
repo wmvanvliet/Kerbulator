@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace Kerbulator {
 	public class JITFunction {
@@ -1294,7 +1295,15 @@ namespace Kerbulator {
 				if(!kalc.Functions.ContainsKey(id))
 					throw new Exception(pos + "unknown function "+ id);
 
-				List<Object> res = kalc.Functions[id].Execute(new List<Object>(args));
+                List<Object> res = new List<Object>();
+				List<Object> allOutputs = kalc.Functions[id].Execute(new List<Object>(args));
+                
+                //Only use outputs of type Value
+                for(int i = 0; i < allOutputs.Count; i++) {
+                    if(kalc.Functions[id].OutputTypes[i] == OutputType.Value)
+                        res.Add(allOutputs[i]);
+                }
+
 				if(res.Count == 1)
 					return res[0];
 				else
