@@ -756,10 +756,10 @@ namespace Kerbulator {
 			}
 		   
 			string desc = "";
-			for(int i=0; i<env.Output.Count-1; i++)
-				desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
-			if(env.func.Outs.Count > 0)
-				desc += env.func.OutPrefixes[env.func.Outs.Count-1] + Kerbulator.FormatVar(env.Output[env.func.Outs.Count-1]) + env.func.OutPostfixes[env.func.Outs.Count-1] +"\n";
+			for(int i=0; i<env.Output.Count; i++){
+				if(env.func.OutputType == OutputType.Value)
+					desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
+			}
 
 			return desc;
 		}
