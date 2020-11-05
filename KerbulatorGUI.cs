@@ -40,7 +40,7 @@ namespace Kerbulator {
 		string editFunctionContent = "";
 		string editFunctionName = "unnamed";
 		string functionFile = "unnamed.math";
-		string maneuverTemplate = "maneuver: node\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0\n\nnode = [Δv_r, Δv_n, Δv_p, Δt]";
+		string maneuverTemplate = "maneuver: node\n\nΔv_p = 0\nΔv_n = 0\nΔv_r = 0\nΔt = 0\n\nnode = [Δv_p, Δv_n, Δv_r, Δt]";
 
 		// Running functions
 		bool running = false;

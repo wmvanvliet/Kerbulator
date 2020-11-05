@@ -201,9 +201,9 @@ namespace Kerbulator {
             foreach(object[] maneuver in maneuverNodes) {
 				double dr, dn, dp;
 
-				dr = (double)maneuver[0];
+				dp = (double)maneuver[0];
 				dn = (double)maneuver[1];
-				dp = (double)maneuver[2];
+				dr = (double)maneuver[2];
 
 				double UT = (double)maneuver[3] + Planetarium.GetUniversalTime();
 				Vector3d dV = new Vector3d(dr, dn, dp);
