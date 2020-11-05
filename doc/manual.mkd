@@ -156,7 +156,7 @@ He saves his function and presses the `Run` button. Behold! Kerbulator faithfull
 
 ### Creating maneuver nodes
 
-Bob is just about to create a maneuver node manually when he realizes that Kerbulator has the ability to create it for him. However, he needs to make a small change to his code. In the same manner as he defined the inputs and outputs, Bob can define maneuvers at the top of the function by writing `maneuver: <identifier> "<description>"`. When Kerbulator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are flagged as describing maneuvers. A maneuver variable needs to be a list of four values in the form of: `[Δv_r, Δv_n, Δv_p, Δt]`, where the values mean:
+Bob is just about to create a maneuver node manually when he realizes that Kerbulator has the ability to create it for him. However, he needs to make a small change to his code. In the same manner as he defined the inputs and outputs, Bob can define maneuvers at the top of the function by writing `maneuver: <identifier> "<description>"`. When Kerbulator is asked to create a node based on the result of a function, it runs the function and then takes a look at which variables are flagged as describing maneuvers. A maneuver variable needs to be a list of four values in the form of: `[Δv_p, Δv_n, Δv_r, Δt]`, where the values mean:
 
 Value  | Description
 -------|----------
