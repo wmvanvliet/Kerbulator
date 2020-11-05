@@ -256,10 +256,11 @@ which will try to find a value for `x` so that the equation holds.
 
 ### Creating alarms
 
-If Bob brings his trusty Kerbal Alarm Clock, he can use Kerbulator to set an alarm, based on some calculation. This works similarly to creating maneuver nodes. When Kerbulator is asked to set an alarm, it runs the function and takes a look at the outpus. It uses the following variables to create the alarm:
+If Bob brings his trusty Kerbal Alarm Clock, he can use Kerbulator to set an alarm, based on some calculation. This works similarly to creating maneuver nodes, by writing `alarm: <identifier> "<description>"`. Alarm outputs are given at global game time. By using the `UT` global value, relative times are also usable like so:
+
+`someAlarm = UT + Δt`
 
 Name   | Description
 -------|----------
-`Δt`   | Alarm will be set Δt second from now
-`dt`   | Same as `Δt`
-`UT`   | Alarm will be set at time UT (global game time)
+`Δt`   | Alarm will be set Δt seconds from now
+`UT`   | A global value returning the current time in global game time
