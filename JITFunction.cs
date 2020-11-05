@@ -265,7 +265,7 @@ namespace Kerbulator {
 					Consume();
 
 				// Parse out: statements
-				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.MANEUVER) {
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.MANEUVER ||tokens.Peek().type == TokenType.ALARM) {
                     Token token = Consume();
 
 
@@ -350,6 +350,9 @@ namespace Kerbulator {
                 case TokenType.MANEUVER:
                     outputTypes.Add(OutputType.Maneuver);
                     break;
+				case TokenType.ALARM:
+					outputTypes.Add(OutputType.Alarm);
+					break;
             }
         }
 

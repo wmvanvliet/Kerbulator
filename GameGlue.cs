@@ -286,39 +286,56 @@ namespace Kerbulator {
 			StartCoroutine(f);
 		}
 
-		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+		public void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output) {
 			Debug.Log("[Kerbulator] AddAlarm " + name);
 			if(KACWrapper.APIReady) {
-				double UT = 0;
+                //This is used to get the alarm using the old method
+                System.Object oldNotationAlarm = GetAlarm(ids, output);
+                if(oldNotationAlarm != null)
+                    alarms = alarms.Append(oldNotationAlarm).ToList();
 
-				// Look at the resulting variables and create an alarm with them
-				for(int i=0; i<ids.Count; i++) {
-					if(output[i].GetType() != typeof(double))
-						continue;
+                
+                for(int i = 0; i<alarms.Count; i ++) {
+                    double alarmTime = (double)alarms[i];
 
-					string id = ids[i];
-					double val = (double) output[i];
-					if(id == "Δt" || id == "dt")
-						UT = val + Planetarium.GetUniversalTime();
-					else if(id == "UT")
-						UT = val;
-				}
-
-				// Create a raw alarm 
-				String aID = KACWrapper.KAC.CreateAlarm(
-					KACWrapper.KACAPI.AlarmTypeEnum.Raw, name, UT
-				);
+				    // Create a raw alarm 
+				    String aID = KACWrapper.KAC.CreateAlarm(
+					    KACWrapper.KACAPI.AlarmTypeEnum.Raw, $"name {i}", alarmTime
+				    );
 				 
-				if(aID !="") {
-					// If the alarm was made get the object so we can update it
-					KACWrapper.KACAPI.KACAlarm a = KACWrapper.KAC.Alarms.First(z=>z.ID==aID);
+				    if(aID !="") {
+					    // If the alarm was made get the object so we can update it
+					    KACWrapper.KACAPI.KACAlarm a = KACWrapper.KAC.Alarms.First(z=>z.ID==aID);
 					 
-					// Now update some of the other properties
-					a.Notes = "This alarm was placed by the Kerbulator function "+ name;
-					a.AlarmAction = KACWrapper.KACAPI.AlarmActionEnum.KillWarp;
-				}
+					    // Now update some of the other properties
+					    a.Notes = "This alarm was placed by the Kerbulator function "+ name;
+					    a.AlarmAction = KACWrapper.KACAPI.AlarmActionEnum.KillWarp;
+				    }
+                }
 			}
 		}
+
+        private System.Object GetAlarm(List<string> ids, List<System.Object> output) {
+            double UT = 0;
+
+            // Look at the resulting variables and create an alarm with them
+            for(int i = 0; i < ids.Count; i++) {
+                if(output[i].GetType() != typeof(double))
+                    continue;
+
+                string id = ids[i];
+                double val = (double)output[i];
+                if(id == "Δt" || id == "dt")
+                    UT = val + Planetarium.GetUniversalTime();
+                else if(id == "UT")
+                    UT = val;
+            }
+
+            if(UT != 0)
+                return UT;
+            else
+                return null;
+        }
 
 		public bool CanAddNode() {
 			return HighLogic.LoadedScene == GameScenes.FLIGHT;

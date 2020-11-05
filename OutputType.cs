@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Kerbulator {
     public enum OutputType {
         Value,
-        Maneuver
+        Maneuver,
+        Alarm
     }
 }

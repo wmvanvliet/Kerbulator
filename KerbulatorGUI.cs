@@ -14,7 +14,7 @@ namespace Kerbulator {
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
 		void RunAsCoroutine(IEnumerator f);
-		void AddAlarm(string name, List<string> ids, List<System.Object> output);
+		void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output);
 		bool CanAddAlarm();
 		bool CanAddNode();
 		string GetFunctionDir();
@@ -450,8 +450,10 @@ namespace Kerbulator {
 				if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
 					Debug.Log("[Kerbulator] Adding alarm");
 					List<System.Object> output = Run();
-					if(!RunFunction.InError)
-						glue.AddAlarm(RunFunction.Id, RunFunction.Outs, output);
+					if(!RunFunction.InError){
+						List<System.Object> alarms = env.GetOutputsOfType(OutputType.Alarm);
+                        glue.AddAlarms(RunFunction.Id, RunFunction.Outs, alarms, output);
+					}
 					functionOutput = FormatOutput(env);
 				}
 			}
@@ -757,7 +759,7 @@ namespace Kerbulator {
 		   
 			string desc = "";
 			for(int i=0; i<env.Output.Count; i++){
-				if(env.func.OutputType == OutputType.Value)
+				if(env.func.OutputTypes[i] == OutputType.Value)
 					desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
 			}
 

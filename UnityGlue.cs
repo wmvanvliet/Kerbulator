@@ -47,7 +47,7 @@ namespace Kerbulator {
 				gui.OnDestroy();
 		}
 
-		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+		public void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output) {
 		}
 
 		public bool CanAddAlarm() {

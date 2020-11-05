@@ -20,6 +20,7 @@ namespace Kerbulator {
 		IN,
 		OUT,
 		MANEUVER,
+		ALARM,
 		SKIP_NEWLINE,
 		PIECEWISE,
 		CONDITIONAL
@@ -317,6 +318,8 @@ namespace Kerbulator {
                             HandleToken(new Token(TokenType.OUT, tok.val, functionName, lineno, col));
                         else if(tok.val == "maneuver")
                             HandleToken(new Token(TokenType.MANEUVER, tok.val, functionName, lineno, col));
+						else if(tok.val == "alarm")
+							HandleToken(new Token(TokenType.ALARM, tok.val, functionName, lineno, col));
                         else {
                             HandleToken(tok);
                             HandleToken(new Token(TokenType.COLON, tok.val, functionName, lineno, col));
