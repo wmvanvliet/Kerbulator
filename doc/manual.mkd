@@ -167,7 +167,7 @@ Value  | Description
 
 All these values may be negative, except for value 4 (Δt); creating nodes in the past really confuses KSP so Kerbulator will not do it. Also, not all of these have to be defined by the function.
 
-For Bob's function to be able to create a maneuver nodes, he first defines the maneuver variable at the top and creates the variable at the bottom:
+For Bob's function to be able to create a maneuver nodes, he first declares the maneuver variable at the top and assigns a list to the variable at the bottom:
 
     out: Δv "Amount of Δv to burn for"
     out: Δt "Time at which to initiate burn (0 means right now)"

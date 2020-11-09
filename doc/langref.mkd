@@ -34,7 +34,7 @@ An output specification is of the following forms:
 
 If no output specifications are given, the result produced by the execution of the last statement of the function is used as output of the function.
 
-Outputs can also take the form of `alarm:` and `maneuver:` which can be used to create maneuver nodes and alarms. This will be expanded on in the sections Creating maneuver nodes and Setting alarms
+Outputs can also take the form of `alarm:` and `maneuver:` which can be used to create maneuver nodes and alarms. This will be expanded on in the sections "Creating maneuver nodes" and "Setting alarms".
 
 ### Comments
 A `#` character is ignored and everything following the character up to the end of the line is also ignored. You can use this to place comments in your code. For example:
@@ -240,17 +240,25 @@ And so are these:
     someFunction (1)
     
 #### Creating maneuver nodes
-To create a maneuver nodes with Kerbulator the `maneuver` keyword is used, it specifies that an output should be used to create a maneuver node. The maneuver output specification is usually of the following form but any variation with prefix, postfix and description will work.
+To create a maneuver nodes with Kerbulator the `maneuver` keyword is used, it specifies that a variable should be used to create a maneuver node. The maneuver output specification is usually of the following form:
 
 `maneuver: identifier`
 
-Maneuver outputs are required to be lists with 4 elements. These four elements denote `[Δv_p, Δv_n, Δv_r, Δt]`.
+Maneuvers need to be declared at the top of the function, in a similar fashion as `in:` and `out:` declarations. Maneuvers may also be given a prefix, postfix and description, although they are currently not used, for example:
+
+ `maneuver: identifier "postfix" "Short description"`
+
+Variables indicated by the `maneuver:` declaration are required to be lists with 4 elements. These four elements denote `[Δv_p, Δv_n, Δv_r, Δt]`:
+
 Value  | Description
 -------|----------
 `Δv_p` | Change in velocity in the prograde direction (straight ahead)
 `Δv_n` | Change in velocity in the normal direction (up)
 `Δv_r` | Change in velocity in the radial direction (away from the planet)
 `Δt`   | Time at which to perform the burn (where 0 means right now)
+
+Note that variables marked as `maneuver` are not function outputs. They are only used to create maneuver nodes and are otherwise inaccessible outside of the function.
+
 
 #### Setting alarms (KAC)
 For this to work the mod Kerbal Alarm Clock (KAC) has to be installed.
