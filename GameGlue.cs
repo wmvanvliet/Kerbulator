@@ -294,7 +294,6 @@ namespace Kerbulator {
                 if(oldNotationAlarm != null)
                     alarms = alarms.Append(oldNotationAlarm).ToList();
 
-                
                 for(int i = 0; i<alarms.Count; i ++) {
                     double alarmTime = (double)alarms[i];
 

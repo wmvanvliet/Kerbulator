@@ -201,9 +201,18 @@ namespace Kerbulator {
 
 			// Fetch the output variables from the locals dictionary
 			if(outs.Count > 0) {
-				foreach(string id in outs) {
-					if(!locals.ContainsKey(id))
-						throw new Exception("In function "+ this.id +": output variable "+ id +" is not defined");
+				for(int i=0; i<outs.Count; i++){
+					string id = outs[i];
+					if(!locals.ContainsKey(id)) {
+						switch(outputTypes[i]) {
+							case OutputType.Value:
+								throw new Exception("In function "+ this.id +": output variable "+ id +" is not defined");
+							case OutputType.Maneuver:
+								throw new Exception("In function "+ this.id +": maneuver variable "+ id +" is not defined");
+							case OutputType.Alarm:
+								throw new Exception("In function "+ this.id +": alarm variable "+ id +" is not defined");
+						}
+					}
 					result.Add(locals[id]);
 				}
 			} else

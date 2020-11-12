@@ -435,9 +435,9 @@ namespace Kerbulator {
 
 			if(glue.CanAddNode()) {
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
-					Debug.Log("[Kerbulator] Adding maneuver node");
+					Debug.Log("[Kerbulator] Adding maneuver node(s)");
 					List<System.Object> output = Run();
-                    if(!RunFunction.InError) {
+                    if(!env.InError) {
                         List<System.Object> maneuvers = env.GetOutputsOfType(OutputType.Maneuver);
                         glue.PlaceNodes(RunFunction.Outs, maneuvers, output);
                     }
@@ -450,7 +450,7 @@ namespace Kerbulator {
 				if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
 					Debug.Log("[Kerbulator] Adding alarm");
 					List<System.Object> output = Run();
-					if(!RunFunction.InError){
+					if(!env.InError){
 						List<System.Object> alarms = env.GetOutputsOfType(OutputType.Alarm);
                         glue.AddAlarms(RunFunction.Id, RunFunction.Outs, alarms, output);
 					}
