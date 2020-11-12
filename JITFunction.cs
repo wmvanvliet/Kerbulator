@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace Kerbulator {
 	public class JITFunction {
@@ -23,6 +24,7 @@ namespace Kerbulator {
 		List<string> outDescriptions;
 		List<string> outPrefixes;
 		List<string> outPostfixes;
+        List<OutputType> outputTypes;
 
 		bool inError = false;
 		Exception error = null;
@@ -42,6 +44,7 @@ namespace Kerbulator {
 			this.outDescriptions = new List<string>();
 			this.outPrefixes = new List<string>();
 			this.outPostfixes = new List<string>();
+            this.outputTypes = new List<OutputType>();
 
 			this.locals = new Dictionary<string, Object>();
 			this.thisExpression = Expression.Constant(this);
@@ -85,7 +88,11 @@ namespace Kerbulator {
 			protected set {}
 		}
 
-		public bool InError {
+        public List<OutputType> OutputTypes { 
+			get { return outputTypes; }
+		}
+
+        public bool InError {
 			get { return inError; }
 			set { inError = value; if(!value) error = null; }
 		}
@@ -194,21 +201,44 @@ namespace Kerbulator {
 
 			// Fetch the output variables from the locals dictionary
 			if(outs.Count > 0) {
-				foreach(string id in outs) {
-					if(!locals.ContainsKey(id))
-						throw new Exception("In function "+ this.id +": output variable "+ id +" is not defined");
+				for(int i=0; i<outs.Count; i++){
+					string id = outs[i];
+					if(!locals.ContainsKey(id)) {
+						switch(outputTypes[i]) {
+							case OutputType.Value:
+								throw new Exception("In function "+ this.id +": output variable "+ id +" is not defined");
+							case OutputType.Maneuver:
+								throw new Exception("In function "+ this.id +": maneuver variable "+ id +" is not defined");
+							case OutputType.Alarm:
+								throw new Exception("In function "+ this.id +": alarm variable "+ id +" is not defined");
+						}
+					}
 					result.Add(locals[id]);
 				}
 			} else
 				// No outputs specified, just return the value yielded by the last statement
 				result.Add(lastVal);
 
+            //Verify whether outputs are the correct types
+            VerifyResultTypes(result);
+
 			return result;
 		}
 
-		// With .NET 4.0, there is a BlockExpression. For now, we must hack our own
-		// implementation to execute multiple expressions.
-		public Object ExecuteBlock(Object[] statementResults) {
+        private void VerifyResultTypes(List<object> result) {
+            for(int i = 0; i < result.Count; i++) {
+                if(outputTypes[i] == OutputType.Maneuver) {
+                    object[] value = result[i] as object[];
+                    if(value == null || value.Length != 4) {
+                        throw new Exception($"In function {this.id} output variable {outs[i]} is not a list with 4 elements");
+                    }
+                }
+            }
+        }
+
+        // With .NET 4.0, there is a BlockExpression. For now, we must hack our own
+        // implementation to execute multiple expressions.
+        public Object ExecuteBlock(Object[] statementResults) {
 			return statementResults[statementResults.Length-1];
 		}
 
@@ -245,40 +275,44 @@ namespace Kerbulator {
 					Consume();
 
 				// Parse out: statements
-				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT) {
-					Consume();
+				while(tokens.Count > 0 && tokens.Peek().type == TokenType.OUT || tokens.Peek().type == TokenType.MANEUVER ||tokens.Peek().type == TokenType.ALARM) {
+                    Token token = Consume();
 
-					string prefix = null;
-					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
-						prefix = tokens.Dequeue().val;
 
-					Token id = Consume(TokenType.IDENTIFIER);
-					if(prefix == null)
-						prefix = id.val + " = ";
+                    string prefix = null;
+                    if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT)
+                        prefix = tokens.Dequeue().val;
 
-					outPrefixes.Add(prefix);
+                    Token id = Consume(TokenType.IDENTIFIER);
+                    if(prefix == null)
+                        prefix = id.val + " = ";
 
-					if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
-						string part1 = Consume(TokenType.TEXT).val;
-						if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
-							string part2 = Consume(TokenType.TEXT).val;
-							outPostfixes.Add(part1);
-						    outDescriptions.Add(part2);
-						} else {
-						    outDescriptions.Add(part1);
-							outPostfixes.Add("");
-						}
-					} else {
-						outDescriptions.Add("");
-						outPostfixes.Add("");
-					}
+                    outPrefixes.Add(prefix);
 
-					Consume(TokenType.END);
-					outs.Add(id.val);
-					Kerbulator.DebugLine("Found OUT statement for "+ id.val);
-				}
+                    if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+                        string part1 = Consume(TokenType.TEXT).val;
+                        if(tokens.Count > 0 && tokens.Peek().type == TokenType.TEXT) {
+                            string part2 = Consume(TokenType.TEXT).val;
+                            outPostfixes.Add(part1);
+                            outDescriptions.Add(part2);
+                        }
+                        else {
+                            outDescriptions.Add(part1);
+                            outPostfixes.Add("");
+                        }
+                    }
+                    else {
+                        outDescriptions.Add("");
+                        outPostfixes.Add("");
+                    }
 
-				Kerbulator.DebugLine("");
+                    Consume(TokenType.END);
+                    outs.Add(id.val);
+                    AddOutputType(token);
+                    Kerbulator.DebugLine("Found OUT statement for " + id.val);
+                }
+
+                Kerbulator.DebugLine("");
 
 				// Parse all other statements
 				List<Expression> statements = new List<Expression>();
@@ -318,7 +352,21 @@ namespace Kerbulator {
 			}
 		}
 
-		public Object SetLocal(string id, Object val) {
+        private void AddOutputType(Token token) {
+            switch(token.type) {
+                case TokenType.OUT:
+                    outputTypes.Add(OutputType.Value);
+                    break;
+                case TokenType.MANEUVER:
+                    outputTypes.Add(OutputType.Maneuver);
+                    break;
+				case TokenType.ALARM:
+					outputTypes.Add(OutputType.Alarm);
+					break;
+            }
+        }
+
+        public Object SetLocal(string id, Object val) {
 			if(locals.ContainsKey(id))
 				locals[id] = val;
 			else
@@ -1256,7 +1304,15 @@ namespace Kerbulator {
 				if(!kalc.Functions.ContainsKey(id))
 					throw new Exception(pos + "unknown function "+ id);
 
-				List<Object> res = kalc.Functions[id].Execute(new List<Object>(args));
+                List<Object> res = new List<Object>();
+				List<Object> allOutputs = kalc.Functions[id].Execute(new List<Object>(args));
+                
+                //Only use outputs of type Value
+                for(int i = 0; i < allOutputs.Count; i++) {
+                    if(kalc.Functions[id].OutputTypes[i] == OutputType.Value)
+                        res.Add(allOutputs[i]);
+                }
+
 				if(res.Count == 1)
 					return res[0];
 				else

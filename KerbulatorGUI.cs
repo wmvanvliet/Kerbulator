@@ -3,17 +3,18 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 namespace Kerbulator {
 	/// <summary>Glue code to smooth over differences when plugin is loaded in
 	/// the Unity editor versus when it is loaded in the actual game.</summary>
 	public interface IGlue {
-		void PlaceNode(List<string> ids, List<System.Object> output);
+		void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output);
 		void AddGlobals(Kerbulator kalc);
 		Texture2D GetTexture(string id);
 		void ChangeState(bool open);
 		void RunAsCoroutine(IEnumerator f);
-		void AddAlarm(string name, List<string> ids, List<System.Object> output);
+		void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output);
 		bool CanAddAlarm();
 		bool CanAddNode();
 		string GetFunctionDir();
@@ -39,7 +40,7 @@ namespace Kerbulator {
 		string editFunctionContent = "";
 		string editFunctionName = "unnamed";
 		string functionFile = "unnamed.math";
-		string maneuverTemplate = "out: Δv_r\nout: Δv_n\nout: Δv_p\nout: Δt\n\nΔv_r = 0\nΔv_n = 0\nΔv_p = 0\nΔt = 0";
+		string maneuverTemplate = "maneuver: node\n\nΔv_p = 0\nΔv_n = 0\nΔv_r = 0\nΔt = 0\n\nnode = [Δv_p, Δv_n, Δv_r, Δt]";
 
 		// Running functions
 		bool running = false;
@@ -434,10 +435,13 @@ namespace Kerbulator {
 
 			if(glue.CanAddNode()) {
 				if(GUILayout.Button(nodeIcon, defaultButton, GUILayout.Height(32))) {
-					Debug.Log("[Kerbulator] Adding maneuver node");
+					Debug.Log("[Kerbulator] Adding maneuver node(s)");
 					List<System.Object> output = Run();
-					if(!RunFunction.InError)
-						glue.PlaceNode(RunFunction.Outs, output);
+                    if(!env.InError) {
+                        List<System.Object> maneuvers = env.GetOutputsOfType(OutputType.Maneuver);
+                        glue.PlaceNodes(RunFunction.Outs, maneuvers, output);
+                    }
+
 					functionOutput = FormatOutput(env);
 				}
 			}
@@ -446,8 +450,10 @@ namespace Kerbulator {
 				if(GUILayout.Button(alarmIcon, defaultButton, GUILayout.Height(32))) {
 					Debug.Log("[Kerbulator] Adding alarm");
 					List<System.Object> output = Run();
-					if(!RunFunction.InError)
-						glue.AddAlarm(RunFunction.Id, RunFunction.Outs, output);
+					if(!env.InError){
+						List<System.Object> alarms = env.GetOutputsOfType(OutputType.Alarm);
+                        glue.AddAlarms(RunFunction.Id, RunFunction.Outs, alarms, output);
+					}
 					functionOutput = FormatOutput(env);
 				}
 			}
@@ -752,10 +758,10 @@ namespace Kerbulator {
 			}
 		   
 			string desc = "";
-			for(int i=0; i<env.Output.Count-1; i++)
-				desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
-			if(env.func.Outs.Count > 0)
-				desc += env.func.OutPrefixes[env.func.Outs.Count-1] + Kerbulator.FormatVar(env.Output[env.func.Outs.Count-1]) + env.func.OutPostfixes[env.func.Outs.Count-1] +"\n";
+			for(int i=0; i<env.Output.Count; i++){
+				if(env.func.OutputTypes[i] == OutputType.Value)
+					desc += env.func.OutPrefixes[i] + Kerbulator.FormatVar(env.Output[i]) + env.func.OutPostfixes[i] +"\n";
+			}
 
 			return desc;
 		}

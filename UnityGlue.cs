@@ -28,7 +28,7 @@ namespace Kerbulator {
 		public void AddGlobals(Kerbulator kalc) {
 		}
 
-		public void PlaceNode(List<string> ids, List<System.Object> output) {
+		public void PlaceNodes(List<string> ids, List<object> maneuverNode, List<System.Object> output) {
 		}
 
 		public Texture2D GetTexture(string id) {
@@ -47,7 +47,7 @@ namespace Kerbulator {
 				gui.OnDestroy();
 		}
 
-		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+		public void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output) {
 		}
 
 		public bool CanAddAlarm() {

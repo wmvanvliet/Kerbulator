@@ -194,57 +194,77 @@ namespace Kerbulator {
 			Globals.Add(kalc); // UNITY
 		}
 
-		public void PlaceNode(List<string> ids, List<System.Object> output) { 
-			double dr = 0, dn = 0, dp = 0;
-			double UT = 0;
+		public void PlaceNodes(List<string> ids, List<object> maneuverNodes, List<System.Object> output) {
+			//Places a node using the old system for backwards capability
+            PlaceNode(ids, output);
 
-			// Look at the resulting variables and create a maneuver node with them
-			for(int i=0; i<ids.Count; i++) {
-				if(output[i].GetType() != typeof(double))
-					continue;
+            foreach(object[] maneuver in maneuverNodes) {
+				double dr, dn, dp;
 
-				string id = ids[i];
-				double val = (double) output[i];
-				if(id == "Δv_r" || id == "dv_r")
-					dr = val;
-				else if(id == "Δv_n" || id == "dv_n")
-					dn = val;
-				else if(id == "Δv_p" || id == "dv_p")
-					dp = val;
-				else if(id == "Δt" || id == "dt")
-					UT = val + Planetarium.GetUniversalTime();
-			}
+				dp = (double)maneuver[0];
+				dn = (double)maneuver[1];
+				dr = (double)maneuver[2];
 
-			Vector3d dV = new Vector3d(dr, dn, dp);
+				double UT = (double)maneuver[3] + Planetarium.GetUniversalTime();
+				Vector3d dV = new Vector3d(dr, dn, dp);
 
-			Vessel vessel = FlightGlobals.ActiveVessel;
-			if(vessel == null)
-				return;
+				CreateManeuverNode(UT, dV);
+            }
+        }
 
-			//placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
-			//and log an exception if we get a bad dV vector:
-			for(int i = 0; i < 3; i++)
-			{
-				if(double.IsNaN(dV[i]) || double.IsInfinity(dV[i]))
-				{
-					throw new Exception("Kerbulator: bad dV: " + dV);
-				}
-			}
+        private void PlaceNode(List<string> ids, List<object> output) {
+            double dr = 0, dn = 0, dp = 0;
+            double UT = 0;
 
-			if(double.IsNaN(UT) || double.IsInfinity(UT))
-			{
-				throw new Exception("Kerbulator: bad UT: " + UT);
-			}
+            // Look at the resulting variables and create a maneuver node with them
+            for(int i = 0; i < ids.Count; i++) {
+                if(output[i].GetType() != typeof(double))
+                    continue;
 
-			//It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
-			//protects against that.
-			UT = Math.Max(UT, Planetarium.GetUniversalTime());
+                string id = ids[i];
+                double val = (double)output[i];
+                if(id == "Δv_r" || id == "dv_r")
+                    dr = val;
+                else if(id == "Δv_n" || id == "dv_n")
+                    dn = val;
+                else if(id == "Δv_p" || id == "dv_p")
+                    dp = val;
+                else if(id == "Δt" || id == "dt")
+                    UT = val + Planetarium.GetUniversalTime();
+            }
 
-			ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
-			mn.OnGizmoUpdated(dV, UT);
-		}
+            Vector3d dV = new Vector3d(dr, dn, dp);
 
-		public Texture2D GetTexture(string id) {
+			if(dV.sqrMagnitude > 0)
+				CreateManeuverNode(UT, dV);
+        }
+
+        private void CreateManeuverNode(double UT, Vector3d dV) {
+            Vessel vessel = FlightGlobals.ActiveVessel;
+            if(vessel == null)
+                return;
+
+            //placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
+            //and log an exception if we get a bad dV vector:
+            for (int i = 0; i < 3; i++) {
+                if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i])) {
+                    throw new Exception("Kerbulator: bad dV: " + dV);
+                }
+            }
+
+            if (double.IsNaN(UT) || double.IsInfinity(UT)) {
+                throw new Exception("Kerbulator: bad UT: " + UT);
+            }
+
+            //It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
+            //protects against that.
+            UT = Math.Max(UT, Planetarium.GetUniversalTime());
+
+            ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
+            mn.OnGizmoUpdated(dV, UT);
+        }
+
+        public Texture2D GetTexture(string id) {
 			return GameDatabase.Instance.GetTexture("Kerbulator/Textures/"+ id, false);
 		}
 
@@ -266,39 +286,55 @@ namespace Kerbulator {
 			StartCoroutine(f);
 		}
 
-		public void AddAlarm(string name, List<string> ids, List<System.Object> output) {
+		public void AddAlarms(string name, List<string> ids, List<System.Object> alarms, List<System.Object> output) {
 			Debug.Log("[Kerbulator] AddAlarm " + name);
 			if(KACWrapper.APIReady) {
-				double UT = 0;
+                //This is used to get the alarm using the old method
+                System.Object oldNotationAlarm = GetAlarm(ids, output);
+                if(oldNotationAlarm != null)
+                    alarms = alarms.Append(oldNotationAlarm).ToList();
 
-				// Look at the resulting variables and create an alarm with them
-				for(int i=0; i<ids.Count; i++) {
-					if(output[i].GetType() != typeof(double))
-						continue;
+                for(int i = 0; i<alarms.Count; i ++) {
+                    double alarmTime = (double)alarms[i];
 
-					string id = ids[i];
-					double val = (double) output[i];
-					if(id == "Δt" || id == "dt")
-						UT = val + Planetarium.GetUniversalTime();
-					else if(id == "UT")
-						UT = val;
-				}
-
-				// Create a raw alarm 
-				String aID = KACWrapper.KAC.CreateAlarm(
-					KACWrapper.KACAPI.AlarmTypeEnum.Raw, name, UT
-				);
+				    // Create a raw alarm 
+				    String aID = KACWrapper.KAC.CreateAlarm(
+					    KACWrapper.KACAPI.AlarmTypeEnum.Raw, $"name {i}", alarmTime
+				    );
 				 
-				if(aID !="") {
-					// If the alarm was made get the object so we can update it
-					KACWrapper.KACAPI.KACAlarm a = KACWrapper.KAC.Alarms.First(z=>z.ID==aID);
+				    if(aID !="") {
+					    // If the alarm was made get the object so we can update it
+					    KACWrapper.KACAPI.KACAlarm a = KACWrapper.KAC.Alarms.First(z=>z.ID==aID);
 					 
-					// Now update some of the other properties
-					a.Notes = "This alarm was placed by the Kerbulator function "+ name;
-					a.AlarmAction = KACWrapper.KACAPI.AlarmActionEnum.KillWarp;
-				}
+					    // Now update some of the other properties
+					    a.Notes = "This alarm was placed by the Kerbulator function "+ name;
+					    a.AlarmAction = KACWrapper.KACAPI.AlarmActionEnum.KillWarp;
+				    }
+                }
 			}
 		}
+
+        private System.Object GetAlarm(List<string> ids, List<System.Object> output) {
+            double UT = 0;
+
+            // Look at the resulting variables and create an alarm with them
+            for(int i = 0; i < ids.Count; i++) {
+                if(output[i].GetType() != typeof(double))
+                    continue;
+
+                string id = ids[i];
+                double val = (double)output[i];
+                if(id == "Δt" || id == "dt")
+                    UT = val + Planetarium.GetUniversalTime();
+                else if(id == "UT")
+                    UT = val;
+            }
+
+            if(UT != 0)
+                return UT;
+            else
+                return null;
+        }
 
 		public bool CanAddNode() {
 			return HighLogic.LoadedScene == GameScenes.FLIGHT;

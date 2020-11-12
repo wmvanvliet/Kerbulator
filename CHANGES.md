@@ -1,5 +1,14 @@
 Changelog
 ---------
+### 0.5
+The mechanics for creating maneuvers and alarms have been overhauled. See the
+manual and language reference for the new syntax. Thanks to Thorulf Neustrup!
+
+ - Language features:
+   - New notation for defining maneuvers
+   - New notation for defining alarms
+   - Added ability to create multiple maneuvers and alarms in a single function
+
 ### 0.46
 Bugfixes.
  - GUI features:

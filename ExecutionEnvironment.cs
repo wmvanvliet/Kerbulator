@@ -69,6 +69,11 @@ namespace Kerbulator {
 			}
 		}
 
+        public List<System.Object> GetOutputsOfType(OutputType type) {
+            int i = 0;
+            return output.Where(o => func.OutputTypes[i++] == type).ToList();
+        }
+
 		public void SetArguments(List<string> args) {
 			if(args.Count != func.Ins.Count) {
 				inError = true;
