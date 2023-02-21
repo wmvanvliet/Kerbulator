@@ -226,7 +226,7 @@ namespace Kerbulator {
 		}
 
         private void VerifyResultTypes(List<object> result) {
-            for(int i = 0; i < result.Count; i++) {
+            for(int i = 0; i < Math.Min(result.Count, outputTypes.Count); i++) {
                 if(outputTypes[i] == OutputType.Maneuver) {
                     object[] value = result[i] as object[];
                     if(value == null || value.Length != 4) {
