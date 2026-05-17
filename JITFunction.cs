@@ -1309,7 +1309,7 @@ namespace Kerbulator {
                 
                 //Only use outputs of type Value
                 for(int i = 0; i < allOutputs.Count; i++) {
-                    if(kalc.Functions[id].OutputTypes[i] == OutputType.Value)
+                    if(kalc.Functions[id].OutputTypes.Count == 0 || kalc.Functions[id].OutputTypes[i] == OutputType.Value)
                         res.Add(allOutputs[i]);
                 }
 

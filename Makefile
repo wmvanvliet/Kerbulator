@@ -45,7 +45,6 @@ build: info
 	mkdir -p build
 	${MCS} -t:library -lib:${KSPDIR}/${MANAGED} \
 		-r:Assembly-CSharp.dll,Assembly-CSharp-firstpass.dll,UnityEngine.dll,UnityEngine.CoreModule.dll,UnityEngine.IMGUIModule.dll,UnityEngine.AnimationModule.dll,UnityEngine.InputLegacyModule.dll \
-		"%MCS%" -target:library -lib:"%KSPDIR%\%MANAGED%" -out:build\Kerbulator.dll *.cs
 		-out:build/Kerbulator.dll \
 		${SOURCEFILES}
 
@@ -82,7 +81,7 @@ uninstall: info
 	rm -rf ${KSPDIR}/GameData/Kerbulator
 
 test: info
-	${MCS} Kerbulator.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs
+	${MCS} Kerbulator.cs Variable.cs Tokenizer.cs JITFunction.cs VectorMath.cs Solver.cs OutputType.cs
 	${MONO} Kerbulator.exe tests/langfeat.test
 	${MONO} Kerbulator.exe tests/constants.test
 	${MONO} Kerbulator.exe tests/expressions.test
